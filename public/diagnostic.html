@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnóstico de Backend - Proyecto Final</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+        .status {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 5px solid;
+        }
+        .status.success {
+            background-color: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+        .status.error {
+            background-color: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+        .status.warning {
+            background-color: #fff3cd;
+            border-color: #ffc107;
+            color: #856404;
+        }
+        .status.info {
+            background-color: #d1ecf1;
+            border-color: #17a2b8;
+            color: #0c5460;
+        }
+        .button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        .button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        .log {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .endpoint-status {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin: 5px 0;
+        }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Diagnóstico de Backend</h1>
+            <p>Verificación de conectividad con el servidor de producción</p>
+            <div class="status info">
+                <strong>🌐 URL del Backend:</strong> <span id="backend-url">https://vrmiderosbackend.onrender.com</span>
+            </div>
+        </div>
+
+        <div class="grid">
+            <div>
+                <h3>🚀 Controles</h3>
+                <button class="button" onclick="runFullDiagnostic()">Diagnóstico Completo</button>
+                <button class="button" onclick="quickPing()">Ping Rápido</button>
+                <button class="button" onclick="testLogin()">Probar Login</button>
+                <button class="button" onclick="clearLog()">Limpiar Log</button>
+            </div>
+            
+            <div>
+                <h3>📊 Estado General</h3>
+                <div id="general-status" class="status info">
+                    <span class="loading"></span> Verificando...
+                </div>
+            </div>
+        </div>
+
+        <h3>📡 Estado de Endpoints</h3>
+        <div id="endpoints-status"></div>
+
+        <h3>📝 Log de Diagnóstico</h3>
+        <div id="log" class="log">Listo para diagnóstico...\n</div>
+    </div>
+
+    <script>
+        const BACKEND_URL = 'https://vrmiderosbackend.onrender.com';
+        const logElement = document.getElementById('log');
+        const statusElement = document.getElementById('general-status');
+        const endpointsElement = document.getElementById('endpoints-status');
+
+        // Función para agregar al log
+        function addLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const icon = type === 'error' ? '❌' : type === 'success' ? '✅' : type === 'warning' ? '⚠️' : 'ℹ️';
+            logElement.textContent += `[${timestamp}] ${icon} ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        // Función para actualizar estado general
+        function updateGeneralStatus(message, type = 'info') {
+            statusElement.className = `status ${type}`;
+            statusElement.innerHTML = message;
+        }
+
+        // Función para verificar un endpoint
+        async function checkEndpoint(path, description) {
+            addLog(`Verificando ${description}: ${BACKEND_URL}${path}`);
+            
+            try {
+                const startTime = Date.now();
+                const response = await fetch(`${BACKEND_URL}${path}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                const endTime = Date.now();
+                const responseTime = endTime - startTime;
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    addLog(`✅ ${description}: OK (${responseTime}ms)`, 'success');
+                    return { success: true, data, responseTime, status: response.status };
+                } else {
+                    const errorText = await response.text();
+                    addLog(`❌ ${description}: Error ${response.status} - ${errorText}`, 'error');
+                    return { success: false, error: errorText, responseTime, status: response.status };
+                }
+                
+            } catch (error) {
+                addLog(`❌ ${description}: ${error.message}`, 'error');
+                return { success: false, error: error.message };
+            }
+        }
+
+        // Función para ping rápido
+        async function quickPing() {
+            updateGeneralStatus('🔄 Realizando ping...', 'info');
+            addLog('Iniciando ping rápido...');
+            
+            const result = await checkEndpoint('/api/ping', 'Ping');
+            
+            if (result.success) {
+                updateGeneralStatus(`✅ Backend activo (${result.responseTime}ms)`, 'success');
+            } else {
+                updateGeneralStatus('❌ Backend no responde', 'error');
+            }
+        }
+
+        // Función para diagnóstico completo
+        async function runFullDiagnostic() {
+            updateGeneralStatus('🔄 Ejecutando diagnóstico completo...', 'info');
+            addLog('=== INICIANDO DIAGNÓSTICO COMPLETO ===');
+            
+            const endpoints = [
+                { path: '/api/health', description: 'Health Check' },
+                { path: '/api/ping', description: 'Ping' },
+                { path: '/api/status', description: 'Status' },
+                { path: '/api/version', description: 'Version' }
+            ];
+            
+            const results = {};
+            let successCount = 0;
+            
+            // Limpiar estado de endpoints
+            endpointsElement.innerHTML = '';
+            
+            for (const endpoint of endpoints) {
+                const endpointDiv = document.createElement('div');
+                endpointDiv.className = 'endpoint-status';
+                endpointDiv.innerHTML = `<span class="loading"></span> ${endpoint.description}: Verificando...`;
+                endpointsElement.appendChild(endpointDiv);
+                
+                const result = await checkEndpoint(endpoint.path, endpoint.description);
+                results[endpoint.path] = result;
+                
+                if (result.success) {
+                    successCount++;
+                    endpointDiv.className = 'endpoint-status status success';
+                    endpointDiv.innerHTML = `✅ ${endpoint.description}: OK (${result.responseTime}ms)`;
+                } else {
+                    endpointDiv.className = 'endpoint-status status error';
+                    endpointDiv.innerHTML = `❌ ${endpoint.description}: Error - ${result.error}`;
+                }
+                
+                // Esperar un poco entre requests
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+            
+            // Resumen final
+            addLog(`=== RESUMEN: ${successCount}/${endpoints.length} endpoints funcionando ===`);
+            
+            if (successCount === endpoints.length) {
+                updateGeneralStatus('🎉 Todos los endpoints funcionando correctamente', 'success');
+                addLog('🎉 Backend completamente funcional!', 'success');
+            } else if (successCount > 0) {
+                updateGeneralStatus(`⚠️ Funcionamiento parcial: ${successCount}/${endpoints.length}`, 'warning');
+                addLog('⚠️ Algunos endpoints tienen problemas', 'warning');
+            } else {
+                updateGeneralStatus('❌ Backend no está disponible', 'error');
+                addLog('❌ El backend no está respondiendo', 'error');
+                addLog('💡 Posibles soluciones:', 'info');
+                addLog('• El servicio puede estar durmiendo (plan gratuito de Render)', 'info');
+                addLog('• Visita la URL directamente en el navegador para despertarlo', 'info');
+                addLog('• Revisa los logs en el dashboard de Render', 'info');
+            }
+        }
+
+        // Función para probar login
+        async function testLogin() {
+            updateGeneralStatus('🔄 Probando endpoint de login...', 'info');
+            addLog('Probando endpoint de login...');
+            
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: 'test@test.com',
+                        password: 'test123'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.status === 400 || response.status === 401) {
+                    addLog('✅ Endpoint de login funciona (error esperado con credenciales de prueba)', 'success');
+                    addLog(`Respuesta: ${data.message || 'Credenciales inválidas'}`, 'info');
+                } else if (response.ok) {
+                    addLog('✅ Endpoint de login funciona correctamente', 'success');
+                } else {
+                    addLog(`❌ Error en login: ${response.status} - ${data.message}`, 'error');
+                }
+                
+            } catch (error) {
+                addLog(`❌ Error probando login: ${error.message}`, 'error');
+            }
+        }
+
+        // Función para limpiar log
+        function clearLog() {
+            logElement.textContent = 'Log limpiado...\n';
+        }
+
+        // Ejecutar ping automático al cargar
+        window.addEventListener('load', () => {
+            addLog('🚀 Página de diagnóstico cargada');
+            setTimeout(quickPing, 1000);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+@import url('https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+@import "tailwindcss";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-size: 80%; /* Reduce el tamaño de fuente base para escalar la UI */
+  }
+
+  body {
+    @apply font-sans bg-gray-100 text-gray-800;
+    font-family: 'Inter', sans-serif;
+
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-semibold text-gray-900;
+  }
+
+  thead[aria-hidden="true"] {
+    display: table-header-group !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  
+}
+
+@layer utilities {
+  .animate-fade-in-up {
+    animation: fadeInUp 0.3s ease-out forwards;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+}
+/* Ocultar iconos automaticos de mostrar contraseña que agregan algunos navegadores*/
+input::-ms-reveal,
+input::-ms-clear {
+  display: none;
+}
+input[type='password']::-webkit-credentials-auto-fill-button {
+  display: none !important;
+}
+input[type='password']::-webkit-inner-spin-button,
+input[type='password']::-webkit-outer-spin-button {
+  display: none;
+}
+
+/* Estilos para react-confirm-alert para que aparezca sobre otros modales */
+.react-confirm-alert-overlay {
+  z-index: 99999 !important;
+}
+
+.react-confirm-alert {
+  z-index: 100000 !important;
+}
+
+.react-confirm-alert-body {
+  font-family: 'Inter', sans-serif !important;
+}
+
