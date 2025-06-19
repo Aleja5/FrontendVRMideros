@@ -1,7 +1,7 @@
 // Configuración para entorno de producción (Vercel)
 const productionConfig = {
     // URL del backend en Render
-    API_BASE_URL: process.env.VITE_API_BASE_URL || 'https://your-backend.onrender.com',
+    API_BASE_URL: import.meta.env.VITE_API_BASE_URL || 'https://vr-mideros-backend.onrender.com',
     
     // Configuración de la aplicación
     app: {
@@ -12,7 +12,7 @@ const productionConfig = {
 
     // Configuración de API
     api: {
-        baseURL: process.env.VITE_API_BASE_URL || 'https://your-backend.onrender.com',
+        baseURL: import.meta.env.VITE_API_BASE_URL || 'https://vr-mideros-backend.onrender.com',
         timeout: 30000, // 30 segundos
         retries: 3,
         endpoints: {
@@ -148,3 +148,15 @@ const productionConfig = {
 };
 
 export default productionConfig;
+
+//TODO: ESTE ARCHIVO NO SE ESTA USANDO, SE DEBE ELIMINAR Y REFACTORIZAR EL CODIGO PARA QUE USE LAS VARIABLES DE ENTORNO DE VITE 
+/*
+import axios from 'axios';
+
+const instance = axios.create({
+        baseURL: process.env.VITE_API_BASE_URL || 'https://your-backend.onrender.com',
+        // otros configuraciones de axios
+});
+
+export default instance;
+*/

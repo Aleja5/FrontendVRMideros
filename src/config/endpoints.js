@@ -11,45 +11,22 @@ class ApiConfig {
     }
 
     detectEnvironment() {
-        // Si está en Vercel (producción)
-        if (window.location.hostname.includes('vercel.app')) {
-            return 'production';
-        }
-        // Si está en localhost
-        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-            return 'development';
-        }
-        // Verificar variable de entorno
-        if (import.meta.env.PROD) {
-            return 'production';
-        }
-        return 'development';
-    }    getBaseURL() {
-        // Prioridad: Variable de entorno → Detección automática → Fallback
-        if (import.meta.env.VITE_API_BASE_URL) {
-            console.log('🔧 Using VITE_API_BASE_URL:', import.meta.env.VITE_API_BASE_URL);
-            return import.meta.env.VITE_API_BASE_URL;
+        // La forma más simple y fiable es usar las variables de entorno de Vite.
+        return import.meta.env.PROD ? 'production' : 'development';
+    }
+
+    getBaseURL() {
+        const apiUrl = import.meta.env.VITE_API_BASE_URL;
+        
+        // La variable de entorno es la única fuente de verdad.
+        if (!apiUrl) {
+            // Esto causará un error, lo cual es bueno porque te alerta del problema de configuración.
+            console.error("Error Crítico: La variable de entorno VITE_API_BASE_URL no está configurada.");
+            // Devolvemos una cadena vacía para que la llamada falle de inmediato y sea obvio el error.
+            return ""; 
         }
         
-        if (import.meta.env.VITE_API_URL) {
-            console.log('🔧 Using VITE_API_URL:', import.meta.env.VITE_API_URL);
-            return import.meta.env.VITE_API_URL;
-        }
-
-        // Por ahora, usar siempre producción hasta que el backend local esté listo
-        const productionURL = 'https://vrmiderosbackend.onrender.com';
-        console.log('🔧 Using hardcoded production URL:', productionURL);
-        return productionURL;
-
-        // URLs automáticas por entorno (deshabilitado temporalmente)
-        // switch (this.environment) {
-        //     case 'production':
-        //         return 'https://vrmiderosbackend.onrender.com';
-        //     case 'development':
-        //         return 'http://localhost:5000';
-        //     default:
-        //         return 'http://localhost:5000';
-        // }
+        return apiUrl;
     }
 
     getTimeout() {
