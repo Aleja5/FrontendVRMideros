@@ -1,6 +1,6 @@
 [build]
   publish = "dist"
-  command = "npm ci && npm run build"
+  command = "npm install && npm run build"
 
 [build.environment]
   VITE_API_BASE_URL = "https://vr-mideros-backend.onrender.com"
