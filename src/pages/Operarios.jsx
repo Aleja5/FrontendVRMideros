@@ -21,7 +21,7 @@ const OperariosPage = ({ currentPage: propCurrentPage, totalResults: propTotalRe
     const cargarOperarios = useCallback(async (page = 1, search = '') => {
         setLoading(true);
         try {
-            const response = await axios.get(`http://localhost:5000/api/operarios?page=${page}&limit=${itemsPerPage}&search=${search}`);
+            const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/operarios?page=${page}&limit=${itemsPerPage}&search=${search}`);
             setOperarios(response.data.operarios);
             setTotalPages(response.data.totalPages);
             setTotalResults(response.data.totalResults);
@@ -73,9 +73,9 @@ const OperariosPage = ({ currentPage: propCurrentPage, totalResults: propTotalRe
   const handleGuardar = async (operario) => {
     try {
       if (operarioAEditar) {
-        await axios.put(`http://localhost:5000/api/operarios/${operarioAEditar._id}`, operario);
+        await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/operarios/${operarioAEditar._id}`, operario);
       } else {
-        await axios.post('http://localhost:5000/api/operarios', operario);
+        await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/operarios`, operario);
       }
       cargarOperarios(currentPage, searchText);
       setModo('listar');
@@ -86,7 +86,7 @@ const OperariosPage = ({ currentPage: propCurrentPage, totalResults: propTotalRe
   };
   const handleEliminar = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/operarios/${id}`);
+      await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/api/operarios/${id}`);
       cargarOperarios(currentPage, searchText);
     } catch (error) {
       console.error('Error al eliminar operario:', error);

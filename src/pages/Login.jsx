@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axiosInstance from '../utils/axiosInstance-simple';
+import axiosInstance from '../utils/axiosInstance';
 import { useNavigate } from 'react-router-dom';
 import { BeatLoader } from 'react-spinners';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
@@ -23,8 +23,7 @@ const Login = () => {
       setError('Todos los campos son obligatorios');
       setLoading(false);
       return;
-    }    try {
-      console.log('🔍 Intentando login con:', { email, password: '***' });
+    }    try {      console.log('🔍 Intentando login con:', { email, password: '***' });
       
       // Hacemos la petición POST al backend para el login      
       const response = await axiosInstance.post('/auth/login', { email, password });

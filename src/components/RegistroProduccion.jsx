@@ -20,6 +20,9 @@ import {
   Zap
 } from 'lucide-react';
 
+// Configuración de API usando variable de entorno
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+
 // Componente separado para cada actividad
 const ActividadCard = ({ 
   actividad, 
@@ -376,14 +379,14 @@ export default function RegistroProduccion() {
 
       // Cargar datos de selectores
       try {
-        const maquinasRes = await fetch("http://localhost:5000/api/produccion/maquinas");
+        const maquinasRes = await fetch(`${API_BASE_URL}/api/produccion/maquinas`);
         if (maquinasRes.ok) setMaquinasData(await maquinasRes.json());
         else toast.error("No se pudieron cargar las máquinas. Intenta de nuevo más tarde.");
 
-        const areasRes = await fetch("http://localhost:5000/api/produccion/areas");
+        const areasRes = await fetch(`${API_BASE_URL}/api/produccion/areas`);
         if (areasRes.ok) setAreasProduccionData(await areasRes.json());
 
-        const insumosRes = await fetch("http://localhost:5000/api/produccion/insumos");
+        const insumosRes = await fetch(`${API_BASE_URL}/api/produccion/insumos`);
         if (insumosRes.ok) setInsumosData(await insumosRes.json());
       } catch (error) {
         console.error("Error al cargar datos:", error);
@@ -392,7 +395,7 @@ export default function RegistroProduccion() {
       // Lógica principal para obtener o crear la jornada
       if (urlJornadaId) {
         try {
-          const res = await fetch(`http://localhost:5000/api/jornadas/${urlJornadaId}`);
+          const res = await fetch(`${API_BASE_URL}/api/jornadas/${urlJornadaId}`);
           if (res.ok) {
             const jornada = await res.json();
 
@@ -444,7 +447,7 @@ export default function RegistroProduccion() {
       if (jornadaData.fecha && jornadaData.operario && !urlJornadaId) {
         setLoadingResumen(true);
         try {
-          const response = await fetch(`http://localhost:5000/api/jornadas/operario/${jornadaData.operario}?fecha=${jornadaData.fecha}`);
+          const response = await fetch(`${API_BASE_URL}/api/jornadas/operario/${jornadaData.operario}?fecha=${jornadaData.fecha}`);
           if (!response.ok) {
             if (response.status === 404) {
               setActividadesResumen([]);
@@ -582,7 +585,7 @@ export default function RegistroProduccion() {
       return;
     }
     try {
-      const response = await fetch(`http://localhost:5000/api/procesos?areaId=${areaId}`);
+      const response = await fetch(`${API_BASE_URL}/api/procesos?areaId=${areaId}`);
       if (response.ok) {
         const data = await response.json();
 
@@ -794,9 +797,8 @@ export default function RegistroProduccion() {
     };
 
     try {
-      const endpoint = urlJornadaId
-        ? `http://localhost:5000/api/jornadas/${urlJornadaId}`
-        : "http://localhost:5000/api/jornadas/completa";
+      const endpoint = urlJornadaId        ? `${API_BASE_URL}/api/jornadas/${urlJornadaId}`
+        : `${API_BASE_URL}/api/jornadas/completa`;
       const method = urlJornadaId ? "PUT" : "POST";
 
       const response = await fetch(endpoint, {

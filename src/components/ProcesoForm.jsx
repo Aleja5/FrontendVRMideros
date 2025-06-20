@@ -11,7 +11,7 @@ const ProcesoForm = ({ procesoInicial, onGuardar, onCancelar }) => {
     useEffect(() => {
         const fetchAreas = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/api/areas');
+                const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/areas`);
                 if (response.data && Array.isArray(response.data.areas)) {
                     setAreasProduccion(response.data.areas);
                 } else {

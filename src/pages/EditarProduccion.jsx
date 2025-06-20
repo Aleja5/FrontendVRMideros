@@ -293,7 +293,7 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
         return;
       }
       try {
-        const response = await fetch(`http://localhost:5000/api/procesos?areaId=${areaId}`);
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/procesos?areaId=${areaId}`);
         if (response.ok) {
           const data = await response.json();
           let determinedProcesos = [];

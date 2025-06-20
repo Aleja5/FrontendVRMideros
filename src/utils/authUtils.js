@@ -91,7 +91,7 @@ export const logout = async () => {
   try {
     // Notificar al servidor para invalidar el refresh token
     if (refreshToken) {
-      await fetch('http://localhost:5000/api/auth/logout', {
+      await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/logout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ refreshToken })
@@ -122,7 +122,7 @@ export const refreshTokenIfNeeded = async () => {
   // Si el token está próximo a expirar, renovarlo
   if (isTokenExpired(token)) {
     try {
-      const response = await fetch('http://localhost:5000/api/auth/refresh-token', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/refresh-token`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ refreshToken })

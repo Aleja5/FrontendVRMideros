@@ -1,10 +1,19 @@
 import axios from 'axios';
-import { API_CONFIG } from '../config/endpoints.js';
 
-// Crear una instancia de Axios con configuración dinámica
+// Validar que la variable de entorno existe
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+if (!apiBaseUrl) {
+    console.error('❌ VITE_API_BASE_URL no está configurada');
+    throw new Error('Variable de entorno VITE_API_BASE_URL requerida');
+}
+
+// Crear una instancia de Axios
 const axiosInstance = axios.create({
-    baseURL: API_CONFIG.baseURL, // URL dinámica según entorno
-    timeout: API_CONFIG.timeout, // Timeout ajustado por entorno
+    baseURL: `${apiBaseUrl}/api`, // URL base del backend
+    timeout: 30000, // Timeout de 30 segundos (aumentado para refresh)
+    headers: {
+        'Content-Type': 'application/json'
+    }
 });
 
 // Control de rate limiting
@@ -119,7 +128,7 @@ axiosInstance.interceptors.response.use(
             }
 
             try {
-                const response = await axios.post('http://localhost:5000/api/auth/refresh-token', {
+                const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/auth/refresh-token`, {
                     refreshToken: refreshToken
                 });
 

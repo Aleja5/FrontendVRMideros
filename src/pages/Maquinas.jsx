@@ -22,7 +22,7 @@ const MaquinasPage = ({ currentPage: propCurrentPage, totalResults: propTotalRes
     const cargarMaquinas = useCallback(async (page = 1, search = '') => {
             setLoading(true);
         try {
-            const response = await axios.get(`http://localhost:5000/api/maquinas?page=${page}&limit=${itemsPerPage}&search=${search}`);
+            const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/maquinas?page=${page}&limit=${itemsPerPage}&search=${search}`);
             setMaquinas(response.data.maquinas);
             setTotalPages(response.data.totalPages);
             setTotalResults(response.data.totalResults);
@@ -74,9 +74,9 @@ const MaquinasPage = ({ currentPage: propCurrentPage, totalResults: propTotalRes
     const handleGuardar = async (maquina) => {
         try {
             if (maquinaAEditar) {
-                await axios.put(`http://localhost:5000/api/maquinas/${maquinaAEditar._id}`, maquina);
+                await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/maquinas/${maquinaAEditar._id}`, maquina);
             } else {
-                await axios.post('http://localhost:5000/api/maquinas', maquina);
+                await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/maquinas`, maquina);
             }
             cargarMaquinas(currentPage, searchText); // Recarga con la página y búsqueda actuales
             setModo('listar');
@@ -86,7 +86,7 @@ const MaquinasPage = ({ currentPage: propCurrentPage, totalResults: propTotalRes
         }
     };    const handleEliminar = async (id) => {
         try {
-            await axios.delete(`http://localhost:5000/api/maquinas/${id}`);
+            await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/api/maquinas/${id}`);
             cargarMaquinas(currentPage, searchText); // Recarga con la página y búsqueda actuales
         } catch (error) {
             console.error('Error al eliminar la máquina:', error);

@@ -1,0 +1,20 @@
+[build]
+  publish = "dist"
+  command = "npm run build"
+
+[build.environment]
+  VITE_API_BASE_URL = "https://vr-mideros-backend.onrender.com"
+  NODE_ENV = "production"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[context.production]
+  [context.production.environment]
+    VITE_API_BASE_URL = "https://vr-mideros-backend.onrender.com"
+
+[context.deploy-preview]
+  [context.deploy-preview.environment]
+    VITE_API_BASE_URL = "https://vr-mideros-backend.onrender.com"

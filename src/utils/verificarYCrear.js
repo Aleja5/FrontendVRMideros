@@ -6,7 +6,7 @@ export const crearNuevaEntidad = async (valor, nombreColeccion) => {
             ? { numeroOti: valor.trim() }
             : { nombre: valor.trim() };
 
-        const res = await fetch(`http://localhost:5000/api/crear/${nombreColeccion}`, {
+        const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/crear/${nombreColeccion}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(bodyData),
@@ -28,7 +28,7 @@ export const verificarYCrear = async (valor, nombreColeccion) => {
     try {
         const queryParam = nombreColeccion === "oti" ? "numeroOti" : "nombre";
         const res = await fetch(
-            `http://localhost:5000/api/buscar/${nombreColeccion}?${queryParam}=${encodeURIComponent(valor.trim())}`
+            `${import.meta.env.VITE_API_BASE_URL}/api/buscar/${nombreColeccion}?${queryParam}=${encodeURIComponent(valor.trim())}`
         );
 
         if (res.status === 404) {

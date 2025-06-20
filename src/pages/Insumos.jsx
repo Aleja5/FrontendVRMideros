@@ -20,7 +20,7 @@ const InsumosPage = ({ currentPage: propCurrentPage, totalResults: propTotalResu
     const cargarInsumos = useCallback(async (page = 1, search = '') => {
             setLoading(true);
         try {
-            const response = await axios.get(`http://localhost:5000/api/insumos?page=${page}&limit=${itemsPerPage}&search=${search}`);
+            const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/insumos?page=${page}&limit=${itemsPerPage}&search=${search}`);
             setInsumos(response.data.insumos);
             setTotalPages(response.data.totalPages);
             setTotalResults(response.data.totalResults);
@@ -71,9 +71,9 @@ const InsumosPage = ({ currentPage: propCurrentPage, totalResults: propTotalResu
     const handleGuardar = async (insumo) => {
         try {
             if (insumoAEditar) {
-                await axios.put(`http://localhost:5000/api/insumos/${insumoAEditar._id}`, insumo);
+                await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/insumos/${insumoAEditar._id}`, insumo);
             } else {
-                await axios.post('http://localhost:5000/api/insumos', insumo);
+                await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/insumos`, insumo);
             }
             cargarInsumos(currentPage, searchText); // Recarga con la página y búsqueda actuales
             setModo('listar');
@@ -83,7 +83,7 @@ const InsumosPage = ({ currentPage: propCurrentPage, totalResults: propTotalResu
         }
     };    const handleEliminar = async (id) => {
         try {
-            await axios.delete(`http://localhost:5000/api/insumos/${id}`);
+            await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/api/insumos/${id}`);
             cargarInsumos(currentPage, searchText); // Recarga con la página y búsqueda actuales
         } catch (error) {
             console.error('Error al eliminar el insumo:', error);

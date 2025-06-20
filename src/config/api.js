@@ -1,13 +1,10 @@
-// ⚠️ ARCHIVO LEGACY - Usa endpoints.js para nueva funcionalidad
-// Configuración de API para compatibilidad con código existente
-import { API_CONFIG, getApiUrl } from './endpoints.js';
-
-// Mantener compatibilidad con el código existente
-const API_BASE_URL = API_CONFIG.baseURL;
+// Configuración de API para producción - Updated
+const API_BASE_URL = import.meta.env.VITE_API_URL || 
+  (import.meta.env.PROD ? 'https://vrmiderosbackend.onrender.com' : 'http://localhost:5000');
 
 export const apiConfig = {
   baseURL: API_BASE_URL,
-  timeout: API_CONFIG.timeout,
+  timeout: 30000, // 30 segundos para Render (puede tardar en despertar)
   headers: {
     'Content-Type': 'application/json',
   },
@@ -16,34 +13,34 @@ export const apiConfig = {
 // Configuración para diferentes ambientes
 export const config = {
   API_URL: API_BASE_URL,
-  IS_PRODUCTION: API_CONFIG.environment === 'production',
-  IS_DEVELOPMENT: API_CONFIG.environment === 'development',
+  IS_PRODUCTION: import.meta.env.PROD,
+  IS_DEVELOPMENT: import.meta.env.DEV,
 };
 
-// Helper function para construir URLs de API (legacy)
+// Helper function para construir URLs de API
 export const buildApiUrl = (endpoint) => {
-  return getApiUrl(endpoint);
+  // Remover slash inicial si existe
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
+  return `${API_BASE_URL}/${cleanEndpoint}`;
 };
 
-// URLs comunes para fácil acceso (legacy - usar servicios nuevos)
+// URLs comunes para fácil acceso
 export const apiUrls = {
   // Auth
-  login: getApiUrl('/api/auth/login'),
-  register: getApiUrl('/api/auth/register'),
-  logout: getApiUrl('/api/auth/logout'),
-  resetPassword: getApiUrl('/api/auth/reset'),
+  login: buildApiUrl('api/auth/login'),
+  register: buildApiUrl('api/auth/register'),
+  logout: buildApiUrl('api/auth/logout'),
+  resetPassword: buildApiUrl('api/auth/reset-password'),
   
   // Resources
-  operarios: getApiUrl('/api/operarios'),
-  maquinas: getApiUrl('/api/maquinas'),
-  areas: getApiUrl('/api/areas'),
-  procesos: getApiUrl('/api/procesos'),
-  insumos: getApiUrl('/api/insumos'),
-  produccion: getApiUrl('/api/produccion'),
-  jornadas: getApiUrl('/api/jornadas'),
-  usuarios: getApiUrl('/api/usuarios'),
+  operarios: buildApiUrl('api/operarios'),
+  maquinas: buildApiUrl('api/maquinas'),
+  areas: buildApiUrl('api/areas'),
+  procesos: buildApiUrl('api/procesos'),
+  insumos: buildApiUrl('api/insumos'),
+  produccion: buildApiUrl('api/produccion'),
+  jornadas: buildApiUrl('api/jornadas'),
+  usuarios: buildApiUrl('api/usuarios'),
 };
-
-console.log('📝 Legacy API config loaded. Consider migrating to services/index.js');
 
 export default API_BASE_URL;
