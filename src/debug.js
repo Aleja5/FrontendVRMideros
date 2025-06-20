@@ -4,7 +4,6 @@ console.log('================================');
 
 console.log('📝 Variables VITE disponibles:');
 console.log('VITE_API_BASE_URL:', import.meta.env.VITE_API_BASE_URL);
-console.log('VITE_API_URL:', import.meta.env.VITE_API_URL);
 console.log('VITE_NODE_ENV:', import.meta.env.VITE_NODE_ENV);
 
 console.log('\n🌍 Información del entorno:');

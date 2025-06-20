@@ -1,6 +1,6 @@
 // Configuración de API para producción - Updated
-const API_BASE_URL = import.meta.env.VITE_API_URL || 
-  (import.meta.env.PROD ? 'https://vrmiderosbackend.onrender.com' : 'http://localhost:5000');
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 
+  (import.meta.env.PROD ? 'https://vr-mideros-backend.onrender.com' : 'http://localhost:5000');
 
 export const apiConfig = {
   baseURL: API_BASE_URL,
