@@ -1,10 +1,12 @@
 [build]
   publish = "dist"
-  command = "npm run build"
+  command = "npm ci && npm run build"
 
 [build.environment]
   VITE_API_BASE_URL = "https://vr-mideros-backend.onrender.com"
   NODE_ENV = "production"
+  NODE_VERSION = "20"
+  NPM_FLAGS = "--prefix=/opt/buildhome/.npm-global"
 
 [[redirects]]
   from = "/*"
