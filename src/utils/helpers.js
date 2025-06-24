@@ -87,6 +87,15 @@ export const getFechaLocalHoy = () => {
  * @returns {string} La fecha en formato YYYY-MM-DD
  */
 export const getFechaLocalForComparison = (fecha) => {
+    if (!fecha) return '';
+    
+    // Si es una fecha ISO string, extraer solo la parte de fecha para evitar problemas de zona horaria
+    if (typeof fecha === 'string' && fecha.includes('T')) {
+        const fechaSolo = fecha.split('T')[0]; // Obtener solo YYYY-MM-DD
+        return fechaSolo; // Ya está en el formato correcto
+    }
+    
+    // Para otros formatos, convertir normalmente
     const date = new Date(fecha);
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
