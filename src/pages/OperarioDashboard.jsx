@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import axiosInstance from '../utils/axiosInstance';
 import { useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
@@ -57,8 +57,7 @@ const LoadingSkeleton = () => (
 
 // ---
 // OperarioDashboard Functional Component
-const OperarioDashboard = () => {
-    console.log('OperarioDashboard se está re-renderizando...');
+const OperarioDashboard = React.memo(() => {
     // --- State Variables ---
     const [jornadas, setJornadas] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -69,17 +68,18 @@ const OperarioDashboard = () => {
 
     const navigate = useNavigate();
 
-    // Obtener datos del operario desde localStorage
-    const storedOperario = (() => {
+    // Obtener datos del operario desde localStorage - Memoizado
+    const operarioData = useMemo(() => {
         try {
             return JSON.parse(localStorage.getItem('operario'));
         } catch (e) {
             console.error("Error parsing operario from localStorage:", e);
             return null;
         }
-    })();
-    const operarioId = storedOperario?.id || storedOperario?._id;
-    const operarioName = storedOperario?.name || 'Operario';
+    }, []); // Solo se ejecuta una vez al montar el componente
+    
+    const operarioId = operarioData?.id || operarioData?._id;
+    const operarioName = operarioData?.name || 'Operario';
 
     // --- Effects ---
 
@@ -164,33 +164,39 @@ const OperarioDashboard = () => {
             window.removeEventListener("click", handleActivity);
             window.removeEventListener("scroll", handleActivity);
         };
-    }, [navigate]);    // --- Date and Filtering Logic ---
+    }, [navigate]);    // --- Date and Filtering Logic ---    // Gets today's date in YYYY-MM-DD format for comparison.
+    // Usando getFechaLocalHoy para evitar problemas de zona horaria - Memoizado
+    const hoyISO = useMemo(() => getFechaLocalHoy(), []);
 
-    // Gets today's date in YYYY-MM-DD format for comparison.
-    // Usando getFechaLocalHoy para evitar problemas de zona horaria
-    const hoyISO = getFechaLocalHoy();
+    // Filter jornadas with at least one activity - Memoizado
+    const jornadasFiltradas = useMemo(() => 
+        jornadas.filter((jornada) =>
+            jornada.registros && jornada.registros.length > 0
+        ), [jornadas]);
 
-    // Filter jornadas with at least one activity
-    const jornadasFiltradas = jornadas.filter((jornada) =>
-        jornada.registros && jornada.registros.length > 0
-    );    // Find today's jornada
-    const jornadaActual = jornadasFiltradas.find(jornada => {
-        const fechaJornada = getFechaLocalForComparison(jornada.fecha);
-        return fechaJornada === hoyISO;
-    });
-
-    // Debug: Log para verificar comparaciones de fecha
-    console.log('=== DEBUG FECHA ZONA HORARIA ===');
-    console.log('Fecha de hoy (local):', hoyISO);
-    if (jornadasFiltradas.length > 0) {
-        console.log('Fechas de jornadas disponibles:');
-        jornadasFiltradas.forEach((jornada, index) => {
+    // Find today's jornada - Memoizado
+    const jornadaActual = useMemo(() => 
+        jornadasFiltradas.find(jornada => {
             const fechaJornada = getFechaLocalForComparison(jornada.fecha);
-            console.log(`  Jornada ${index + 1}: ${fechaJornada} (original: ${jornada.fecha})`);
-        });
-    }
-    console.log('Jornada actual encontrada:', jornadaActual ? 'SÍ' : 'NO');
-    console.log('================================');const calcularTotalTiempo = (jornada) => {
+            return fechaJornada === hoyISO;
+        }), [jornadasFiltradas, hoyISO]);
+
+    // Debug: Log para verificar comparaciones de fecha - Solo en desarrollo
+    useEffect(() => {
+        if (process.env.NODE_ENV === 'development') {
+            console.log('=== DEBUG FECHA ZONA HORARIA ===');
+            console.log('Fecha de hoy (local):', hoyISO);
+            if (jornadasFiltradas.length > 0) {
+                console.log('Fechas de jornadas disponibles:');
+                jornadasFiltradas.forEach((jornada, index) => {
+                    const fechaJornada = getFechaLocalForComparison(jornada.fecha);
+                    console.log(`  Jornada ${index + 1}: ${fechaJornada} (original: ${jornada.fecha})`);
+                });
+            }
+            console.log('Jornada actual encontrada:', jornadaActual ? 'SÍ' : 'NO');
+            console.log('================================');
+        }
+    }, [hoyISO, jornadasFiltradas, jornadaActual]);    const calcularTotalTiempo = useCallback((jornada) => {
         if (!jornada?.totalTiempoActividades) {
             return 'N/A';
         }
@@ -200,13 +206,15 @@ const OperarioDashboard = () => {
         // Usar tiempo efectivo si está disponible, sino usar el método anterior
         const tiempoMinutos = tiempoData.tiempoEfectivo !== undefined ? 
             tiempoData.tiempoEfectivo : 
-            (tiempoData.horas * 60 + tiempoData.minutos);        const hours = Math.floor(tiempoMinutos / 60);
+            (tiempoData.horas * 60 + tiempoData.minutos);        
+
+        const hours = Math.floor(tiempoMinutos / 60);
         const minutes = tiempoMinutos % 60;
         
         return `${tiempoMinutos} min (${hours}h ${minutes}m)`;
-    };
+    }, []);
 
-    const calcularTiempoTotalJornada = (jornada) => {
+    const calcularTiempoTotalJornada = useCallback((jornada) => {
         if (!jornada.horaInicio || !jornada.horaFin) {
             return 'N/A'; // Or handle as appropriate
         }
@@ -218,7 +226,7 @@ const OperarioDashboard = () => {
         const hours = Math.floor(diffMinutes / 60);
         const minutes = diffMinutes % 60;
         return `${diffMinutes} min (${hours} horas ${minutes} min)`;
-    };    
+    }, []);
       const handleRegistroProduccion = useCallback(() => {
         navigate('/registro-produccion');
     }, [navigate]);
@@ -230,9 +238,7 @@ const OperarioDashboard = () => {
 
     const handleCerrarDetalleJornada = useCallback(() => {
         setJornadaDetalleId(null);
-    }, []);
-
-    const handleEditarActividad =useCallback ((actividad) => {
+    }, []);    const handleEditarActividad = useCallback((actividad) => {
         setActividadAEditar(actividad);
     }, []);
 
@@ -265,9 +271,7 @@ const OperarioDashboard = () => {
 
         window.addEventListener('focus', handleFocus);
         return () => window.removeEventListener('focus', handleFocus);
-    }, [forzarActualizacionDespuesDeRegistro]);
-
-    // --- Render JSX ---
+    }, [forzarActualizacionDespuesDeRegistro]);    // --- Render JSX ---
     return (
         <>       
             <div className="flex bg-gray-100 min-h-screen h-screen">
@@ -378,6 +382,6 @@ const OperarioDashboard = () => {
         </>
     
     );
-};
+});
 
 export default OperarioDashboard;

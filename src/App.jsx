@@ -26,6 +26,8 @@ import UsuariosPage from './pages/Usuarios'; // Este es tu componente de página
 import UsuarioForm from './components/UsuarioForm'; // <--- NUEVO: Importa UsuarioForm
 import ResetPassword from './pages/ResetPassword';
 import NotFound from './pages/NotFound'; 
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 function App() {
@@ -201,12 +203,24 @@ function App() {
           <ProtectedRoute allowedRoles={['production']}>
           <HistorialJornadas />
           </ProtectedRoute>
-          } />
-
-        <Route path="/*" element={<NotFound />} /> 
+          } />        <Route path="/*" element={<NotFound />} /> 
         
 
       </Routes>
+      
+      {/* Toast Container para mostrar notificaciones */}
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </Router>
   );
 }

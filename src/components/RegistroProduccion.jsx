@@ -679,7 +679,6 @@ export default function RegistroProduccion() {
     });
     setActividades(nuevasActividades);
   };
-
   const combinarFechaYHora = (fecha, hora) => {
     if (!hora || typeof hora !== 'string' || !hora.match(/^\d{2}:\d{2}$/)) return null;
 
@@ -688,7 +687,8 @@ export default function RegistroProduccion() {
 
     const date = new Date(Number(yyyy), Number(mmFecha) - 1, Number(dd), Number(hh), Number(mm), 0);
 
-    return isNaN(date.getTime()) ? null : date.toISOString();
+    // Mantener en timezone local en lugar de convertir a UTC
+    return isNaN(date.getTime()) ? null : date;
   };
   const addActividad = () => {
     setActividades(prev => [...prev, {

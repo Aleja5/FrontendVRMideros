@@ -70,24 +70,34 @@ const UsuarioForm = ({ usuarioInicial, onGuardar, onCancelar, isLoading, showSuc
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
-    };
-
-    const handleSubmit = async (e) => {
+    };    const handleSubmit = async (e) => {
         e.preventDefault();
-        setErrors({});
-
-        if (!validateForm()) {
-            toast.error("Por favor, corrige los errores del formulario.");
+        setErrors({});        if (!validateForm()) {
             return;
-        }        const userData = { nombre, email, role };
+        }const userData = { nombre, email, role };
         if (showPasswordFields && password) {
             userData.password = password;
-        }
-
-        try {
+        }        try {
             await onGuardar(userData);
         } catch (error) {
             console.error("Error en handleSubmit de UsuarioForm:", error);
+            
+            // Si hay un error del servidor, mostrarlo como error de validación
+            if (error.response?.status === 400) {
+                const errorMessage = error.response?.data?.message || '';
+                
+                // Si es error de correo duplicado, mostrarlo en el campo email
+                if (errorMessage === 'El correo electrónico ya está registrado.' ||
+                    errorMessage.includes('correo electrónico ya está registrado') ||
+                    errorMessage.includes('email already exists') ||
+                    errorMessage.includes('duplicate') ||
+                    errorMessage.includes('duplicado')) {
+                    setErrors({ email: 'Este correo electrónico ya está en uso. Por favor, utiliza otro correo.' });
+                } else {
+                    // Para otros errores de validación (como rol incorrecto), también mostrarlos como errores del formulario
+                    setErrors({ general: errorMessage || 'Error al guardar el usuario' });
+                }
+            }
         }
     };
 
@@ -127,9 +137,18 @@ const UsuarioForm = ({ usuarioInicial, onGuardar, onCancelar, isLoading, showSuc
                             Redirigiendo a la lista de usuarios en breve...
                         </p>
                     </motion.div>
-                ) : (
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        <div>                            <label htmlFor="nombre" className="flex items-center text-sm font-medium text-gray-700 mb-2">
+                ) : (                    <form onSubmit={handleSubmit} className="space-y-6">
+                        {/* Mostrar errores generales */}
+                        {errors.general && (
+                            <div className="bg-red-50 border border-red-200 rounded-md p-3">
+                                <div className="flex items-center">
+                                    <Info className="h-4 w-4 text-red-500 mr-2" />
+                                    <p className="text-sm text-red-600">{errors.general}</p>
+                                </div>
+                            </div>
+                        )}
+
+                        <div><label htmlFor="nombre" className="flex items-center text-sm font-medium text-gray-700 mb-2">
                                 <User className="mr-2 h-4 w-4 text-blue-500" />
                                 Nombre Completo:
                             </label>
@@ -154,12 +173,21 @@ const UsuarioForm = ({ usuarioInicial, onGuardar, onCancelar, isLoading, showSuc
                                 <Mail className="mr-2 h-4 w-4 text-blue-500" />
                                 Correo Electrónico:
                             </label>
-                            <div className="relative">
-                                <Input
+                            <div className="relative">                                <Input
                                     type="email"
                                     id="email"
                                     value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
+                                    onChange={(e) => {
+                                        setEmail(e.target.value);
+                                        // Limpiar error de email cuando el usuario empiece a escribir
+                                        if (errors.email) {
+                                            setErrors(prev => {
+                                                const newErrors = { ...prev };
+                                                delete newErrors.email;
+                                                return newErrors;
+                                            });
+                                        }
+                                    }}
                                     placeholder="ejemplo@dominio.com"
                                     className={`w-full pl-10 pr-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${errors.email ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'}`}
                                     required
@@ -180,11 +208,10 @@ const UsuarioForm = ({ usuarioInicial, onGuardar, onCancelar, isLoading, showSuc
                                 value={role}
                                 onChange={(e) => setRole(e.target.value)}
                                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                                required
-                            >
-                                <option value="production">Operario</option>
-                                <option value="admin">Administrador</option>
-                            </select>                        </div>
+                                required                            >
+                                <option value="production">Producción</option>
+                                <option value="admin">Administración</option>
+                            </select></div>
 
                         {/* Sección de contraseña mejorada */}
                         {isEditing && !showPasswordFields ? (

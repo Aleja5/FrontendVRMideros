@@ -139,11 +139,10 @@ const UsuariosPage = ({ currentPage: propCurrentPage, totalResults: propTotalRes
                 setSavedUserData(null); // Limpiar los datos guardados
             }, 3000); // 3 segundos
             
-            return res.data;
-        } catch (error) {
+            return res.data;        } catch (error) {
             console.error('Error al guardar el usuario:', error);
-            const message = error.response?.data?.message || 'Error al guardar el usuario';
-            toast.error(message);
+            // Propagar el error al formulario para que lo maneje
+            throw error;
         } finally {
             setSavingUser(false);
         }
