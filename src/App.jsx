@@ -15,15 +15,15 @@ import MiJornada from './pages/MiJornada';
 import HistorialJornadas from './pages/HistorialJornadas';
 import AdminJornadaDetalle from './pages/AdminJornadaDetalle';
 
-import ProtectedRoute from './components/ProtectedRoute'; // Asegúrate de que esta ruta sea correcta
-import { useSessionMonitor } from './hooks/useSessionMonitor'; // Nuevo hook para monitorear sesión
+import ProtectedRoute from './components/ProtectedRoute'; 
+import { useSessionMonitor } from './hooks/useSessionMonitor';
 import MaquinasPage from './pages/Maquinas';
 import InsumosPage from './pages/Insumos';
 import ProcesosPage from './pages/Procesos';
 import AreasPage from './pages/Areas';
 import OperariosPage from './pages/Operarios';
-import UsuariosPage from './pages/Usuarios'; // Este es tu componente de página principal de usuarios
-import UsuarioForm from './components/UsuarioForm'; // <--- NUEVO: Importa UsuarioForm
+import UsuariosPage from './pages/Usuarios'; 
+import UsuarioForm from './components/UsuarioForm'; 
 import ResetPassword from './pages/ResetPassword';
 import NotFound from './pages/NotFound'; 
 import { ToastContainer } from 'react-toastify';
