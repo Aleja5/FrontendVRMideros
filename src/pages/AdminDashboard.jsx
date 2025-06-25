@@ -40,6 +40,7 @@ const AdminDashboard = () => {
   const [error, setError] = useState(null);
   const [currentFilters, setCurrentFilters] = useState(null); // New state for active filters
   const [lastUpdated, setLastUpdated] = useState(null);
+  const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false); // Estado para controlar el FilterPanel
  
   // State for individual column visibility
   const [columnVisibility, setColumnVisibility] = useState(
@@ -135,10 +136,10 @@ const AdminDashboard = () => {
             if (response.data.resultados && Array.isArray(response.data.resultados)) {
                 let resultadosOrdenados = response.data.resultados;
 
-                // Ordenar por fecha si no hay filtros aplicados (o si es una búsqueda inicial sin filtros específicos)
-                if (!filtrosRecibidos || Object.keys(filtrosRecibidos).length === 0) {
-                    resultadosOrdenados = resultadosOrdenados.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
-                }                setResultados(resultadosOrdenados);
+                // Siempre ordenar por fecha del más reciente al más antiguo
+                resultadosOrdenados = resultadosOrdenados.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
+                setResultados(resultadosOrdenados);
                 calcularTotalHoras(resultadosOrdenados);
                 setTotalResults(response.data.totalResultados || response.data.totalResults || 0);
                 setLastUpdated(new Date());
@@ -194,11 +195,14 @@ const AdminDashboard = () => {
       }
 
       if (response.data.resultados && Array.isArray(response.data.resultados)) {
-        setResultados(response.data.resultados);
+        // Siempre ordenar por fecha del más reciente al más antiguo
+        const resultadosOrdenados = response.data.resultados.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+        
+        setResultados(resultadosOrdenados);
         setTotalResults(response.data.totalResultados || response.data.totalResults || 0);
-        calcularTotalHoras(response.data.resultados);
+        calcularTotalHoras(resultadosOrdenados);
         setLastUpdated(new Date());
-        console.log('🔄 Datos de producción actualizados:', response.data.resultados.length);
+        console.log('🔄 Datos de producción actualizados:', resultadosOrdenados.length);
       } else {
         setResultados([]);
         setTotalResults(0);
@@ -317,29 +321,42 @@ const AdminDashboard = () => {
             <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-2 flex-shrink-0">
               <div>
                 <h1 className="text-3xl md:text-4xl font-extrabold text-gray-800 tracking-tight drop-shadow-sm">Consultas de Producción</h1>
-                <p className="text-lg text-gray-500 mt-2">Panel de consulta y exportación de registros de producción</p> {/* Slightly darker text */}
+                <p className="text-lg text-gray-500 mt-2">Panel de consulta y exportación de registros de producción</p>
               </div>
-              <div className="flex gap-3 mt-2 md:mt-0"> {/* Increased gap */}
+              <div className="flex gap-3 mt-2 md:mt-0">
+                {/* Botón para mostrar/ocultar filtros en móvil */}
+                <button
+                  onClick={() => setIsFilterPanelOpen(!isFilterPanelOpen)}
+                  className="md:hidden bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition duration-150 ease-in-out flex items-center gap-2"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/>
+                  </svg>
+                  {isFilterPanelOpen ? 'Ocultar Filtros' : 'Mostrar Filtros'}
+                </button>
                 {/* Styled Exportar Excel button */}
                 <button
                   onClick={exportarExcel}
                   className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition duration-150 ease-in-out flex items-center gap-2"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-file-down"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M12 18v-6"/><path d="m15 15-3 3-3-3"/></svg>
-                  Exportar Excel
+                  <span className="hidden sm:inline">Exportar Excel</span>
+                  <span className="sm:hidden">Excel</span>
                 </button>
               </div>
             </div>
 
-            {/* Filtros */}
-            {/* Updated Card styling */}
-            <Card className="mb-4 p-3 bg-white shadow-lg rounded-lg"> {/* Removed flex-shrink-0 */}
-              <FilterPanel onBuscar={handleBuscar} onExportar={exportarExcel} />
-            </Card>
+            {/* Contenedor principal con scroll */}
+            <div className="flex-1 overflow-y-auto overflow-x-hidden">
+              {/* Filtros */}
+              <div className={`mb-4 transition-all duration-300 ${isFilterPanelOpen ? 'block' : 'hidden'} md:block`}>
+                <Card className="p-3 bg-white shadow-lg rounded-lg">
+                  <FilterPanel onBuscar={handleBuscar} onExportar={exportarExcel} />
+                </Card>
+              </div>
 
-            {/* Resultados */}
-            {/* Updated Card styling */}
-            <Card className="mb-8 p-4 bg-white shadow-xl rounded-2xl flex flex-col flex-grow overflow-hidden">              <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-3 flex-shrink-0"> {/* Increased mb and gap */}
+              {/* Resultados */}
+              <Card className="mb-8 p-4 bg-white shadow-xl rounded-2xl flex flex-col overflow-hidden" style={{ minHeight: '600px' }}>                <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-3 flex-shrink-0">
                 <div className="flex flex-col">
                   <h2 className="text-2xl font-bold text-blue-700">Resultados</h2> {/* Increased text size */}
                   {lastUpdated && (
@@ -387,71 +404,78 @@ const AdminDashboard = () => {
                   </div>
                 </div>
               </div>
-              <div className="flex-grow overflow-y-auto border border-gray-200 rounded-lg">
+              
+              {/* Contenedor de tabla con scroll vertical y horizontal optimizado */}
+              <div className="flex-grow border border-gray-200 rounded-lg overflow-hidden table-container">
               {loading ? (
-                <div className="flex justify-center items-center h-full"> {/* Increased py */}
+                <div className="flex justify-center items-center h-full min-h-[200px]">
                   <span className="loader border-blue-500"></span>
-                  <span className="ml-3 text-blue-600 text-lg">Cargando registros...</span> {/* Increased ml and text size */}
+                  <span className="ml-3 text-blue-600 text-lg">Cargando registros...</span>
                 </div>              
               ) : (
                 <>
                   {resultados.length > 0 ? (
-                    <table className="w-full bg-white text-sm">{/* Removed rounded from table itself, ensured no space before thead */}
-                      <thead className="bg-gray-100 sticky top-0 z-10">{/* Darker gray for header, ensured no space before tr */}
-                        <tr>
-                          {/* Adjusted padding, text alignment, and font style for th */}
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">OTI</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Operario</th>
-                          {columnVisibility.fecha && <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Fecha</th>}
-                          {columnVisibility.proceso && <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Proceso</th>}
-                          {columnVisibility.maquina && <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Máquina</th>}
-                          {columnVisibility.area && <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Área</th>}
-                          {columnVisibility.insumos && <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Insumos</th>}
-                          {columnVisibility.observaciones && <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Observaciones</th>}
-                          {columnVisibility.tipoTiempo && <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Tipo de Tiempo</th>}
-                          {columnVisibility.tiempo && <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Tiempo (min)</th>}
-                        </tr>
-                      </thead>{/* Ensured no space after thead */}
-                      <tbody className="bg-white divide-y divide-gray-200">{/* Ensured no space before tr */}
-                        {resultados.map((r, idx) => (
-                          <tr
-                            key={r._id}
-                            className={`${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-blue-50 transition-colors duration-150`}
-                          >{/* Ensured no space before td */}
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{r.oti?.numeroOti || 'N/A'}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{r.operario?.name || 'N/A'}</td>
-                            {columnVisibility.fecha ? <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{new Date(r.fecha).toISOString().split('T')[0]}</td> : null}
-                            {columnVisibility.proceso ? (
-                              <td className="px-6 py-4 text-sm text-gray-700">
-                                {r.procesos && r.procesos.length > 0 ? (
-                                  r.procesos.map(p => <div key={p._id || p.nombre}>{p.nombre}</div>)
-                                ) : (
-                                  'N/A'
-                                )}
-                              </td>
-                            ) : null}
-                            {columnVisibility.maquina ? <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{r.maquina?.nombre || 'N/A'}</td> : null}
-                            {columnVisibility.area ? <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{r.areaProduccion?.nombre || 'N/A'}</td> : null}
-                            {columnVisibility.insumos ? (
-                              <td className="px-6 py-4 text-sm text-gray-700 max-w-xs whitespace-normal break-words">
-                                {r.insumos && r.insumos.length > 0 ? r.insumos.map(i => i.nombre).join(', ') : 'N/A'}
-                              </td>
-                            ) : null}
-                            {columnVisibility.observaciones ? <td className="px-6 py-4 text-sm text-gray-700 whitespace-normal text-left max-w-md break-words">{r.observaciones || ''}</td> : null}
-                            {columnVisibility.tipoTiempo ? <td className="px-6 py-4 text-sm text-gray-700 text-center">{getTipoTiempoBadge(r.tipoTiempo)}</td> : null}
-                            {columnVisibility.tiempo ? <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">{r.tiempo} min</td> : null}
-                          </tr>
-                        ))}
-                      </tbody>{/* Ensured no space after tbody */}
-                    </table>
+                    <div className="h-full overflow-x-auto overflow-y-auto table-scroll-container" style={{ minHeight: '200px' }}>                        <table className="w-full bg-white text-sm" style={{ minWidth: '1200px' }}>{/* Ancho mínimo fijo para garantizar scroll horizontal */}
+                          <thead className="bg-gray-100 sticky top-0 z-10">{/* Darker gray for header, ensured no space before tr */}
+                            <tr>
+                              {/* Adjusted padding, text alignment, and font style for th */}
+                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider whitespace-nowrap" style={{minWidth: '100px'}}>OTI</th>
+                              <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider whitespace-nowrap" style={{minWidth: '120px'}}>Operario</th>
+                              {columnVisibility.fecha && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider whitespace-nowrap" style={{minWidth: '100px'}}>Fecha</th>}
+                              {columnVisibility.proceso && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider whitespace-nowrap" style={{minWidth: '150px'}}>Proceso</th>}
+                              {columnVisibility.maquina && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider whitespace-nowrap" style={{minWidth: '120px'}}>Máquina</th>}
+                              {columnVisibility.area && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider whitespace-nowrap" style={{minWidth: '120px'}}>Área</th>}
+                              {columnVisibility.insumos && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider whitespace-nowrap" style={{minWidth: '150px'}}>Insumos</th>}
+                              {columnVisibility.observaciones && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider whitespace-nowrap" style={{minWidth: '200px'}}>Observaciones</th>}
+                              {columnVisibility.tipoTiempo && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider whitespace-nowrap" style={{minWidth: '120px'}}>Tipo de Tiempo</th>}
+                              {columnVisibility.tiempo && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider whitespace-nowrap" style={{minWidth: '100px'}}>Tiempo (min)</th>}
+                            </tr>
+                          </thead>{/* Ensured no space after thead */}
+                          <tbody className="bg-white divide-y divide-gray-200">{/* Ensured no space before tr */}
+                            {resultados.map((r, idx) => (
+                              <tr
+                                key={r._id}
+                                className={`${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-blue-50 transition-colors duration-150`}
+                              >{/* Ensured no space before td */}
+                                <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700" style={{minWidth: '100px'}}>{r.oti?.numeroOti || 'N/A'}</td>
+                                <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700" style={{minWidth: '120px'}}>{r.operario?.name || 'N/A'}</td>
+                                {columnVisibility.fecha ? <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700" style={{minWidth: '100px'}}>{new Date(r.fecha).toISOString().split('T')[0]}</td> : null}
+                                {columnVisibility.proceso ? (
+                                  <td className="px-4 py-4 text-sm text-gray-700" style={{minWidth: '150px'}}>
+                                    <div className="break-words">
+                                      {r.procesos && r.procesos.length > 0 ? (
+                                        r.procesos.map(p => p.nombre).join(', ')
+                                      ) : (
+                                        'N/A'
+                                      )}
+                                    </div>
+                                  </td>
+                                ) : null}
+                                {columnVisibility.maquina ? <td className="px-4 py-4 text-sm text-gray-700" style={{minWidth: '120px'}}><div className="break-words">{r.maquina?.nombre || 'N/A'}</div></td> : null}
+                                {columnVisibility.area ? <td className="px-4 py-4 text-sm text-gray-700" style={{minWidth: '120px'}}><div className="break-words">{r.areaProduccion?.nombre || 'N/A'}</div></td> : null}
+                                {columnVisibility.insumos ? (
+                                  <td className="px-4 py-4 text-sm text-gray-700" style={{minWidth: '150px'}}>
+                                    <div className="break-words">
+                                      {r.insumos && r.insumos.length > 0 ? r.insumos.map(i => i.nombre).join(', ') : 'N/A'}
+                                    </div>
+                                  </td>
+                                ) : null}
+                                {columnVisibility.observaciones ? <td className="px-4 py-4 text-sm text-gray-700" style={{minWidth: '200px'}}><div className="break-words">{r.observaciones || ''}</div></td> : null}
+                                {columnVisibility.tipoTiempo ? <td className="px-4 py-4 text-sm text-gray-700 text-center" style={{minWidth: '120px'}}>{getTipoTiempoBadge(r.tipoTiempo)}</td> : null}
+                                {columnVisibility.tiempo ? <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-green-600" style={{minWidth: '100px'}}>{r.tiempo} min</td> : null}
+                              </tr>
+                            ))}
+                          </tbody>{/* Ensured no space after tbody */}
+                        </table>
+                    </div>
                   ) : (
-                    <div className="flex justify-center items-center h-full"> {/* Wrapper to center "no results" message */}
+                    <div className="flex justify-center items-center h-full min-h-[200px]">
                       <p className="py-8 text-center text-gray-500">No se encontraron registros con los filtros aplicados.</p>
                     </div>
                   )}
                 </>
               )}           
-              </div> {/* This closes flex-grow overflow-y-auto... */}
+              </div> {/* This closes the table container with scroll */}
 
               {totalResults > itemsPerPage && !loading && ( // Added !loading condition here
                 // Consistent pagination container style
@@ -464,7 +488,8 @@ const AdminDashboard = () => {
                   />
                 </div>
               )}
-            </Card>            
+            </Card>
+            </div>
           </div>
         </div>
       </div>      
@@ -481,6 +506,44 @@ const AdminDashboard = () => {
         @keyframes spin {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
+        }
+        
+        /* Asegurar que el scroll horizontal sea siempre visible en móvil */
+        @media (max-width: 768px) {
+          .table-scroll-container {
+            overflow-x: auto !important;
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch;
+          }
+          .table-scroll-container::-webkit-scrollbar {
+            height: 8px;
+            width: 8px;
+          }
+          .table-scroll-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+          }
+          .table-scroll-container::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+          }
+          .table-scroll-container::-webkit-scrollbar-thumb:hover {
+            background: #a1a1a1;
+          }
+          
+          /* Altura fija para móvil que permita ver la tabla completa */
+          .table-container {
+            height: 350px !important;
+            max-height: 350px !important;
+          }
+        }
+        
+        /* Para tablet y desktop */
+        @media (min-width: 769px) {
+          .table-container {
+            height: 500px !important;
+            max-height: 500px !important;
+          }
         }
       `}</style>      
     </>    

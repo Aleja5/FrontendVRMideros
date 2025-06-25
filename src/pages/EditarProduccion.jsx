@@ -852,24 +852,23 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
           </div>
 
           {/* Botones responsive */}
-          <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 pt-4 sm:pt-5">
-            <Button
-              type="submit"
-              className="order-2 sm:order-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 sm:px-6 py-2.5 sm:py-2 rounded-lg shadow-md transition-all text-sm sm:text-base w-full sm:w-auto"
-            >
-              Guardar Cambios
-            </Button>
+          <div className="flex flex-col sm:flex-row justify-between gap-3 sm:gap-4 pt-6 sm:pt-8 border-t border-gray-200">
             <Button 
-              type="button"
-              variant="secondary" 
+              type="button"              
               onClick={() => {
                 if (onClose) onClose();
                 else if (paramId) navigate(-1); 
                 else navigate('/operario-dashboard'); 
               }} 
-              className="order-1 sm:order-2 border-gray-300 px-4 sm:px-6 py-2.5 sm:py-2 rounded-lg text-sm sm:text-base w-full sm:w-auto"
+              className="order-2 sm:order-1 bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-300 font-medium px-6 sm:px-8 py-3 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 text-sm sm:text-base w-full sm:w-auto"
             >
               Cancelar
+            </Button>
+            <Button
+              type="submit"
+              className="order-1 sm:order-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold px-6 sm:px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 text-sm sm:text-base w-full sm:w-auto transform hover:scale-105"
+            >
+              Guardar Cambios
             </Button>
           </div>
         </form>
