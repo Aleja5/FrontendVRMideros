@@ -9,8 +9,9 @@ import { Sidebar } from '../components/Sidebar';
 import { Button, Card, Input } from '../components/ui/index';
 import EditarProduccion from './EditarProduccion';
 import DetalleJornadaModal from '../components/DetalleJornadaModal';
-import { ClipboardList, UserCircle2 } from 'lucide-react'; // Asumo que CheckCircleIcon no es necesario aquí o viene de otro lugar
+import { ClipboardList, UserCircle2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import useInactivityTimeout from '../hooks/useInactivityTimeout';
 
 // --- NUEVAS IMPORTACIONES ---
 import ActivityCard from '../components/ActivityCard';
@@ -80,6 +81,9 @@ const OperarioDashboard = React.memo(() => {
     
     const operarioId = operarioData?.id || operarioData?._id;
     const operarioName = operarioData?.name || 'Operario';
+
+    // Hook para manejar timeout por inactividad
+    useInactivityTimeout(15 * 60 * 1000); // 15 minutos
 
     // --- Effects ---
 

@@ -8,6 +8,7 @@ import { ChevronDownIcon, ChevronUpIcon, Pencil, Trash2 } from "lucide-react";
 import EditarProduccion from "./EditarProduccion";
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
+import useInactivityTimeout from "../hooks/useInactivityTimeout";
 
 const ajustarFechaLocal = (fechaUTC) => {
   const fecha = new Date(fechaUTC);
@@ -28,6 +29,9 @@ const HistorialJornadas = () => {
 
   const storedOperario = JSON.parse(localStorage.getItem('operario'));
   const operarioName = storedOperario?.name || 'Operario';
+
+  // Hook para manejar timeout por inactividad
+  useInactivityTimeout(15 * 60 * 1000); // 15 minutos
 
   const fetchJornadas = useCallback(async (filterDate = fechaFiltro) => { 
     try {
@@ -210,22 +214,22 @@ const handleEliminarActividad = async (jornadaId, actividadId) => {
                     </div>
 
                     {expandedJornada === jornada._id && (
-                      <div className="mt-6 border-t border-gray-200 pt-4 overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-300">
+                      <div className="mt-6 border-t border-gray-200 pt-4">
+                        <table className="w-full divide-y divide-gray-300 table-fixed">
                           <thead className="bg-gray-50">
                             <tr>
-                              <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Proceso</th>
-                              <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Tiempo (min)</th>
-                              <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">OTI</th>
-                              <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Área</th>
-                              <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 w-75">Máquina</th>
-                              <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 w-75">Insumos</th>
-                              <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Tipo Tiempo</th>
-                              <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">H. Inicio</th>
-                              <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">H. Fin</th>
-                              <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Observaciones</th>
-                              <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-6">
-                                <span className="sr-only">Acciones</span>
+                              <th scope="col" className="py-2 pl-2 pr-1 text-left text-xs font-semibold text-gray-900" style={{width: '12%'}}>Proceso</th>
+                              <th scope="col" className="px-1 py-2 text-center text-xs font-semibold text-gray-900" style={{width: '6%'}}>Min</th>
+                              <th scope="col" className="px-1 py-2 text-left text-xs font-semibold text-gray-900" style={{width: '6%'}}>OTI</th>
+                              <th scope="col" className="px-1 py-2 text-left text-xs font-semibold text-gray-900" style={{width: '10%'}}>Área</th>
+                              <th scope="col" className="px-1 py-2 text-left text-xs font-semibold text-gray-900" style={{width: '12%'}}>Máquina</th>
+                              <th scope="col" className="px-1 py-2 text-left text-xs font-semibold text-gray-900" style={{width: '12%'}}>Insumos</th>
+                              <th scope="col" className="px-1 py-2 text-left text-xs font-semibold text-gray-900" style={{width: '8%'}}>Tipo</th>
+                              <th scope="col" className="px-1 py-2 text-center text-xs font-semibold text-gray-900" style={{width: '7%'}}>Inicio</th>
+                              <th scope="col" className="px-1 py-2 text-center text-xs font-semibold text-gray-900" style={{width: '7%'}}>Fin</th>
+                              <th scope="col" className="px-1 py-2 text-left text-xs font-semibold text-gray-900" style={{width: '15%'}}>Observaciones</th>
+                              <th scope="col" className="relative py-2 pl-1 pr-2 text-center text-xs font-semibold text-gray-900" style={{width: '5%'}}>
+                                Acciones
                               </th>
                             </tr>
                           </thead>
@@ -234,43 +238,67 @@ const handleEliminarActividad = async (jornadaId, actividadId) => {
                             .sort((a, b) => new Date(a.horaInicio) - new Date(b.horaInicio))
                             .map((actividad) => (
                               <tr key={actividad._id}>
-                                <td className="py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-                                  {actividad.procesos && actividad.procesos.length > 0 ? (
-                                    actividad.procesos.map(p => <div key={p._id || p.nombre}>{p.nombre}</div>)
-                                  ) : (
-                                    "N/A"
-                                  )}
+                                <td className="py-2 pl-2 pr-1 text-xs text-gray-900" style={{width: '12%'}}>
+                                  <div className="break-words leading-tight">
+                                    {actividad.procesos && actividad.procesos.length > 0 ? (
+                                      actividad.procesos.map(p => p.nombre).join(', ')
+                                    ) : (
+                                      "N/A"
+                                    )}
+                                  </div>
                                 </td>
-                                <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{actividad.tiempo}</td>
-                                <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{actividad.oti?.numeroOti || "N/A"}</td>
-                                <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{actividad.areaProduccion?.nombre || "N/A"}</td>
-                                <td className="px-3 py-4 text-sm text-gray-500 w-75 break-words">{actividad.maquina?.nombre || "N/A"}</td>
-                                <td className="px-3 py-4 text-sm text-gray-500 w-75">
-                                  {actividad.insumos && actividad.insumos.length > 0 ? (
-                                    actividad.insumos.map(i => <div key={i._id || i.nombre}>{i.nombre}</div>)
-                                  ) : (
-                                    "N/A"
-                                  )}
+                                <td className="px-1 py-2 text-xs text-gray-500 text-center" style={{width: '6%'}}>
+                                  {actividad.tiempo}
                                 </td>
-                                <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{actividad.tipoTiempo || "N/A"}</td>
-                                <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{actividad.horaInicio ? new Date(actividad.horaInicio).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "N/A"}</td>
-                                <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{actividad.horaFin ? new Date(actividad.horaFin).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "N/A"}</td>
-                                <td className="px-3 py-4 text-sm text-gray-500 max-w-xs whitespace-normal break-words">{actividad.observaciones || "N/A"}</td>
-                                <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                                  <button
-                                    onClick={() => handleOpenEditModal(actividad)}
-                                    className="bg-green-200 text-green-700 font-semibold px-3 py-1.5 rounded-md shadow-md hover:bg-green-300 transition-all duration-300 cursor-pointer text-xs" // Adjusted padding, font size, and rounded corners
-                                    title="Editar"
-                                  >
-                                    <Pencil size={14} className="inline mr-1" />                                    
-                                  </button>
-                                  <button
-                                    onClick={() => handleEliminarActividad(jornada._id, actividad._id)}
-                                    className="bg-red-200 text-red-700 font-semibold px-3 py-1.5 rounded-md shadow-md hover:bg-red-300 transition-all duration-300 cursor-pointer ml-2 text-xs" // Adjusted padding, font size, and rounded corners
-                                    title="Eliminar"
-                                  >
-                                    <Trash2 size={14} className="inline mr-1" /> 
-                                  </button>
+                                <td className="px-1 py-2 text-xs text-gray-500" style={{width: '6%'}}>
+                                  <div className="break-words leading-tight">{actividad.oti?.numeroOti || "N/A"}</div>
+                                </td>
+                                <td className="px-1 py-2 text-xs text-gray-500" style={{width: '10%'}}>
+                                  <div className="break-words leading-tight">{actividad.areaProduccion?.nombre || "N/A"}</div>
+                                </td>
+                                <td className="px-1 py-2 text-xs text-gray-500" style={{width: '12%'}}>
+                                  <div className="break-words leading-tight">{actividad.maquina?.nombre || "N/A"}</div>
+                                </td>
+                                <td className="px-1 py-2 text-xs text-gray-500" style={{width: '12%'}}>
+                                  <div className="break-words leading-tight">
+                                    {actividad.insumos && actividad.insumos.length > 0 ? (
+                                      actividad.insumos.map(i => i.nombre).join(', ')
+                                    ) : (
+                                      "N/A"
+                                    )}
+                                  </div>
+                                </td>
+                                <td className="px-1 py-2 text-xs text-gray-500" style={{width: '8%'}}>
+                                  <div className="break-words leading-tight">{actividad.tipoTiempo || "N/A"}</div>
+                                </td>
+                                <td className="px-1 py-2 text-xs text-gray-500 text-center" style={{width: '7%'}}>
+                                  {actividad.horaInicio ? new Date(actividad.horaInicio).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "N/A"}
+                                </td>
+                                <td className="px-1 py-2 text-xs text-gray-500 text-center" style={{width: '7%'}}>
+                                  {actividad.horaFin ? new Date(actividad.horaFin).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "N/A"}
+                                </td>
+                                <td className="px-1 py-2 text-xs text-gray-500" style={{width: '15%'}}>
+                                  <div className="break-words leading-tight">
+                                    {actividad.observaciones || "N/A"}
+                                  </div>
+                                </td>
+                                <td className="relative py-2 pl-1 pr-2 text-center" style={{width: '5%'}}>
+                                  <div className="flex flex-col gap-1 items-center">
+                                    <button
+                                      onClick={() => handleOpenEditModal(actividad)}
+                                      className="bg-green-200 text-green-700 font-semibold px-1 py-0.5 rounded text-xs hover:bg-green-300 transition-all duration-300 cursor-pointer w-full"
+                                      title="Editar"
+                                    >
+                                      <Pencil size={10} className="inline" />
+                                    </button>
+                                    <button
+                                      onClick={() => handleEliminarActividad(jornada._id, actividad._id)}
+                                      className="bg-red-200 text-red-700 font-semibold px-1 py-0.5 rounded text-xs hover:bg-red-300 transition-all duration-300 cursor-pointer w-full"
+                                      title="Eliminar"
+                                    >
+                                      <Trash2 size={10} className="inline" />
+                                    </button>
+                                  </div>
                                 </td>
                               </tr>
                             ))}
