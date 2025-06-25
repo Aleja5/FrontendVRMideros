@@ -30,6 +30,7 @@ export const apiUrls = {
   login: buildApiUrl('api/auth/login'),
   register: buildApiUrl('api/auth/register'),
   logout: buildApiUrl('api/auth/logout'),
+  forgotPassword: buildApiUrl('api/auth/forgot-password'),
   resetPassword: buildApiUrl('api/auth/reset-password'),
   
   // Resources

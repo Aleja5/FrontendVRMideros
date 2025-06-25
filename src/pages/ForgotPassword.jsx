@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axiosInstance from '../utils/axiosInstance'; // Asegúrate de que este archivo esté bien configurado
+import axiosInstance from '../utils/axiosInstance'; 
 import { Mail } from 'lucide-react';
 import { BeatLoader } from 'react-spinners';
 import { Link } from 'react-router-dom';

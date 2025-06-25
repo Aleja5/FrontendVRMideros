@@ -16,7 +16,7 @@ import HistorialJornadas from './pages/HistorialJornadas';
 import AdminJornadaDetalle from './pages/AdminJornadaDetalle';
 
 import ProtectedRoute from './components/ProtectedRoute'; // Asegúrate de que esta ruta sea correcta
-import TokenExpirationMonitor from './components/TokenExpirationMonitor'; // Monitor de expiración de tokens
+import { useSessionMonitor } from './hooks/useSessionMonitor'; // Nuevo hook para monitorear sesión
 import MaquinasPage from './pages/Maquinas';
 import InsumosPage from './pages/Insumos';
 import ProcesosPage from './pages/Procesos';
@@ -31,13 +31,11 @@ import 'react-toastify/dist/ReactToastify.css';
 
 
 function App() {
-  
+  // Inicializar el monitor de sesión global
+  useSessionMonitor();
 
   return (
     <Router>
-      {/* Monitor de expiración de tokens - activo en toda la aplicación */}
-      <TokenExpirationMonitor />
-      
       <Routes>
         {/* Rutas públicas */}
         <Route path="/login" element={<Login />} />
@@ -213,13 +211,17 @@ function App() {
         position="top-right"
         autoClose={5000}
         hideProgressBar={false}
-        newestOnTop={false}
+        newestOnTop={true}
         closeOnClick
         rtl={false}
         pauseOnFocusLoss
         draggable
         pauseOnHover
         theme="light"
+        enableMultiContainer={false}
+        containerId="main-toast-container"
+        limit={3}
+        preventDuplicates={true}
       />
     </Router>
   );

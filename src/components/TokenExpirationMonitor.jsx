@@ -1,6 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { toast } from 'react-toastify';
 import { getTokenTimeRemaining, refreshTokenIfNeeded } from '../utils/authUtils';
+
+// Variable global para evitar múltiples alertas simultáneas
+let globalWarningShown = false;
+let globalToastId = null;
 
 /**
  * Componente que monitorea la expiración del token y permite renovación
@@ -9,7 +13,8 @@ import { getTokenTimeRemaining, refreshTokenIfNeeded } from '../utils/authUtils'
 const TokenExpirationMonitor = () => {
   const [showWarning, setShowWarning] = useState(false);
   const [timeLeft, setTimeLeft] = useState(null);
-  const [hasWarned, setHasWarned] = useState(false);
+  const hasWarnedRef = useRef(false);
+  const intervalRef = useRef(null);
 
   useEffect(() => {
     const checkTokenExpiration = async () => {
@@ -22,19 +27,30 @@ const TokenExpirationMonitor = () => {
       if (token) {
         const timeRemaining = getTokenTimeRemaining(token);
         
-        // Solo mostrar warning si quedan menos de 3 minutos Y no hemos advertido
-        if (timeRemaining <= 3 && timeRemaining > 0 && !hasWarned) {
+        // Solo mostrar warning si quedan menos de 3 minutos Y no hemos advertido globalmente
+        if (timeRemaining <= 3 && timeRemaining > 0 && !hasWarnedRef.current && !globalWarningShown) {
           setTimeLeft(timeRemaining);
           setShowWarning(true);
-          setHasWarned(true);
+          hasWarnedRef.current = true;
+          globalWarningShown = true;
           
-          toast.warning(`⏰ Tu sesión expira en ${timeRemaining} minuto${timeRemaining !== 1 ? 's' : ''}. Se renovará automáticamente.`, {
+          // Cerrar cualquier toast anterior
+          if (globalToastId) {
+            toast.dismiss(globalToastId);
+          }
+          
+          // Mostrar nuevo toast con ID único
+          globalToastId = toast.warning(`⏰ Tu sesión expira en ${timeRemaining} minuto${timeRemaining !== 1 ? 's' : ''}. Se renovará automáticamente.`, {
+            toastId: 'session-expiry-warning', // ID único para evitar duplicados
             position: "top-center",
             autoClose: 5000,
             hideProgressBar: false,
             closeOnClick: true,
             pauseOnHover: true,
             draggable: true,
+            onClose: () => {
+              globalToastId = null;
+            }
           });
         }
         
@@ -43,38 +59,74 @@ const TokenExpirationMonitor = () => {
           const success = await refreshTokenIfNeeded();
           if (success) {
             setShowWarning(false);
-            setHasWarned(false); // Reset para próxima vez
+            hasWarnedRef.current = false;
+            globalWarningShown = false;
+            if (globalToastId) {
+              toast.dismiss(globalToastId);
+              globalToastId = null;
+            }
             console.log('🔄 Token renovado proactivamente');
           }
         }
         
-        // Reset warning si el token se renovó
+        // Reset warning si el token se renovó exitosamente
         if (timeRemaining > 3) {
           setShowWarning(false);
-          setHasWarned(false);
+          hasWarnedRef.current = false;
+          globalWarningShown = false;
+          if (globalToastId) {
+            toast.dismiss(globalToastId);
+            globalToastId = null;
+          }
         }
       }
     };
 
-    // Verificar cada 60 segundos (menos frecuente)
-    const interval = setInterval(checkTokenExpiration, 60000);
+    // Verificar cada 30 segundos (más frecuente para mejor UX)
+    intervalRef.current = setInterval(checkTokenExpiration, 30000);
     
     // Verificar inmediatamente al montar el componente
     checkTokenExpiration();
 
-    return () => clearInterval(interval);
-  }, [hasWarned]);
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, []); // Sin dependencias para evitar re-ejecuciones
 
   const handleExtendSession = async () => {
     const success = await refreshTokenIfNeeded();
     if (success) {
       setShowWarning(false);
-      setHasWarned(false);
-      toast.success('✅ Sesión extendida exitosamente');
+      hasWarnedRef.current = false;
+      globalWarningShown = false;
+      if (globalToastId) {
+        toast.dismiss(globalToastId);
+        globalToastId = null;
+      }
+      toast.success('✅ Sesión extendida exitosamente', {
+        toastId: 'session-extended', // ID único
+        autoClose: 2000
+      });
     } else {
-      toast.error('❌ Error al extender sesión');
+      toast.error('❌ Error al extender sesión', {
+        toastId: 'session-extend-error', // ID único
+        autoClose: 3000
+      });
     }
   };
+
+  // Cleanup al desmontar
+  useEffect(() => {
+    return () => {
+      if (globalToastId) {
+        toast.dismiss(globalToastId);
+        globalToastId = null;
+      }
+      globalWarningShown = false;
+    };
+  }, []);
 
   if (!showWarning) return null;
 

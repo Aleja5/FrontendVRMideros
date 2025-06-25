@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { buildApiUrl } from '../config/api';
+import { apiUrls } from '../config/api';
 
 function ResetPassword() {
   const { token } = useParams(); // Obtenemos el token de la URL
@@ -15,10 +15,11 @@ function ResetPassword() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setMensaje('');
 
     console.log('Token recibido desde URL:', token);
     console.log('Nueva contraseña ingresada:', newPassword);
-    console.log('Confirmación de contraseña:', confirmPassword);
 
     // Validación de contraseñas
     if (newPassword !== confirmPassword) {
@@ -29,27 +30,43 @@ function ResetPassword() {
 
     if (newPassword.length < 6) {
       console.log('Error: contraseña demasiado corta');
-      setError('La contraseña debe tener al menos 6 caracteres.');
+      setError('La contraseña debe tener al menos 6 caracteres');
       return;
     }
 
-    setLoading(true);    try {
-      const res = await axios.post(buildApiUrl('api/auth/reset-password'), {
+    if (!token) {
+      setError('Token inválido o faltante');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const res = await axios.post(apiUrls.resetPassword, {
         token,
         newPassword,
       });
 
       console.log('Respuesta del backend:', res.data);
-      setMensaje(res.data.message);
+      setMensaje(res.data.message || 'Contraseña actualizada correctamente');
       setError('');
+      
+      // Redirigir después de 3 segundos
       setTimeout(() => {
         navigate('/login');
       }, 3000);
     } catch (err) {
       console.error('Error al enviar la nueva contraseña:', err);
-      console.log(err.response?.data);
-
-      setError(err.response?.data?.message || 'Error al restablecer la contraseña');
+      
+      if (err.response?.data?.errors) {
+        // Manejar errores de validación
+        const errorMessages = err.response.data.errors.map(error => error.msg).join(', ');
+        setError(errorMessages);
+      } else if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else {
+        setError('Error al restablecer la contraseña. Inténtalo de nuevo.');
+      }
       setMensaje('');
     } finally {
       setLoading(false);
