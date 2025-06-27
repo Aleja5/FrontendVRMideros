@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button, Input, Label } from "../ui";
 import { Calendar } from "../ui/Calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/Popover";
@@ -10,7 +10,7 @@ import { cn } from "../../utils/cn";
 import { useFiltrosProduccion } from "./useFiltrosProduccion.jsx";
 import { filterFields } from "./fields";
 
-const FilterPanel = ({ onBuscar, onExportar }) => {
+const FilterPanel = ({ onBuscar, onExportar, onOtiMapChange }) => {
   const [filters, setFilters] = useState({
     oti: "",
     operario: "",
@@ -21,7 +21,14 @@ const FilterPanel = ({ onBuscar, onExportar }) => {
     fechaFin: undefined,
   });
 
-  const { oti, operarios, procesos, areasProduccion, maquinas } = useFiltrosProduccion(filters.oti);
+  const { oti, operarios, procesos, areasProduccion, maquinas, otiMap } = useFiltrosProduccion(filters.oti);
+
+  // Notificar al componente padre cuando el otiMap cambie
+  useEffect(() => {
+    if (onOtiMapChange && otiMap) {
+      onOtiMapChange(otiMap);
+    }
+  }, [otiMap, onOtiMapChange]);
 
   const handleApplyFilters = () => {
     onBuscar(filters);

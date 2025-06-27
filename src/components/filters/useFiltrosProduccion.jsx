@@ -9,6 +9,7 @@ export const useFiltrosProduccion = (otiSeleccionada = null) => {
   const [procesos, setProcesos] = useState([]);
   const [areasProduccion, setAreasProduccion] = useState([]);
   const [maquinas, setMaquinas] = useState([]);
+  const [otiMap, setOtiMap] = useState(new Map()); // Mapa de _id -> numeroOti
 
   useEffect(() => {
     const cargarDatos = async () => {
@@ -27,6 +28,7 @@ export const useFiltrosProduccion = (otiSeleccionada = null) => {
           axiosInstance.get("produccion/maquinas")
         ]);
         console.log("OTI Data:", otiData);
+        console.log("OTI Map creado:", otiData.length, "entradas");
         console.log("Operarios Data:", operariosData);
 
         setOti(otiData);
@@ -34,6 +36,13 @@ export const useFiltrosProduccion = (otiSeleccionada = null) => {
         setProcesos(procesosData);
         setAreasProduccion(areasData);
         setMaquinas(maquinasData);
+        
+        // Crear mapa de OTI para lookup rápido
+        const otiMapTemp = new Map();
+        otiData.forEach(oti => {
+          otiMapTemp.set(oti._id, oti.numeroOti);
+        });
+        setOtiMap(otiMapTemp);
       } catch (error) {
         console.error("Error al cargar datos de filtros:", error);
       }
@@ -69,6 +78,7 @@ export const useFiltrosProduccion = (otiSeleccionada = null) => {
     operarios: otiSeleccionada ? operariosFiltrados : operarios, 
     procesos, 
     areasProduccion, 
-    maquinas 
+    maquinas,
+    otiMap // Exportar el mapa para uso en otros componentes
   };
 };

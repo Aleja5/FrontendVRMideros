@@ -43,6 +43,7 @@ const AdminDashboard = () => {
   const [currentFiltersDisplay, setCurrentFiltersDisplay] = useState(null); // Información legible de los filtros
   const [lastUpdated, setLastUpdated] = useState(null);
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false); // Estado para controlar el FilterPanel
+  const [otiMap, setOtiMap] = useState(new Map()); // Mapa de _id -> numeroOti
  
   // State for individual column visibility
   const [columnVisibility, setColumnVisibility] = useState(
@@ -58,6 +59,11 @@ const AdminDashboard = () => {
       ...prev,
       [columnKey]: !prev[columnKey]
     }));
+  };
+
+  // Función para manejar cambios en el otiMap
+  const handleOtiMapChange = (newOtiMap) => {
+    setOtiMap(newOtiMap);
   };
 
   const getTipoTiempoBadge = (tipoTiempo) => {
@@ -151,13 +157,17 @@ const AdminDashboard = () => {
             const otiEncontrada = resultados.find(r => r.oti?._id === value);
             if (otiEncontrada && otiEncontrada.oti?.numeroOti) {
               displayFilters[key] = otiEncontrada.oti.numeroOti;
+            } else if (otiMap && otiMap.has(value)) {
+              // Usar el otiMap como segunda opción
+              displayFilters[key] = otiMap.get(value);
             } else {
-              // Si no está en los resultados actuales, hacer petición HTTP
+              // Crear una petición directa al endpoint específico de OTI
               try {
-                const response = await axiosInstance.get(`/oti/${value}`);
+                const response = await axiosInstance.get(`/produccion/oti/${value}`);
                 displayFilters[key] = response.data.numeroOti || value;
               } catch (error) {
-                displayFilters[key] = value;
+                console.error('Error al buscar OTI por ID:', error);
+                displayFilters[key] = value; // Mostrar el ID como fallback
               }
             }
             break;
@@ -468,7 +478,7 @@ const AdminDashboard = () => {
       }      const rows = allResults.map((r) => ({
         Fecha: new Date(r.fecha).toISOString().split('T')[0],
         Area: r.areaProduccion?.nombre || '',
-        OTI: r.oti?.numeroOti || '',
+        OTI: r.oti?.numeroOti || (r.oti?._id && otiMap.has(r.oti._id) ? otiMap.get(r.oti._id) : r.oti?._id || ''),
         Proceso: r.procesos && r.procesos.length > 0 ? r.procesos.map(p => p.nombre).join(', ') : '',
         Maquina: r.maquina?.nombre || '',
         Insumos: r.insumos && r.insumos.length > 0 ? r.insumos.map(i => i.nombre).join(', ') : '',
@@ -540,7 +550,7 @@ const AdminDashboard = () => {
               {/* Filtros */}
               <div className={`mb-4 transition-all duration-300 ${isFilterPanelOpen ? 'block' : 'hidden'} md:block`}>
                 <Card className="p-3 bg-white shadow-lg rounded-lg">
-                  <FilterPanel onBuscar={handleBuscar} onExportar={exportarExcel} />
+                  <FilterPanel onBuscar={handleBuscar} onExportar={exportarExcel} onOtiMapChange={handleOtiMapChange} />
                 </Card>
               </div>
 
@@ -699,7 +709,7 @@ const AdminDashboard = () => {
                                 key={r._id}
                                 className={`${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-blue-50 transition-colors duration-150`}
                               >{/* Ensured no space before td */}
-                                <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700" style={{minWidth: '100px'}}>{r.oti?.numeroOti || 'N/A'}</td>
+                                <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700" style={{minWidth: '100px'}}>{r.oti?.numeroOti || (r.oti?._id && otiMap.has(r.oti._id) ? otiMap.get(r.oti._id) : r.oti?._id || 'N/A')}</td>
                                 <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700" style={{minWidth: '120px'}}>{r.operario?.name || 'N/A'}</td>
                                 {columnVisibility.fecha ? <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700" style={{minWidth: '100px'}}>{new Date(r.fecha).toISOString().split('T')[0]}</td> : null}
                                 {columnVisibility.proceso ? (
