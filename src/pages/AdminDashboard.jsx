@@ -33,12 +33,14 @@ const columnOptions = [
 const AdminDashboard = () => {
   const [resultados, setResultados] = useState([]);
   const [totalHoras, setTotalHoras] = useState(0);
+  const [totalHorasFiltrado, setTotalHorasFiltrado] = useState(0); // Tiempo total de todos los registros filtrados
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10); // Define cuántos resultados mostrar por página
   const [totalResults, setTotalResults] = useState(0); // Para saber cuántos resultados totales hay
   const [error, setError] = useState(null);
   const [currentFilters, setCurrentFilters] = useState(null); // New state for active filters
+  const [currentFiltersDisplay, setCurrentFiltersDisplay] = useState(null); // Información legible de los filtros
   const [lastUpdated, setLastUpdated] = useState(null);
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false); // Estado para controlar el FilterPanel
  
@@ -93,7 +95,159 @@ const AdminDashboard = () => {
     } else {
       setTotalHoras(0);
     }
-  };    const handleBuscar = async (filtrosRecibidos) => {
+  };
+
+  // Función para obtener el tiempo total de TODOS los registros filtrados (sin paginación)
+  const obtenerTiempoTotalFiltrado = async (filtros) => {
+    try {
+      const filtrosAjustados = { ...filtros };
+      
+      // Manejo correcto de fechas para evitar problemas de zona horaria
+      if (filtros.fechaInicio) {
+        const date = new Date(filtros.fechaInicio);
+        const fechaLocal = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+        filtrosAjustados.fechaInicio = fechaLocal;
+      }
+      if (filtros.fechaFin) {
+        const date = new Date(filtros.fechaFin);
+        const fechaLocal = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+        filtrosAjustados.fechaFin = fechaLocal;
+      }
+
+      const params = {
+        page: 1,
+        limit: 50000, // Obtener todos los registros
+        t: Date.now(),
+        ...filtrosAjustados,
+      };
+
+      const response = await axiosInstance.get('/produccion/buscar-produccion', { params });
+      
+      if (response.data.resultados && Array.isArray(response.data.resultados)) {
+        const tiempoTotal = response.data.resultados.reduce((sum, r) => sum + (r.tiempo || 0), 0);
+        setTotalHorasFiltrado(tiempoTotal);
+        console.log('🔢 Tiempo total filtrado calculado:', tiempoTotal, 'minutos');
+      } else {
+        setTotalHorasFiltrado(0);
+      }
+    } catch (error) {
+      console.error('Error al calcular tiempo total filtrado:', error);
+      setTotalHorasFiltrado(0);
+    }
+  };
+
+  // Función para construir la información legible de los filtros usando datos de los resultados
+  const construirFiltrosDisplay = async (filtros) => {
+    const displayFilters = {};
+    
+    try {
+      // Para cada filtro, construir la información legible
+      for (const [key, value] of Object.entries(filtros)) {
+        if (!value || value === '') continue;
+        
+        switch (key) {
+          case 'oti':
+            // Buscar el número de OTI en los resultados actuales primero
+            const otiEncontrada = resultados.find(r => r.oti?._id === value);
+            if (otiEncontrada && otiEncontrada.oti?.numeroOti) {
+              displayFilters[key] = otiEncontrada.oti.numeroOti;
+            } else {
+              // Si no está en los resultados actuales, hacer petición HTTP
+              try {
+                const response = await axiosInstance.get(`/oti/${value}`);
+                displayFilters[key] = response.data.numeroOti || value;
+              } catch (error) {
+                displayFilters[key] = value;
+              }
+            }
+            break;
+            
+          case 'operario':
+            // Buscar en los resultados actuales primero
+            const operarioEncontrado = resultados.find(r => r.operario?._id === value);
+            if (operarioEncontrado && operarioEncontrado.operario?.name) {
+              displayFilters[key] = operarioEncontrado.operario.name;
+            } else {
+              // Si no está en los resultados actuales, hacer petición HTTP
+              try {
+                const response = await axiosInstance.get(`/operarios/${value}`);
+                displayFilters[key] = response.data.name || value;
+              } catch (error) {
+                displayFilters[key] = value;
+              }
+            }
+            break;
+            
+          case 'proceso':
+            // Buscar en los resultados actuales primero
+            const procesoEncontrado = resultados.find(r => 
+              r.procesos && r.procesos.some(p => p._id === value)
+            );
+            if (procesoEncontrado) {
+              const proceso = procesoEncontrado.procesos.find(p => p._id === value);
+              displayFilters[key] = proceso?.nombre || value;
+            } else {
+              // Si no está en los resultados actuales, hacer petición HTTP
+              try {
+                const response = await axiosInstance.get(`/procesos/${value}`);
+                displayFilters[key] = response.data.nombre || value;
+              } catch (error) {
+                displayFilters[key] = value;
+              }
+            }
+            break;
+            
+          case 'areaProduccion':
+            // Buscar en los resultados actuales primero
+            const areaEncontrada = resultados.find(r => r.areaProduccion?._id === value);
+            if (areaEncontrada && areaEncontrada.areaProduccion?.nombre) {
+              displayFilters[key] = areaEncontrada.areaProduccion.nombre;
+            } else {
+              // Si no está en los resultados actuales, hacer petición HTTP
+              try {
+                const response = await axiosInstance.get(`/areas/${value}`);
+                displayFilters[key] = response.data.nombre || value;
+              } catch (error) {
+                displayFilters[key] = value;
+              }
+            }
+            break;
+            
+          case 'maquina':
+            // Buscar en los resultados actuales primero
+            const maquinaEncontrada = resultados.find(r => r.maquina?._id === value);
+            if (maquinaEncontrada && maquinaEncontrada.maquina?.nombre) {
+              displayFilters[key] = maquinaEncontrada.maquina.nombre;
+            } else {
+              // Si no está en los resultados actuales, hacer petición HTTP
+              try {
+                const response = await axiosInstance.get(`/maquinas/${value}`);
+                displayFilters[key] = response.data.nombre || value;
+              } catch (error) {
+                displayFilters[key] = value;
+              }
+            }
+            break;
+            
+          case 'fechaInicio':
+          case 'fechaFin':
+            // Para fechas, formatear para mejor legibilidad
+            displayFilters[key] = new Date(value).toLocaleDateString();
+            break;
+            
+          default:
+            displayFilters[key] = value;
+        }
+      }
+      
+      return displayFilters;
+    } catch (error) {
+      console.error('Error al construir filtros display:', error);
+      return filtros; // Fallback a los filtros originales
+    }
+  };
+
+    const handleBuscar = async (filtrosRecibidos, filtrosDisplay = null) => {
         setLoading(true);
         setError(null);
         setCurrentPage(1); 
@@ -124,7 +278,9 @@ const AdminDashboard = () => {
                     procesada: fechaLocal,
                     local: date.toLocaleDateString()
                 });
-            }            const params = {
+            }            
+
+            const params = {
                 page: 1, 
                 limit: itemsPerPage,
                 t: Date.now(), // Cache-busting parameter
@@ -143,10 +299,17 @@ const AdminDashboard = () => {
                 calcularTotalHoras(resultadosOrdenados);
                 setTotalResults(response.data.totalResultados || response.data.totalResults || 0);
                 setLastUpdated(new Date());
+
+                // Calcular tiempo total de TODOS los registros filtrados
+                await obtenerTiempoTotalFiltrado(filtrosRecibidos);
+                
+                // Los filtros display se construirán automáticamente en el useEffect
             } else {
                 setResultados([]);
                 setTotalHoras(0);
                 setTotalResults(0);
+                setTotalHorasFiltrado(0);
+                setCurrentFiltersDisplay(null);
                 toast.info(response.data?.msg || 'Sin resultados para los filtros aplicados.');
             }
         } catch (err) {
@@ -154,6 +317,8 @@ const AdminDashboard = () => {
             setResultados([]);
             setTotalHoras(0);
             setTotalResults(0);
+            setTotalHorasFiltrado(0);
+            setCurrentFiltersDisplay(null);
             toast.error('No se pudo buscar los registros. Intenta de nuevo más tarde.');
         } finally {
             setLoading(false);
@@ -203,10 +368,21 @@ const AdminDashboard = () => {
         calcularTotalHoras(resultadosOrdenados);
         setLastUpdated(new Date());
         console.log('🔄 Datos de producción actualizados:', resultadosOrdenados.length);
+
+        // Si hay filtros activos, calcular tiempo total filtrado
+        if (currentFilters && Object.keys(currentFilters).length > 0) {
+          await obtenerTiempoTotalFiltrado(currentFilters);
+          // Los filtros display se construirán automáticamente en el useEffect
+        } else {
+          // Si no hay filtros, el tiempo total de la página es el mismo que el filtrado
+          setTotalHorasFiltrado(0); // Reset cuando no hay filtros
+          setCurrentFiltersDisplay(null); // Reset display filters
+        }
       } else {
         setResultados([]);
         setTotalResults(0);
         setTotalHoras(0);
+        setTotalHorasFiltrado(0);
       }    } catch (error) {
       console.error('Error al cargar producciones:', error);
       
@@ -227,6 +403,7 @@ const AdminDashboard = () => {
       setResultados([]);
       setTotalResults(0);
       setTotalHoras(0);
+      setTotalHorasFiltrado(0);
       
       if (showLoadingSpinner) {
         toast.error(errorMessage);
@@ -240,6 +417,18 @@ const AdminDashboard = () => {
     // Initial load
     cargarProducciones();
   }, [cargarProducciones]);
+
+  // Efecto para construir filtros display cuando cambien los resultados o filtros
+  useEffect(() => {
+    const construirDisplayAsync = async () => {
+      if (currentFilters && Object.keys(currentFilters).length > 0 && resultados.length > 0) {
+        const displayFilters = await construirFiltrosDisplay(currentFilters);
+        setCurrentFiltersDisplay(displayFilters);
+      }
+    };
+    
+    construirDisplayAsync();
+  }, [resultados, currentFilters]);
 
   // Setup auto-refresh using custom hook
   useAutoRefresh(() => {
@@ -405,6 +594,79 @@ const AdminDashboard = () => {
                 </div>
               </div>
               
+              {/* Sección de Resumen de Tiempo Total */}
+              {(currentFilters && Object.keys(currentFilters).length > 0) && (
+                <div className="mb-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 shadow-sm">
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                      <h3 className="text-lg font-semibold text-blue-800">Resumen de Filtros Aplicados</h3>
+                    </div>
+                    <div className="flex flex-col md:flex-row md:items-center gap-4">
+                      <div className="bg-white px-4 py-2 rounded-lg shadow-sm border border-blue-200">
+                        <span className="text-sm text-gray-600">Registros encontrados:</span>
+                        <span className="ml-2 text-lg font-bold text-blue-700">{totalResults}</span>
+                      </div>
+                      <div className="bg-white px-4 py-2 rounded-lg shadow-sm border border-green-200">
+                        <span className="text-sm text-gray-600">Tiempo total:</span>
+                        <span className="ml-2 text-lg font-bold text-green-700">
+                          {totalHorasFiltrado} min
+                        </span>
+                        <span className="ml-1 text-sm text-gray-500">
+                          ({(totalHorasFiltrado / 60).toFixed(1)}h)
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Mostrar filtros activos */}
+                  <div className="mt-3 pt-3 border-t border-blue-200">
+                    <div className="flex flex-wrap gap-2">
+                      {currentFiltersDisplay && Object.entries(currentFiltersDisplay).map(([key, value]) => {
+                        if (!value || value === '') return null;
+                        
+                        let displayKey = key;
+                        let displayValue = value;
+                        
+                        // Formatear nombres de filtros para mejor legibilidad
+                        switch (key) {
+                          case 'fechaInicio':
+                            displayKey = 'Fecha inicio';
+                            break;
+                          case 'fechaFin':
+                            displayKey = 'Fecha fin';
+                            break;
+                          case 'oti':
+                            displayKey = 'OTI';
+                            break;
+                          case 'operario':
+                            displayKey = 'Operario';
+                            break;
+                          case 'areaProduccion':
+                            displayKey = 'Área';
+                            break;
+                          case 'maquina':
+                            displayKey = 'Máquina';
+                            break;
+                          case 'proceso':
+                            displayKey = 'Proceso';
+                            break;
+                        }
+                        
+                        return (
+                          <span
+                            key={key}
+                            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                          >
+                            {displayKey}: {displayValue}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Contenedor de tabla con scroll vertical y horizontal optimizado */}
               <div className="flex-grow border border-gray-200 rounded-lg overflow-hidden table-container">
               {loading ? (

@@ -26,8 +26,8 @@ export const SidebarAdmin = () => {
   };
   const menuItems = [
   { to: "/admin-home", icon: Home, label: "Dashboard" },
-  { to: "/admin-dashboard", icon: LayoutDashboard, label: "Consultas" },
-  { to: "/admin/jornadas", icon: Calendar, label: "Jornadas" },
+  { to: "/admin-dashboard", icon: LayoutDashboard, label: "Consulta de Producción" },
+  { to: "/admin/jornadas", icon: Calendar, label: "Consulta de Jornadas" },
   { to: "/admin/usuarios", icon: User, label: "Usuarios" },
   { to: "/admin/maquinas", icon: Cpu, label: "Máquinas" },
   { to: "/admin/areas", icon: LayoutDashboard, label: "Áreas de Producción" },
