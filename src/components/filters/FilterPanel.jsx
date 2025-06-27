@@ -21,7 +21,7 @@ const FilterPanel = ({ onBuscar, onExportar }) => {
     fechaFin: undefined,
   });
 
-  const { oti, operarios, procesos, areasProduccion, maquinas } = useFiltrosProduccion();
+  const { oti, operarios, procesos, areasProduccion, maquinas } = useFiltrosProduccion(filters.oti);
 
   const handleApplyFilters = () => {
     onBuscar(filters);
@@ -42,7 +42,17 @@ const FilterPanel = ({ onBuscar, onExportar }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFilters((prev) => ({ ...prev, [name]: value }));
+    
+    // Si se cambia la OTI, reiniciar el campo de operario
+    if (name === 'oti') {
+      setFilters((prev) => ({ 
+        ...prev, 
+        [name]: value,
+        operario: "" // Limpiar operario cuando cambia la OTI
+      }));
+    } else {
+      setFilters((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   // Check if any filters are active
@@ -96,6 +106,11 @@ const FilterPanel = ({ onBuscar, onExportar }) => {
               <div key={name} className="space-y-1">
                 <Label htmlFor={name} className="text-m font-medium text-gray-600">
                   {label}
+                  {name === 'operario' && filters.oti && (
+                    <span className="ml-1 text-xs text-blue-600 font-normal">
+                      (filtrado por OTI)
+                    </span>
+                  )}
                 </Label>
                 <Input
                   as="select"
@@ -104,8 +119,14 @@ const FilterPanel = ({ onBuscar, onExportar }) => {
                   value={filters[name]}
                   onChange={handleChange}
                   className="h-8 text-xs"
+                  disabled={name === 'operario' && filters.oti && options.length === 0}
                 >
-                  <option value="">Todos</option>
+                  <option value="">
+                    {name === 'operario' && filters.oti && options.length === 0 
+                      ? "No hay operarios para esta OTI" 
+                      : "Todos"
+                    }
+                  </option>
                   {options
                     .sort((a, b) => a[valueField].localeCompare(b[valueField]))
                     .map((item) => (

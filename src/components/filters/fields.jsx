@@ -7,6 +7,7 @@ export const filterFields = ({ oti, operarios, procesos, areasProduccion, maquin
     options: oti,
     keyField: "_id",
     valueField: "numeroOti",
+    order: 1,
   },
   {
     name: "operario",
@@ -14,6 +15,7 @@ export const filterFields = ({ oti, operarios, procesos, areasProduccion, maquin
     options: operarios,
     keyField: "_id",
     valueField: "name",
+    order: 2,
   },
   {
     name: "proceso",
@@ -21,6 +23,7 @@ export const filterFields = ({ oti, operarios, procesos, areasProduccion, maquin
     options: procesos,
     keyField: "_id",
     valueField: "nombre",
+    order: 3,
   },
   {
     name: "areaProduccion",
@@ -28,6 +31,7 @@ export const filterFields = ({ oti, operarios, procesos, areasProduccion, maquin
     options: areasProduccion,
     keyField: "_id",
     valueField: "nombre",
+    order: 4,
   },
   {
     name: "maquina",
@@ -35,5 +39,6 @@ export const filterFields = ({ oti, operarios, procesos, areasProduccion, maquin
     options: maquinas,
     keyField: "_id",
     valueField: "nombre",
+    order: 5,
   },
 ];

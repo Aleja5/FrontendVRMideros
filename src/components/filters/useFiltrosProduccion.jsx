@@ -2,9 +2,10 @@
 import { useEffect, useState } from "react";
 import axiosInstance from "../../utils/axiosInstance";
 
-export const useFiltrosProduccion = () => {
+export const useFiltrosProduccion = (otiSeleccionada = null) => {
   const [oti, setOti] = useState([]);
   const [operarios, setOperarios] = useState([]);
+  const [operariosFiltrados, setOperariosFiltrados] = useState([]);
   const [procesos, setProcesos] = useState([]);
   const [areasProduccion, setAreasProduccion] = useState([]);
   const [maquinas, setMaquinas] = useState([]);
@@ -41,5 +42,33 @@ export const useFiltrosProduccion = () => {
     cargarDatos();
   }, []);
 
-  return { oti, operarios, procesos, areasProduccion, maquinas };
+  // Efecto para cargar operarios filtrados cuando se selecciona una OTI
+  useEffect(() => {
+    const cargarOperariosPorOti = async () => {
+      if (otiSeleccionada) {
+        try {
+          console.log("Cargando operarios para OTI:", otiSeleccionada);
+          const { data } = await axiosInstance.get(`produccion/operarios-por-oti/${otiSeleccionada}`);
+          console.log("Operarios filtrados recibidos:", data);
+          setOperariosFiltrados(data);
+        } catch (error) {
+          console.error("Error al cargar operarios por OTI:", error);
+          setOperariosFiltrados([]);
+        }
+      } else {
+        console.log("No hay OTI seleccionada, usando todos los operarios");
+        setOperariosFiltrados(operarios);
+      }
+    };
+
+    cargarOperariosPorOti();
+  }, [otiSeleccionada, operarios]);
+
+  return { 
+    oti, 
+    operarios: otiSeleccionada ? operariosFiltrados : operarios, 
+    procesos, 
+    areasProduccion, 
+    maquinas 
+  };
 };
