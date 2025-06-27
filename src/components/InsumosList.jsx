@@ -1,33 +1,26 @@
 import React from 'react';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Pencil, Trash2, Shield } from 'lucide-react';
 import { toast } from 'react-toastify';
-import { confirmAlert } from 'react-confirm-alert';
-import 'react-confirm-alert/src/react-confirm-alert.css';
+
+import ConfirmacionEliminar from './ConfirmacionEliminar';
+import { useEliminarConIntegridad } from '../hooks/useEliminarConIntegridad';
 
 const InsumosList = ({ insumos, onEditar, onEliminar }) => {
-    // Función para manejar el clic en eliminar con confirmación elegante
-    const handleDeleteClick = (insumoId, insumoNombre) => {
-        confirmAlert({
-            title: 'Confirmar Eliminación',
-            message: `¿Estás seguro de que quieres eliminar el insumo "${insumoNombre}"? Esta acción es irreversible.`,
-            buttons: [
-                {
-                    label: 'Sí, eliminar',
-                    onClick: () => {
-                        onEliminar(insumoId);
-                    },
-                    className: 'bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg'
-                },
-                {
-                    label: 'Cancelar',
-                    onClick: () => toast.info('Eliminación cancelada.'),
-                    className: 'bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded-lg'
-                }
-            ],
-            closeOnEscape: true,
-            closeOnClickOutside: true,
-            overlayClassName: "custom-overlay-confirm-alert"
-        });
+    // Hook para manejar eliminaciones con integridad referencial
+    const {
+        iniciarEliminacion,
+        propsConfirmacion
+    } = useEliminarConIntegridad('insumo', (insumoEliminado) => {
+        toast.success(`Insumo "${insumoEliminado.nombre}" eliminado exitosamente`);
+        // Llamar al callback original si existe
+        if (onEliminar) {
+            onEliminar(insumoEliminado._id || insumoEliminado.id);
+        }
+    });
+
+    // Nueva función que usa el sistema de integridad
+    const handleDeleteClick = (insumo) => {
+        iniciarEliminacion(insumo);
     };
 
     if (!insumos) {
@@ -69,11 +62,12 @@ return (
                 >
                   <Pencil size={16} />
                 </button>                <button
-                  onClick={() => handleDeleteClick(insumo._id, insumo.nombre)}
-                  className="p-2 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 transition"
-                  title="Eliminar"
+                  onClick={() => handleDeleteClick(insumo)}
+                  className="p-2 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 transition relative"
+                  title="Eliminar con verificación de integridad"
                 >
                   <Trash2 size={16} />
+                  <Shield className="w-2 h-2 text-blue-500 absolute -top-1 -right-1" />
                 </button>
               </div>
             </td>
@@ -81,6 +75,9 @@ return (
         ))}
       </tbody>
     </table>
+
+    {/* Modal de confirmación con verificación de integridad */}
+    <ConfirmacionEliminar {...propsConfirmacion} />
   </div>
 );
 };
