@@ -32,10 +32,20 @@ const ActividadCard = ({
   areasProduccionData, 
   maquinasData, 
   insumosData,
-  canRemove = false 
+  canRemove = false,
+  triggerValidation = false,
+  onValidationChange
 }) => {
   const [tiempoCalculado, setTiempoCalculado] = useState(0);
   const [cruzaMedianoche, setCruzaMedianoche] = useState(false);
+  const [validationErrors, setValidationErrors] = useState({
+    procesos: false,
+    insumos: false
+  });
+  const [showTooltips, setShowTooltips] = useState({
+    procesos: false,
+    insumos: false
+  });
 
   // Calcular tiempo en tiempo real
   useEffect(() => {
@@ -66,7 +76,75 @@ const ActividadCard = ({
     const horas = Math.floor(minutos / 60);
     const mins = minutos % 60;
     return `${horas}h ${mins}m`;
-  };  return (
+  };
+
+  // Función para validar campos requeridos
+  const validateField = (fieldName, value) => {
+    const isEmpty = !value || (Array.isArray(value) && value.length === 0);
+    setValidationErrors(prev => {
+      const newErrors = {
+        ...prev,
+        [fieldName]: isEmpty
+      };
+      
+      // Notificar al componente padre sobre el estado de validación
+      if (onValidationChange) {
+        const hasErrors = Object.values(newErrors).some(error => error === true);
+        onValidationChange(index, hasErrors);
+      }
+      
+      return newErrors;
+    });
+    return !isEmpty;
+  };
+
+  // Función para mostrar tooltips de validación
+  const showValidationTooltips = () => {
+    const procesosEmpty = !actividad.procesos || actividad.procesos.length === 0;
+    const insumosEmpty = !actividad.insumos || actividad.insumos.length === 0;
+    
+    setShowTooltips({
+      procesos: procesosEmpty,
+      insumos: insumosEmpty
+    });
+
+    // Ocultar tooltips después de 3 segundos
+    setTimeout(() => {
+      setShowTooltips({
+        procesos: false,
+        insumos: false
+      });
+    }, 3000);
+  };
+
+  // Función para validar todos los campos
+  const validateAllFields = () => {
+    const procesosValid = validateField('procesos', actividad.procesos);
+    const insumosValid = validateField('insumos', actividad.insumos);
+    return procesosValid && insumosValid;
+  };
+
+  // Manejar blur de campos Select
+  const handleSelectBlur = (fieldName, value) => {
+    validateField(fieldName, value);
+    // Ocultar tooltip si se selecciona algo
+    if (value && Array.isArray(value) && value.length > 0) {
+      setShowTooltips(prev => ({
+        ...prev,
+        [fieldName]: false
+      }));
+    }
+  };
+
+  // Validar todos los campos cuando se dispara desde el componente padre
+  useEffect(() => {
+    if (triggerValidation) {
+      validateAllFields();
+      showValidationTooltips();
+    }
+  }, [triggerValidation]);
+
+  return (
     <Card className="relative p-6 border-l-4 border-l-blue-500 bg-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-lg border border-gray-100">
       {/* Header con gradiente */}
       <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
@@ -126,47 +204,73 @@ const ActividadCard = ({
                 ))}
               </Input>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2 relative">
               <label className="flex items-center gap-2 text-m font-medium text-gray-700">
                 <span className="w-2 h-2 bg-red-500 rounded-full"></span>
                 Proceso(s) *
               </label>
-              <Select
-                isMulti
-                name="procesos"
-                options={actividad.availableProcesos?.map(p => ({ value: p._id, label: p.nombre })) || []}
-                value={actividad.procesos
-                  ?.map(pId => {
-                    const procesoInfo = actividad.availableProcesos?.find(ap => ap._id === pId);
-                    return procesoInfo ? { value: procesoInfo._id, label: procesoInfo.nombre } : null;
-                  })
-                  .filter(p => p !== null) || []}
-                onChange={(selectedOptions, actionMeta) => onActividadChange(index, selectedOptions, actionMeta)}
-                placeholder="Seleccionar proceso(s)..."
-                isDisabled={!actividad.areaProduccion}
-                styles={{
-                  control: (base, state) => ({
-                    ...base,
-                    minHeight: '40px',
-                    fontSize: '14px',
-                    borderColor: state.isFocused ? '#3b82f6' : '#d1d5db',
-                    borderRadius: '8px',
-                    boxShadow: state.isFocused ? '0 0 0 3px rgba(59, 130, 246, 0.1)' : 'none',
-                    '&:hover': { borderColor: '#3b82f6' }
-                  }),
-                  multiValue: (base) => ({
-                    ...base,
-                    backgroundColor: '#eff6ff',
-                    borderRadius: '6px',
-                    fontSize: '12px'
-                  }),
-                  multiValueLabel: (base) => ({
-                    ...base,
-                    color: '#1e40af',
-                    fontSize: '12px'
-                  })
-                }}
-              />
+              <div className="relative">
+                <Select
+                  isMulti
+                  name="procesos"
+                  options={actividad.availableProcesos?.map(p => ({ value: p._id, label: p.nombre })) || []}
+                  value={actividad.procesos
+                    ?.map(pId => {
+                      const procesoInfo = actividad.availableProcesos?.find(ap => ap._id === pId);
+                      return procesoInfo ? { value: procesoInfo._id, label: procesoInfo.nombre } : null;
+                    })
+                    .filter(p => p !== null) || []}
+                  onChange={(selectedOptions, actionMeta) => {
+                    onActividadChange(index, selectedOptions, actionMeta);
+                    validateField('procesos', selectedOptions);
+                    // Ocultar tooltip si se selecciona algo
+                    if (selectedOptions && selectedOptions.length > 0) {
+                      setShowTooltips(prev => ({
+                        ...prev,
+                        procesos: false
+                      }));
+                    }
+                  }}
+                  placeholder="Seleccionar proceso(s)..."
+                  isDisabled={!actividad.areaProduccion}
+                  styles={{
+                    control: (base, state) => ({
+                      ...base,
+                      minHeight: '40px',
+                      fontSize: '14px',
+                      borderColor: state.isFocused ? '#3b82f6' : '#d1d5db',
+                      borderRadius: '8px',
+                      boxShadow: state.isFocused ? '0 0 0 3px rgba(59, 130, 246, 0.1)' : 'none',
+                      '&:hover': { borderColor: '#3b82f6' }
+                    }),
+                    multiValue: (base) => ({
+                      ...base,
+                      backgroundColor: '#eff6ff',
+                      borderRadius: '6px',
+                      fontSize: '12px'
+                    }),
+                    multiValueLabel: (base) => ({
+                      ...base,
+                      color: '#1e40af',
+                      fontSize: '12px'
+                    })
+                  }}
+                  onBlur={() => handleSelectBlur('procesos', actividad.procesos)}
+                />
+                {showTooltips.procesos && (
+                  <div className="absolute top-0 left-0 right-0 bottom-0 pointer-events-none z-30">
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                      <div className="bg-orange-500 text-white text-xs px-3 py-2 rounded-lg shadow-lg whitespace-nowrap">
+                        <div className="flex items-center gap-2">
+                          <AlertCircle className="w-4 h-4" />
+                          Completa este campo
+                        </div>
+                        <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-orange-500"></div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
             <div className="space-y-2">
               <label className="flex items-center gap-2 text-m font-medium text-gray-700">
@@ -189,46 +293,72 @@ const ActividadCard = ({
                   ))}
               </Input>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2 relative">
               <label className="flex items-center gap-2 text-m font-medium text-gray-700">
                 <span className="w-2 h-2 bg-red-500 rounded-full"></span>
                 Insumo(s) *
               </label>
-              <Select
-                isMulti
-                name="insumos"
-                options={insumosData.map(i => ({ value: i._id, label: i.nombre }))}
-                value={actividad.insumos
-                  ?.map(iId => {
-                    const insumoInfo = insumosData.find(ins => ins._id === iId);
-                    return insumoInfo ? { value: insumoInfo._id, label: insumoInfo.nombre } : null;
-                  })
-                  .filter(i => i !== null) || []}
-                onChange={(selectedOptions, actionMeta) => onActividadChange(index, selectedOptions, actionMeta)}
-                placeholder="Seleccionar insumo(s)..."
-                styles={{
-                  control: (base, state) => ({
-                    ...base,
-                    minHeight: '40px',
-                    fontSize: '14px',
-                    borderColor: state.isFocused ? '#3b82f6' : '#d1d5db',
-                    borderRadius: '8px',
-                    boxShadow: state.isFocused ? '0 0 0 3px rgba(59, 130, 246, 0.1)' : 'none',
-                    '&:hover': { borderColor: '#3b82f6' }
-                  }),
-                  multiValue: (base) => ({
-                    ...base,
-                    backgroundColor: '#f3e8ff',
-                    borderRadius: '6px',
-                    fontSize: '12px'
-                  }),
-                  multiValueLabel: (base) => ({
-                    ...base,
-                    color: '#7c3aed',
-                    fontSize: '12px'
-                  })
-                }}
-              />
+              <div className="relative">
+                <Select
+                  isMulti
+                  name="insumos"
+                  options={insumosData.map(i => ({ value: i._id, label: i.nombre }))}
+                  value={actividad.insumos
+                    ?.map(iId => {
+                      const insumoInfo = insumosData.find(ins => ins._id === iId);
+                      return insumoInfo ? { value: insumoInfo._id, label: insumoInfo.nombre } : null;
+                    })
+                    .filter(i => i !== null) || []}
+                  onChange={(selectedOptions, actionMeta) => {
+                    onActividadChange(index, selectedOptions, actionMeta);
+                    validateField('insumos', selectedOptions);
+                    // Ocultar tooltip si se selecciona algo
+                    if (selectedOptions && selectedOptions.length > 0) {
+                      setShowTooltips(prev => ({
+                        ...prev,
+                        insumos: false
+                      }));
+                    }
+                  }}
+                  placeholder="Seleccionar insumo(s)..."
+                  styles={{
+                    control: (base, state) => ({
+                      ...base,
+                      minHeight: '40px',
+                      fontSize: '14px',
+                      borderColor: state.isFocused ? '#3b82f6' : '#d1d5db',
+                      borderRadius: '8px',
+                      boxShadow: state.isFocused ? '0 0 0 3px rgba(59, 130, 246, 0.1)' : 'none',
+                      '&:hover': { borderColor: '#3b82f6' }
+                    }),
+                    multiValue: (base) => ({
+                      ...base,
+                      backgroundColor: '#f3e8ff',
+                      borderRadius: '6px',
+                      fontSize: '12px'
+                    }),
+                    multiValueLabel: (base) => ({
+                      ...base,
+                      color: '#7c3aed',
+                      fontSize: '12px'
+                    })
+                  }}
+                  onBlur={() => handleSelectBlur('insumos', actividad.insumos)}
+                />
+                {showTooltips.insumos && (
+                  <div className="absolute top-0 left-0 right-0 bottom-0 pointer-events-none z-30">
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                      <div className="bg-orange-500 text-white text-xs px-3 py-2 rounded-lg shadow-lg whitespace-nowrap">
+                        <div className="flex items-center gap-2">
+                          <AlertCircle className="w-4 h-4" />
+                          Completa este campo
+                        </div>
+                        <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-orange-500"></div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
             <div className="space-y-2">
               <label className="flex items-center gap-2 text-m font-medium text-gray-700">
@@ -244,9 +374,9 @@ const ActividadCard = ({
                 required
               >
                 <option value="">Seleccionar tipo...</option>
-                <option value="Operación">Operación</option>
-                <option value="Preparación">Preparación</option>
-                <option value="Alimentación">Alimentación</option>
+                <option value="Operación">Operación (tiempo dedicado a fabricar o transformar un producto)</option>
+                <option value="Preparación">Preparación (Ej. limpieza, reuniones, alistamiento de herramientas)</option>
+                <option value="Alimentación">Alimentación (Ej. desayuno, almuerzo)</option>
               </Input>
             </div>
              <div className="space-y-2">
@@ -324,6 +454,8 @@ export default function RegistroProduccion() {
   const [nombreOperario, setNombreOperario] = useState("");
   const [currentStep, setCurrentStep] = useState(1); // Para wizard steps
   const [showFloatingButton, setShowFloatingButton] = useState(false);
+  const [triggerValidation, setTriggerValidation] = useState(false);
+  const [actividadesWithErrors, setActividadesWithErrors] = useState(new Set());
   
   const [jornadaData, setJornadaData] = useState({
     fecha: (() => {
@@ -735,6 +867,19 @@ export default function RegistroProduccion() {
     });
   };
 
+  // Manejar cambios de validación desde los componentes ActividadCard
+  const handleValidationChange = (activityIndex, hasErrors) => {
+    setActividadesWithErrors(prev => {
+      const newSet = new Set(prev);
+      if (hasErrors) {
+        newSet.add(activityIndex);
+      } else {
+        newSet.delete(activityIndex);
+      }
+      return newSet;
+    });
+  };
+
   const removeActividad = (index) => {
     if (actividades.length > 1) {
       setActividades(prev => prev.filter((_, i) => i !== index));
@@ -747,11 +892,19 @@ export default function RegistroProduccion() {
     e.preventDefault();
     setCurrentStep(3);
 
+    // Disparar validación visual en todos los componentes
+    setTriggerValidation(prev => !prev);
+
     // Validaciones
     if (!actividades || actividades.length === 0) {
       toast.error("Debe agregar al menos una actividad para guardar la jornada.");
       return;
-    }    for (let i = 0; i < actividades.length; i++) {
+    }
+
+    // Esperar un poco para que se actualice la validación visual
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    for (let i = 0; i < actividades.length; i++) {
       const actividad = actividades[i];
       const camposFaltantes = [];
       
@@ -1007,6 +1160,8 @@ export default function RegistroProduccion() {
                     maquinasData={maquinasData}
                     insumosData={insumosData}
                     canRemove={actividades.length > 1}
+                    triggerValidation={triggerValidation}
+                    onValidationChange={handleValidationChange}
                   />
                 ))}
               </div>{/* Botones de acción */}

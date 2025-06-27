@@ -134,8 +134,8 @@ const MiJornada = () => {
   <div className="flex bg-gray-100 h-screen">
     <Sidebar />
     <div className="flex-1 overflow-auto">
-      <div className="container mx-auto py-8 max-w-7xl">
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto py-8 max-w-full px-4">
+      <div className="container mx-auto px-4 py-6 max-w-full">
         <div className="flex justify-between items-center mb-6">
           <div>
             <h1 className="text-4xl font-extrabold text-gray-800 tracking-tight drop-shadow-sm">
@@ -174,21 +174,21 @@ const MiJornada = () => {
               Actividades Registradas
             </h2>
 
-            <div className="bg-white shadow-md rounded-lg border border-gray-200">
-              <table className="w-full divide-y divide-gray-300 table-fixed">
+            <div className="bg-white shadow-md rounded-lg border border-gray-200 overflow-x-auto">
+              <table className="w-full min-w-max divide-y divide-gray-300 table-fixed">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th scope="col" className="py-2 pl-2 pr-1 text-left text-xs font-semibold text-gray-900" style={{width: '12%'}}>Proceso</th>                    
-                    <th scope="col" className="px-1 py-2 text-left text-xs font-semibold text-gray-900" style={{width: '6%'}}>OTI</th>
-                    <th scope="col" className="px-1 py-2 text-left text-xs font-semibold text-gray-900" style={{width: '10%'}}>Área</th>
-                    <th scope="col" className="px-1 py-2 text-left text-xs font-semibold text-gray-900" style={{width: '12%'}}>Máquina</th>
-                    <th scope="col" className="px-1 py-2 text-left text-xs font-semibold text-gray-900" style={{width: '12%'}}>Insumos</th>
-                    <th scope="col" className="px-1 py-2 text-left text-xs font-semibold text-gray-900" style={{width: '8%'}}>Tipo</th>
-                    <th scope="col" className="px-1 py-2 text-center text-xs font-semibold text-gray-900" style={{width: '7%'}}>Inicio</th>
-                    <th scope="col" className="px-1 py-2 text-center text-xs font-semibold text-gray-900" style={{width: '7%'}}>Fin</th>
-                    <th scope="col" className="px-1 py-2 text-center text-xs font-semibold text-gray-900" style={{width: '6%'}}>Min</th>
-                    <th scope="col" className="px-1 py-2 text-left text-xs font-semibold text-gray-900" style={{width: '15%'}}>Observaciones</th>
-                    <th scope="col" className="relative py-2 pl-1 pr-2 text-center text-xs font-semibold text-gray-900" style={{width: '5%'}}>
+                    <th scope="col" className="py-3 pl-4 pr-2 text-left text-sm font-semibold text-gray-900" style={{width: '15%', minWidth: '120px'}}>Proceso</th>                    
+                    <th scope="col" className="px-2 py-3 text-left text-sm font-semibold text-gray-900" style={{width: '8%', minWidth: '70px'}}>OTI</th>
+                    <th scope="col" className="px-2 py-3 text-left text-sm font-semibold text-gray-900" style={{width: '12%', minWidth: '100px'}}>Área</th>
+                    <th scope="col" className="px-2 py-3 text-left text-sm font-semibold text-gray-900" style={{width: '15%', minWidth: '120px'}}>Máquina</th>
+                    <th scope="col" className="px-2 py-3 text-left text-sm font-semibold text-gray-900" style={{width: '15%', minWidth: '120px'}}>Insumos</th>
+                    <th scope="col" className="px-2 py-3 text-left text-sm font-semibold text-gray-900" style={{width: '10%', minWidth: '80px'}}>Tipo</th>
+                    <th scope="col" className="px-2 py-3 text-center text-sm font-semibold text-gray-900" style={{width: '8%', minWidth: '70px'}}>Inicio</th>
+                    <th scope="col" className="px-2 py-3 text-center text-sm font-semibold text-gray-900" style={{width: '8%', minWidth: '70px'}}>Fin</th>
+                    <th scope="col" className="px-2 py-3 text-center text-sm font-semibold text-gray-900" style={{width: '8%', minWidth: '60px'}}>Min</th>
+                    <th scope="col" className="px-2 py-3 text-left text-sm font-semibold text-gray-900" style={{width: '18%', minWidth: '140px'}}>Observaciones</th>
+                    <th scope="col" className="relative py-3 pl-2 pr-4 text-center text-sm font-semibold text-gray-900" style={{width: '8%', minWidth: '80px'}}>
                       Acciones
                     </th>
                   </tr>
@@ -197,9 +197,9 @@ const MiJornada = () => {
                   {jornadaActual.registros
                     .sort((a, b) => new Date(a.horaInicio) - new Date(b.horaInicio))
                     .map((actividad) => (
-                      <tr key={actividad._id}>
-                        <td className="py-2 pl-2 pr-1 text-xs text-gray-900" style={{width: '12%'}}>
-                          <div className="break-words leading-tight">
+                      <tr key={actividad._id} className="hover:bg-gray-50">
+                        <td className="py-3 pl-4 pr-2 text-sm text-gray-900" style={{width: '15%', minWidth: '120px'}}>
+                          <div className="break-words leading-relaxed">
                             {actividad.procesos && actividad.procesos.length > 0 ? (
                               actividad.procesos.map(p => p.nombre).join(', ')
                             ) : (
@@ -207,17 +207,17 @@ const MiJornada = () => {
                             )}
                           </div>
                         </td>                        
-                        <td className="px-1 py-2 text-xs text-gray-500" style={{width: '6%'}}>
-                          <div className="break-words leading-tight">{actividad.oti?.numeroOti || "N/A"}</div>
+                        <td className="px-2 py-3 text-sm text-gray-500" style={{width: '8%', minWidth: '70px'}}>
+                          <div className="break-words leading-relaxed">{actividad.oti?.numeroOti || "N/A"}</div>
                         </td>
-                        <td className="px-1 py-2 text-xs text-gray-500" style={{width: '10%'}}>
-                          <div className="break-words leading-tight">{actividad.areaProduccion?.nombre || "N/A"}</div>
+                        <td className="px-2 py-3 text-sm text-gray-500" style={{width: '12%', minWidth: '100px'}}>
+                          <div className="break-words leading-relaxed">{actividad.areaProduccion?.nombre || "N/A"}</div>
                         </td>
-                        <td className="px-1 py-2 text-xs text-gray-500" style={{width: '12%'}}>
-                          <div className="break-words leading-tight">{actividad.maquina?.nombre || "N/A"}</div>
+                        <td className="px-2 py-3 text-sm text-gray-500" style={{width: '15%', minWidth: '120px'}}>
+                          <div className="break-words leading-relaxed">{actividad.maquina?.nombre || "N/A"}</div>
                         </td>
-                        <td className="px-1 py-2 text-xs text-gray-500" style={{width: '12%'}}>
-                          <div className="break-words leading-tight">
+                        <td className="px-2 py-3 text-sm text-gray-500" style={{width: '15%', minWidth: '120px'}}>
+                          <div className="break-words leading-relaxed">
                             {actividad.insumos && actividad.insumos.length > 0 ? (
                               actividad.insumos.map(i => i.nombre).join(', ')
                             ) : (
@@ -225,38 +225,38 @@ const MiJornada = () => {
                             )}
                           </div>
                         </td>
-                        <td className="px-1 py-2 text-xs text-gray-500" style={{width: '8%'}}>
-                          <div className="break-words leading-tight">{actividad.tipoTiempo || "N/A"}</div>
+                        <td className="px-2 py-3 text-sm text-gray-500" style={{width: '10%', minWidth: '80px'}}>
+                          <div className="break-words leading-relaxed">{actividad.tipoTiempo || "N/A"}</div>
                         </td>
-                        <td className="px-1 py-2 text-xs text-gray-500 text-center" style={{width: '7%'}}>
+                        <td className="px-2 py-3 text-sm text-gray-500 text-center" style={{width: '8%', minWidth: '70px'}}>
                           {actividad.horaInicio ? new Date(actividad.horaInicio).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "N/A"}
                         </td>
-                        <td className="px-1 py-2 text-xs text-gray-500 text-center" style={{width: '7%'}}>
+                        <td className="px-2 py-3 text-sm text-gray-500 text-center" style={{width: '8%', minWidth: '70px'}}>
                           {actividad.horaFin ? new Date(actividad.horaFin).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "N/A"}
                         </td>
-                        <td className="px-1 py-2 text-xs text-gray-500 text-center" style={{width: '6%'}}>
+                        <td className="px-2 py-3 text-sm text-gray-500 text-center" style={{width: '8%', minWidth: '60px'}}>
                           {actividad.tiempo}
                         </td>
-                        <td className="px-1 py-2 text-xs text-gray-500" style={{width: '15%'}}>
-                          <div className="break-words leading-tight">
+                        <td className="px-2 py-3 text-sm text-gray-500" style={{width: '18%', minWidth: '140px'}}>
+                          <div className="break-words leading-relaxed">
                             {actividad.observaciones || "N/A"}
                           </div>
                         </td>
-                        <td className="relative py-2 pl-1 pr-2 text-center" style={{width: '5%'}}>
-                          <div className="flex flex-col gap-1 items-center">
+                        <td className="relative py-3 pl-2 pr-4 text-center" style={{width: '8%', minWidth: '80px'}}>
+                          <div className="flex flex-row gap-2 items-center justify-center">
                             <button
                               onClick={() => handleEditarActividad(actividad)}
-                              className="bg-green-200 text-green-700 font-semibold px-1 py-0.5 rounded text-xs hover:bg-green-300 transition-all duration-300 cursor-pointer w-full"
+                              className="bg-green-200 text-green-700 font-semibold px-2 py-1 rounded text-sm hover:bg-green-300 transition-all duration-300 cursor-pointer"
                               title="Editar"
                             >
-                              <Pencil size={10} className="inline" />
+                              <Pencil size={14} className="inline" />
                             </button>
                             <button
                               onClick={() => handleDeleteConfirmation(actividad._id)}
-                              className="bg-red-200 text-red-700 font-semibold px-1 py-0.5 rounded text-xs hover:bg-red-300 transition-all duration-300 cursor-pointer w-full"
+                              className="bg-red-200 text-red-700 font-semibold px-2 py-1 rounded text-sm hover:bg-red-300 transition-all duration-300 cursor-pointer"
                               title="Eliminar"
                             >
-                              <Trash2 size={10} className="inline" />
+                              <Trash2 size={14} className="inline" />
                             </button>
                           </div>
                         </td>
