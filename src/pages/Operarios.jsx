@@ -17,11 +17,17 @@ const OperariosPage = ({ currentPage: propCurrentPage, totalResults: propTotalRe
     const [filteredOperarios, setFilteredOperarios] = useState([]); 
     const [currentPage, setCurrentPage] = useState(propCurrentPage || 1);
     const [totalResults, setTotalResults] = useState(propTotalResults || 0);
+    const [estadoFiltro, setEstadoFiltro] = useState('activo'); // Nuevo estado para filtro
 
-    const cargarOperarios = useCallback(async (page = 1, search = '') => {
+    const cargarOperarios = useCallback(async (page = 1, search = '', estado = 'activo') => {
         setLoading(true);
         try {
-            const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/operarios?page=${page}&limit=${itemsPerPage}&search=${search}`);
+            let url = `${import.meta.env.VITE_API_BASE_URL}/api/operarios?page=${page}&limit=${itemsPerPage}&search=${search}`;
+            
+            // Siempre agregar el parámetro estado
+            url += `&estado=${estado}`;
+            
+            const response = await axios.get(url);
             setOperarios(response.data.operarios);
             setTotalPages(response.data.totalPages);
             setTotalResults(response.data.totalResults);
@@ -33,8 +39,8 @@ const OperariosPage = ({ currentPage: propCurrentPage, totalResults: propTotalRe
     }, [itemsPerPage]);
 
     useEffect(() => {
-        cargarOperarios(currentPage, searchText); // Carga inicial o cuando cambia la página/tamaño
-    }, [currentPage, cargarOperarios, searchText]);
+        cargarOperarios(currentPage, searchText, estadoFiltro); // Carga inicial o cuando cambia la página/tamaño
+    }, [currentPage, cargarOperarios, searchText, estadoFiltro]);
 
     useEffect(() => {
       if (operarios && Array.isArray(operarios)) { 
@@ -54,6 +60,23 @@ const OperariosPage = ({ currentPage: propCurrentPage, totalResults: propTotalRe
     const handleSearchTextChange = (event) => {
         setSearchText(event.target.value);
         setCurrentPage(1); // Resetear la página al buscar
+    };
+
+    const handleEstadoChange = (nuevoEstado) => {
+        setEstadoFiltro(nuevoEstado);
+        setCurrentPage(1); // Resetear la página al cambiar filtro
+        setSearchText(''); // Limpiar búsqueda al cambiar filtro
+    };
+
+    const handleCambiarEstado = async (operarioId, nuevoEstado) => {
+        try {
+            await axios.patch(`${import.meta.env.VITE_API_BASE_URL}/api/operarios/${operarioId}/estado`, {
+                estado: nuevoEstado
+            });
+            cargarOperarios(currentPage, searchText, estadoFiltro);
+        } catch (error) {
+            console.error('Error al cambiar estado del operario:', error);
+        }
     };
 
     const handlePageChange = (newPage) => {
@@ -77,7 +100,7 @@ const OperariosPage = ({ currentPage: propCurrentPage, totalResults: propTotalRe
       } else {
         await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/operarios`, operario);
       }
-      cargarOperarios(currentPage, searchText);
+      cargarOperarios(currentPage, searchText, estadoFiltro);
       setModo('listar');
       setOperarioAEditar(null);
     } catch (error) {
@@ -87,7 +110,7 @@ const OperariosPage = ({ currentPage: propCurrentPage, totalResults: propTotalRe
   const handleEliminar = async (id) => {
     try {
       await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/api/operarios/${id}`);
-      cargarOperarios(currentPage, searchText);
+      cargarOperarios(currentPage, searchText, estadoFiltro);
     } catch (error) {
       console.error('Error al eliminar operario:', error);
     }
@@ -115,13 +138,81 @@ const OperariosPage = ({ currentPage: propCurrentPage, totalResults: propTotalRe
                         </div>
                         
                         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                            <button
-                                onClick={handleCrear}
-                                className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 w-full md:w-auto order-first md:order-none flex items-center justify-center group"
-                            >
-                                <PlusCircle size={20} className="mr-2 group-hover:rotate-90 transition-transform duration-300" />
-                                Crear Nuevo Operario
-                            </button>
+                            <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                                <button
+                                    onClick={handleCrear}
+                                    className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center justify-center group"
+                                >
+                                    <PlusCircle size={20} className="mr-2 group-hover:rotate-90 transition-transform duration-300" />
+                                    Crear Nuevo Operario
+                                </button>
+
+                                {/* Botones de filtro por estado mejorados */}
+                                <div className="flex gap-1 p-1 bg-gray-100 rounded-2xl">
+                                    <button
+                                        onClick={() => handleEstadoChange('activo')}
+                                        className={`px-6 py-2.5 rounded-xl font-medium transition-all duration-300 flex items-center gap-2 ${
+                                            estadoFiltro === 'activo'
+                                                ? 'bg-green-500 text-white shadow-lg transform scale-105'
+                                                : 'text-gray-600 hover:bg-white hover:shadow-md'
+                                        }`}
+                                    >
+                                        <div className={`w-2 h-2 rounded-full ${
+                                            estadoFiltro === 'activo' ? 'bg-green-200' : 'bg-green-400'
+                                        }`}></div>
+                                        Activos
+                                        <span className={`text-xs px-2 py-0.5 rounded-full ${
+                                            estadoFiltro === 'activo' 
+                                                ? 'bg-green-400 text-green-50' 
+                                                : 'bg-green-100 text-green-600'
+                                        }`}>
+                                            {estadoFiltro === 'activo' ? totalResults : '...'}
+                                        </span>
+                                    </button>
+
+                                    <button
+                                        onClick={() => handleEstadoChange('inactivo')}
+                                        className={`px-6 py-2.5 rounded-xl font-medium transition-all duration-300 flex items-center gap-2 ${
+                                            estadoFiltro === 'inactivo'
+                                                ? 'bg-red-500 text-white shadow-lg transform scale-105'
+                                                : 'text-gray-600 hover:bg-white hover:shadow-md'
+                                        }`}
+                                    >
+                                        <div className={`w-2 h-2 rounded-full ${
+                                            estadoFiltro === 'inactivo' ? 'bg-red-200' : 'bg-red-400'
+                                        }`}></div>
+                                        Inactivos
+                                        <span className={`text-xs px-2 py-0.5 rounded-full ${
+                                            estadoFiltro === 'inactivo' 
+                                                ? 'bg-red-400 text-red-50' 
+                                                : 'bg-red-100 text-red-600'
+                                        }`}>
+                                            {estadoFiltro === 'inactivo' ? totalResults : '...'}
+                                        </span>
+                                    </button>
+
+                                    <button
+                                        onClick={() => handleEstadoChange('todos')}
+                                        className={`px-6 py-2.5 rounded-xl font-medium transition-all duration-300 flex items-center gap-2 ${
+                                            estadoFiltro === 'todos'
+                                                ? 'bg-blue-500 text-white shadow-lg transform scale-105'
+                                                : 'text-gray-600 hover:bg-white hover:shadow-md'
+                                        }`}
+                                    >
+                                        <div className={`w-2 h-2 rounded-full ${
+                                            estadoFiltro === 'todos' ? 'bg-blue-200' : 'bg-blue-400'
+                                        }`}></div>
+                                        Todos
+                                        <span className={`text-xs px-2 py-0.5 rounded-full ${
+                                            estadoFiltro === 'todos' 
+                                                ? 'bg-blue-400 text-blue-50' 
+                                                : 'bg-blue-100 text-blue-600'
+                                        }`}>
+                                            {estadoFiltro === 'todos' ? totalResults : '...'}
+                                        </span>
+                                    </button>
+                                </div>
+                            </div>
 
                             {modo === 'listar' && (
                                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
@@ -178,13 +269,21 @@ const OperariosPage = ({ currentPage: propCurrentPage, totalResults: propTotalRe
                                                     </div>
                                                     <div className="text-right">
                                                         <span className="text-3xl font-bold text-blue-600">{totalResults}</span>
-                                                        <p className="text-sm text-gray-500">activos</p>
+                                                        <p className="text-sm text-gray-500">
+                                                            {estadoFiltro === 'todos' ? 'total' : estadoFiltro}s
+                                                        </p>
                                                     </div>
                                                 </div>
                                             </div>
                                         )}
 
-                                        <OperarioList operarios={filteredOperarios} onEditar={handleEditar} onEliminar={handleEliminar} />
+                                        <OperarioList 
+                                            operarios={filteredOperarios} 
+                                            onEditar={handleEditar} 
+                                            onEliminar={handleEliminar}
+                                            onCambiarEstado={handleCambiarEstado}
+                                            estadoActual={estadoFiltro}
+                                        />
                                     </div>
                                 )}
 
