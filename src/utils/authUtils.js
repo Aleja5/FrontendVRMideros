@@ -51,14 +51,14 @@ export const clearAuthData = () => {  localStorage.removeItem('token');
   localStorage.removeItem('user');
   localStorage.removeItem('operario');
   localStorage.removeItem('idOperario');
-  console.log('🧹 Datos de autenticación limpiados');
+  // REMOVED: console.log('🧹 Datos de autenticación limpiados');
 };
 
 /**
  * Maneja la expiración del token y redirige al login
  */
 export const handleTokenExpiration = () => {
-  console.log('🔒 Sesión expirada. Limpiando datos...');
+  // REMOVED: console.log('🔒 Sesión expirada. Limpiando datos...');
   clearAuthData();
   window.location.href = '/login';
 };
@@ -115,7 +115,7 @@ export const refreshTokenIfNeeded = async () => {
   const refreshToken = localStorage.getItem('refreshToken');
   
   if (!refreshToken) {
-    console.log('🚫 No hay refresh token disponible');
+    // REMOVED: console.log('🚫 No hay refresh token disponible');
     return false;
   }
   
@@ -132,10 +132,10 @@ export const refreshTokenIfNeeded = async () => {
         const data = await response.json();
         localStorage.setItem('token', data.token);
         localStorage.setItem('refreshToken', data.refreshToken);
-        console.log('🔄 Token renovado exitosamente');
+        // REMOVED: console.log('🔄 Token renovado exitosamente');
         return true;
       } else {
-        console.log('❌ Error renovando token:', response.status);
+        // REMOVED: console.log('❌ Error renovando token:', response.status);
         handleTokenExpiration();
         return false;
       }

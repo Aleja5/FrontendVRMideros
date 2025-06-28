@@ -81,7 +81,9 @@ const InsumosPage = ({ currentPage: propCurrentPage, totalResults: propTotalResu
         } catch (error) {
             console.error('Error al guardar el insumo:', error);
         }
-    };    const handleEliminar = async (id) => {
+    };
+
+    const handleEliminar = async (id) => {
         try {
             await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/api/insumos/${id}`);
             cargarInsumos(currentPage, searchText); // Recarga con la página y búsqueda actuales
@@ -104,8 +106,8 @@ const InsumosPage = ({ currentPage: propCurrentPage, totalResults: propTotalResu
                     <div className="container mx-auto px-4 py-6">
                         {/* Header Card Mejorado */}
                         <div className="bg-gradient-to-r from-white to-gray-50 shadow-2xl rounded-3xl p-6 md:p-8 border border-gray-100 mb-6">
-                            <div className="flex items-center gap-4 mb-6">                            
-                                <div>
+                            <div className="flex items-center gap-4 mb-6">
+                        <div>
                                     <h1 className="text-4xl font-extrabold text-gray-800 tracking-tight drop-shadow-sm">Gestión de Insumos</h1>
                                     <p className="text-gray-600 mt-2 text-lg">Administra y controla todos los insumos necesarios para la producción</p>
                                 </div>
@@ -124,7 +126,7 @@ const InsumosPage = ({ currentPage: propCurrentPage, totalResults: propTotalResu
 
                                 {modo === 'listar' && (
                                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
-                                        <label htmlFor="searchText" className="sr-only"> 
+                            <label htmlFor="searchText" className="sr-only"> 
                                             Buscar por Nombre:
                                         </label>
                                         <div className="relative">
@@ -170,7 +172,7 @@ const InsumosPage = ({ currentPage: propCurrentPage, totalResults: propTotalResu
                                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                                                                 </svg>
                                                             </div>
-                                                            <div>
+                        <div>
                                                                 <h3 className="text-lg font-semibold text-gray-800">Total de Insumos</h3>
                                                                 <p className="text-gray-600">Insumos registrados en inventario</p>
                                                             </div>

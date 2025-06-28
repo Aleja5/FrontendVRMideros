@@ -225,7 +225,7 @@ export default function  RegistroProduccion() {
                         }
                     } else {
                         const jornadasDelDiaFetched = await response.json();
-                        console.log("Fetched jornadasDelDia from API:", jornadasDelDiaFetched);
+                        // REMOVED: console.log
 
                         if (jornadasDelDiaFetched && jornadasDelDiaFetched.length > 0) {
                             const selectedDateStr = jornadaData.fecha; // This is YYYY-MM-DD
@@ -260,7 +260,7 @@ export default function  RegistroProduccion() {
                                 return dateA.getTime() - dateB.getTime();
                             });
 
-                            console.log("Filtered and sorted todasLasActividadesDelDia for selected date:", todasLasActividadesDelDia);
+                            // REMOVED: console.log
                             setActividadesResumen(todasLasActividadesDelDia);
                         } else {
                             setActividadesResumen([]);
@@ -282,7 +282,7 @@ export default function  RegistroProduccion() {
 
     // useEffect para depurar actividadesResumen
     useEffect(() => {
-        console.log("actividadesResumen state updated:", actividadesResumen);
+        // REMOVED: console.log
     }, [actividadesResumen]);
 
     // Calcular horaInicio y horaFin de la jornada considerando todas las actividades (existentes + nuevas)
@@ -304,6 +304,7 @@ export default function  RegistroProduccion() {
             // Ordenar horas de inicio y tomar la más temprana
             primeraHora = horasInicio.sort((a, b) => parseTime(a) - parseTime(b))[0];
         }
+
         if (horasFin.length > 0) {
             // Ordenar horas de fin y tomar la más tardía
             ultimaHora = horasFin.sort((a, b) => parseTime(a) - parseTime(b))[horasFin.length - 1];
@@ -331,6 +332,7 @@ export default function  RegistroProduccion() {
             );
             return;
         }
+
         try {
             const response = await fetch(`http://localhost:5000/api/procesos?areaId=${areaId}`);
             if (response.ok) {
@@ -384,11 +386,11 @@ export default function  RegistroProduccion() {
             value = e_or_selectedOptions.target.value;
         }
 
-        const nuevasActividades = actividades.map((act, idx) => {
+    const nuevasActividades = actividades.map((act, idx) => {
             if (idx === index) {
                 let updatedAct = { ...act };
 
-                if (name === 'areaProduccion') {
+        if (name === 'areaProduccion') {
                     updatedAct.areaProduccion = value;
                     updatedAct.procesos = [];
                     updatedAct.availableProcesos = [];
@@ -408,14 +410,11 @@ export default function  RegistroProduccion() {
                         // Manejar cruce de medianoche: si fin <= inicio, asumir que fin es del día siguiente
                         if (finDate <= inicioDate) {
                             finDate = new Date(`1970-01-02T${fin}:00`); // Día siguiente
-                            console.log('🌙 Detectado cruce de medianoche:', {
-                                inicio: inicio,
-                                fin: fin,
-                                duracionCalculada: Math.floor((finDate - inicioDate) / 60000)
+                            // REMOVED: console.log
                             });
                         }
-                        
-                        if (finDate > inicioDate) {
+
+        if (finDate > inicioDate) {
                             updatedAct.tiempo = Math.floor((finDate - inicioDate) / 60000);
                         } else {
                             updatedAct.tiempo = 0;
@@ -435,8 +434,8 @@ export default function  RegistroProduccion() {
 
     // Combinar fecha con hora para crear una fecha completa válida
     const combinarFechaYHora = (fecha, hora) => {
-        console.log("Fecha recibida en combinarFechaYHora:", fecha);
-        console.log("Hora recibida en combinarFechaYHora:", hora);
+        // REMOVED: console.log
+        // REMOVED: console.log
         if (!hora || typeof hora !== 'string' || !hora.match(/^\d{2}:\d{2}$/)) return null;
 
         const [hh, mm] = hora.split(":");
@@ -444,10 +443,12 @@ export default function  RegistroProduccion() {
 
         // IMPORTANTE: El mes en JavaScript es 0-indexado (0 para enero, 11 para diciembre)
         const date = new Date(Number(yyyy), Number(mmFecha) - 1, Number(dd), Number(hh), Number(mm), 0);
-        console.log("Fecha combinada:", date);
+        // REMOVED: console.log
 
         return isNaN(date.getTime()) ? null : date.toISOString(); // Convertir a ISO string para enviar al backend
-    };    const handleSubmitJornada = async (e) => {
+    };
+
+    const handleSubmitJornada = async (e) => {
         e.preventDefault();
 
         // Validar que haya al menos una actividad
@@ -501,7 +502,7 @@ export default function  RegistroProduccion() {
             }))
         };
 
-        console.log('Datos enviados al backend:', dataToSend);
+        // REMOVED: console.log
 
         try {
             const endpoint = urlJornadaId
@@ -557,13 +558,14 @@ export default function  RegistroProduccion() {
             setLoading(false);
             return;
         }
+
         if (!Array.isArray(actividad.insumos)) {
             toast.error("Error interno: formato de insumos incorrecto.");
             setLoading(false);
             return;
         }
 
-        const horaInicio = combinarFechaYHora(jornadaData.fecha, actividad.horaInicio);
+    const horaInicio = combinarFechaYHora(jornadaData.fecha, actividad.horaInicio);
         const horaFin = combinarFechaYHora(jornadaData.fecha, actividad.horaFin);
 
         if (!horaInicio || !horaFin) {
@@ -572,7 +574,7 @@ export default function  RegistroProduccion() {
             return;
         }
 
-        const actividadToSend = {
+    const actividadToSend = {
             ...actividad,
             fecha: jornadaData.fecha,
             horaInicio,
@@ -580,7 +582,6 @@ export default function  RegistroProduccion() {
             tiempo: actividad.tiempo || 0,
             operario: jornadaData.operario,
         };
-
 
         try {
             const response = await fetch("http://localhost:5000/api/produccion/registrar", {
@@ -616,12 +617,12 @@ export default function  RegistroProduccion() {
 
                             <form onSubmit={handleSubmitJornada} className="grid grid-cols-1 gap-4">
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-gray-700 font-medium mb-1">Operario:</label>
+                        <div>
+                            <label className="block text-gray-700 font-medium mb-1">Operario:</label>
                                         <Input type="text" value={nombreOperario || "Cargando..."} disabled className="w-full" />
                                     </div>
-                                    <div>
-                                        <label className="block text-gray-700 font-medium mb-1">Fecha de la Jornada:</label>
+                        <div>
+                            <label className="block text-gray-700 font-medium mb-1">Fecha de la Jornada:</label>
                                         <Input type="date" name="fecha" value={jornadaData.fecha} onChange={handleJornadaChange} required className="w-full" />
                                     </div>
                                 </div>
@@ -693,13 +694,13 @@ export default function  RegistroProduccion() {
                                         <h3 className="text-xl font-semibold text-gray-700 mb-4 pb-2 border-b border-gray-300">Actividad #{index + 1}</h3>
 
                                         {/* Row 1: OTI & Área de Producción */}
-                                        <div className="grid md:grid-cols-2 gap-x-6 mb-4">
-                                            <div>
-                                                <label htmlFor={`oti-${index}`} className="block text-sm font-medium text-gray-700 mb-1">OTI:</label>
+                        <div className="grid md:grid-cols-2 gap-x-6 mb-4">
+                        <div>
+                            <label htmlFor={`oti-${index}`} className="block text-sm font-medium text-gray-700 mb-1">OTI:</label>
                                                 <Input id={`oti-${index}`} type="text" name="oti" value={actividad.oti} onChange={(e) => handleActividadChange(index, e)} placeholder="N° OTI" required className="w-full" />
                                             </div>
-                                            <div>
-                                                <label htmlFor={`areaProduccion-${index}`} className="block text-sm font-medium text-gray-700 mb-1">Área de Producción:</label>
+                        <div>
+                            <label htmlFor={`areaProduccion-${index}`} className="block text-sm font-medium text-gray-700 mb-1">Área de Producción:</label>
                                                 <Input as="select" id={`areaProduccion-${index}`} name="areaProduccion" value={actividad.areaProduccion} onChange={(e) => handleActividadChange(index, e)} required className="w-full">
                                                     <option value="">Seleccionar Área</option>
                                                     {areasProduccionData.map(area => <option key={area._id} value={area._id}>{area.nombre}</option>)}
@@ -708,9 +709,9 @@ export default function  RegistroProduccion() {
                                         </div>
 
                                         {/* Row 2: Proceso & Máquina */}
-                                        <div className="grid md:grid-cols-2 gap-x-6 mb-4">
-                                            <div>
-                                                <label htmlFor={`procesos-${index}`} className="block text-sm font-medium text-gray-700 mb-1">Proceso(s):</label>
+                        <div className="grid md:grid-cols-2 gap-x-6 mb-4">
+                        <div>
+                            <label htmlFor={`procesos-${index}`} className="block text-sm font-medium text-gray-700 mb-1">Proceso(s):</label>
                                                 <Select
                                                     inputId={`procesos-${index}`}
                                                     isMulti
@@ -733,8 +734,8 @@ export default function  RegistroProduccion() {
                                                     required // Make required only if area is selected
                                                 />
                                             </div>
-                                            <div>
-                                                <label htmlFor={`maquina-${index}`} className="block text-sm font-medium text-gray-700 mb-1">Máquina:</label>
+                        <div>
+                            <label htmlFor={`maquina-${index}`} className="block text-sm font-medium text-gray-700 mb-1">Máquina:</label>
                                                 <Input as="select" id={`maquina-${index}`} name="maquina" value={actividad.maquina} onChange={(e) => handleActividadChange(index, e)} required className="w-full">
                                                     <option value="">Seleccionar Máquina</option>
                                                     {maquinasData
@@ -745,9 +746,9 @@ export default function  RegistroProduccion() {
                                         </div>
 
                                         {/* Row 3: Insumos & Tipo de Tiempo */}
-                                        <div className="grid md:grid-cols-2 gap-x-6 mb-4">
-                                            <div>
-                                                <label htmlFor={`insumos-${index}`} className="block text-sm font-medium text-gray-700 mb-1">Insumo(s):</label>
+                        <div className="grid md:grid-cols-2 gap-x-6 mb-4">
+                        <div>
+                            <label htmlFor={`insumos-${index}`} className="block text-sm font-medium text-gray-700 mb-1">Insumo(s):</label>
                                                 <Select
                                                     inputId={`insumos-${index}`}
                                                     isMulti
@@ -768,8 +769,8 @@ export default function  RegistroProduccion() {
                                                     }}
                                                 />
                                             </div>
-                                            <div>
-                                                <label htmlFor={`tipoTiempo-${index}`} className="block text-sm font-medium text-gray-700 mb-1">Tipo de Tiempo:</label>
+                        <div>
+                            <label htmlFor={`tipoTiempo-${index}`} className="block text-sm font-medium text-gray-700 mb-1">Tipo de Tiempo:</label>
                                                 <Input as="select" id={`tipoTiempo-${index}`} name="tipoTiempo" value={actividad.tipoTiempo} onChange={(e) => handleActividadChange(index, e)} required className="w-full">
                                                     <option value="">Seleccionar Tipo</option>
                                                     <option value="Operación">Operación</option>
@@ -780,24 +781,24 @@ export default function  RegistroProduccion() {
                                         </div>
 
                                         {/* Row 4: Horas & Tiempo Calculado */}
-                                        <div className="grid md:grid-cols-3 gap-x-6 mb-4">
-                                            <div>
-                                                <label htmlFor={`horaInicio-${index}`} className="block text-sm font-medium text-gray-700 mb-1">Hora Inicio:</label>
+                        <div className="grid md:grid-cols-3 gap-x-6 mb-4">
+                        <div>
+                            <label htmlFor={`horaInicio-${index}`} className="block text-sm font-medium text-gray-700 mb-1">Hora Inicio:</label>
                                                 <Input id={`horaInicio-${index}`} type="time" name="horaInicio" value={actividad.horaInicio} onChange={(e) => handleActividadChange(index, e)} required className="w-full" />
                                             </div>
-                                            <div>
-                                                <label htmlFor={`horaFin-${index}`} className="block text-sm font-medium text-gray-700 mb-1">Hora Fin:</label>
+                        <div>
+                            <label htmlFor={`horaFin-${index}`} className="block text-sm font-medium text-gray-700 mb-1">Hora Fin:</label>
                                                 <Input id={`horaFin-${index}`} type="time" name="horaFin" value={actividad.horaFin} onChange={(e) => handleActividadChange(index, e)} required className="w-full" />
                                             </div>
-                                            <div>
-                                                <label htmlFor={`tiempo-${index}`} className="block text-sm font-medium text-gray-700 mb-1">Tiempo (minutos):</label>
+                        <div>
+                            <label htmlFor={`tiempo-${index}`} className="block text-sm font-medium text-gray-700 mb-1">Tiempo (minutos):</label>
                                                 <Input id={`tiempo-${index}`} type="number" name="tiempo" value={actividad.tiempo} disabled className="w-full" />
                                             </div>
                                         </div>
 
                                         {/* Row 5: Observaciones */}
-                                        <div className="mb-4">
-                                            <label htmlFor={`observaciones-${index}`} className="block text-sm font-medium text-gray-700 mb-1">Observaciones:</label>
+                        <div className="mb-4">
+                            <label htmlFor={`observaciones-${index}`} className="block text-sm font-medium text-gray-700 mb-1">Observaciones:</label>
                                             <Textarea id={`observaciones-${index}`} name="observaciones" value={actividad.observaciones} onChange={(e) => handleActividadChange(index, e)} placeholder="Notas adicionales sobre la actividad" className="w-full" rows="3" />
                                         </div>
 
@@ -811,8 +812,7 @@ export default function  RegistroProduccion() {
                                         )}
                                     </div>
                                 ))}
-
-                                <div className="flex flex-col sm:flex-row justify-between items-center mt-6 pt-6 border-t gap-4">
+                        <div className="flex flex-col sm:flex-row justify-between items-center mt-6 pt-6 border-t gap-4">
                                     
                                     <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
                                         <Button type="button" onClick={handleSubmitActividad} className="w-full sm:w-auto">

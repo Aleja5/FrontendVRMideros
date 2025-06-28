@@ -73,7 +73,7 @@ const ForgotPassword = () => {
         </form>
 
         {/* Enlace para volver al inicio de sesión */}
-        <div className="mt-6 text-center">
+                        <div className="mt-6 text-center">
           <Link to="/login" className="text-sm text-blue-400 hover:underline">
             Volver al inicio de sesión
           </Link>

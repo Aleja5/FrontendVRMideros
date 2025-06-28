@@ -31,7 +31,7 @@ export default function Navbar({ operarioName }) {
             </div>
             
             {/* Contenedor para el icono de usuario y el nombre del operario */}
-          <div className="flex flex-col items-center space-y-1">
+                        <div className="flex flex-col items-center space-y-1">
     
     <span className="text-sm font-medium">{operarioName}</span>
 </div>

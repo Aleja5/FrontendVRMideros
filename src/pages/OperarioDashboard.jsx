@@ -22,7 +22,7 @@ import { getFormattedLocalDateDisplay, getFechaISOForComparison, getFechaLocalHo
 const LoadingSkeleton = () => (
     <div className="space-y-6 animate-pulse p-4 bg-white rounded-lg shadow-md">
         <div className="h-8 bg-gray-300 rounded w-1/3 mb-4"></div> {/* Jornada de Hoy title */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {[...Array(3)].map((_, i) => ( // Simulate 3 activity cards
                 <Card key={i} className="p-4 rounded-xl shadow-sm border border-gray-200">
                     <div className="h-1.5 bg-gray-200 rounded-full mb-4">
@@ -32,7 +32,7 @@ const LoadingSkeleton = () => (
                         <div className="w-6 h-6 bg-gray-300 rounded-full"></div> {/* Icon */}
                         <div className="flex-1 space-y-1">
                             <div className="h-5 bg-gray-300 rounded w-3/4"></div> {/* Process name */}
-                            <div className="h-4 bg-gray-200 rounded w-1/2"></div> {/* OTI */}
+                        <div className="h-4 bg-gray-200 rounded w-1/2"></div> {/* OTI */}
                         </div>
                         <div className="h-6 bg-gray-300 rounded-full w-1/5"></div> {/* State tag */}
                     </div>
@@ -46,7 +46,7 @@ const LoadingSkeleton = () => (
                         <div className="h-4 bg-gray-200 rounded w-1/4"></div> {/* Duration */}
                         <div className="flex gap-2">
                             <div className="w-8 h-8 bg-gray-200 rounded-full"></div> {/* View icon */}
-                            <div className="w-8 h-8 bg-gray-200 rounded-full"></div> {/* Edit icon */}
+                        <div className="w-8 h-8 bg-gray-200 rounded-full"></div> {/* Edit icon */}
                         </div>
                     </div>
                 </Card>
@@ -101,15 +101,16 @@ const OperarioDashboard = React.memo(() => {
             setLoading(false);
             return;
         }
+
         try {
             setLoading(true);
-            console.log('🔄 Obteniendo jornadas para operario:', operarioId);
+            // REMOVED: console.log
 
             // Uso de template literals para la URL
             const res = await axiosInstance.get(`/jornadas/operario/${operarioId}`);
 
-            console.log('✅ Respuesta del servidor (jornadas):', res.data);
-            console.log('📊 Número de jornadas obtenidas:', Array.isArray(res.data) ? res.data.length : 0);
+            // REMOVED: console.log
+            // REMOVED: console.log
 
             setJornadas(Array.isArray(res.data) ? res.data : []);
         } catch (error) {
@@ -132,7 +133,7 @@ const OperarioDashboard = React.memo(() => {
     // Carga las jornadas cuando el componente se monta o 'actualizarKey' cambia
     useEffect(() => {
         if (operarioId) {
-            console.log('🔄 useEffect disparado - actualizarKey:', actualizarKey);
+            // REMOVED: console.log
             fetchJornadas();
         }
     }, [actualizarKey, operarioId, fetchJornadas]);
@@ -150,7 +151,7 @@ const OperarioDashboard = React.memo(() => {
             }, INACTIVITY_TIME);
         };
 
-        const handleActivity = () => resetTimeout();
+    const handleActivity = () => resetTimeout();
 
         // Event listeners para detectar actividad del usuario
         window.addEventListener("mousemove", handleActivity);
@@ -188,24 +189,24 @@ const OperarioDashboard = React.memo(() => {
     // Debug: Log para verificar comparaciones de fecha - Solo en desarrollo
     useEffect(() => {
         if (process.env.NODE_ENV === 'development') {
-            console.log('=== DEBUG FECHA ZONA HORARIA ===');
-            console.log('Fecha de hoy (local):', hoyISO);
+            // REMOVED: console.log
+            // REMOVED: console.log
             if (jornadasFiltradas.length > 0) {
-                console.log('Fechas de jornadas disponibles:');
+                // REMOVED: console.log
                 jornadasFiltradas.forEach((jornada, index) => {
                     const fechaJornada = getFechaLocalForComparison(jornada.fecha);
-                    console.log(`  Jornada ${index + 1}: ${fechaJornada} (original: ${jornada.fecha})`);
+                    // REMOVED: console.log
                 });
             }
-            console.log('Jornada actual encontrada:', jornadaActual ? 'SÍ' : 'NO');
-            console.log('================================');
+            // REMOVED: console.log
+            // REMOVED: console.log
         }
     }, [hoyISO, jornadasFiltradas, jornadaActual]);    const calcularTotalTiempo = useCallback((jornada) => {
         if (!jornada?.totalTiempoActividades) {
             return 'N/A';
         }
 
-        const tiempoData = jornada.totalTiempoActividades;
+    const tiempoData = jornada.totalTiempoActividades;
         
         // Usar tiempo efectivo si está disponible, sino usar el método anterior
         const tiempoMinutos = tiempoData.tiempoEfectivo !== undefined ? 
@@ -222,7 +223,8 @@ const OperarioDashboard = React.memo(() => {
         if (!jornada.horaInicio || !jornada.horaFin) {
             return 'N/A'; // Or handle as appropriate
         }
-        const inicio = new Date(jornada.horaInicio);
+
+    const inicio = new Date(jornada.horaInicio);
         const fin = new Date(jornada.horaFin);
         const diffMs = fin - inicio; // Difference in milliseconds
         const diffMinutes = Math.floor(diffMs / (1000 * 60)); // Difference in minutes
@@ -249,7 +251,7 @@ const OperarioDashboard = React.memo(() => {
     // Force update using timestamp
     const recargarJornadas = useCallback(() => {
         const nuevoTimestamp = Date.now();
-        console.log('🔄 Forzando recarga de jornadas - Nuevo timestamp:', nuevoTimestamp);
+        // REMOVED: console.log
         setActualizarKey(nuevoTimestamp);
         
     }, []);    const handleAgregarActividad = useCallback(() => {
@@ -258,10 +260,10 @@ const OperarioDashboard = React.memo(() => {
 
     // Function to force update after registration
     const forzarActualizacionDespuesDeRegistro = useCallback(() => {
-        console.log('🎯 Forzando actualización después de registro...');
+        // REMOVED: console.log
         setTimeout(() => {
             const nuevoTimestamp = Date.now();
-            console.log('🔄 Actualizando con timestamp:', nuevoTimestamp);
+            // REMOVED: console.log
             setActualizarKey(nuevoTimestamp);
         }, 500); // Reduced from 1000ms for quicker feedback
     }, []);
@@ -269,7 +271,7 @@ const OperarioDashboard = React.memo(() => {
     // Detect when returning from registro-produccion
     useEffect(() => {
         const handleFocus = () => {
-            console.log('👁️ Ventana enfocada - verificando si hay nuevos registros...');
+            // REMOVED: console.log
             forzarActualizacionDespuesDeRegistro();
         };
 
@@ -284,7 +286,7 @@ const OperarioDashboard = React.memo(() => {
                 <div className="container mx-auto py-8 max-w-7xl">
                     <ToastContainer />
                     {/* Section Header */}
-                    <div className="flex justify-between items-center mb-6">
+                        <div className="flex justify-between items-center mb-6">
                         <div className="text-4xl font-extrabold text-gray-800 tracking-tight drop-shadow-sm">                            
                             Producción VR Mideros
                         </div>
@@ -299,8 +301,8 @@ const OperarioDashboard = React.memo(() => {
                         <LoadingSkeleton />
                     ) : (
                         <>                            {/* Sección de Jornada de Hoy Header */}
-                            <div className="bg-gradient-to-r from-gray-600 to-gray-800 text-white p-4 rounded-lg shadow-md mb-6 flex justify-between items-center">
-                                <div>
+                        <div className="bg-gradient-to-r from-gray-600 to-gray-800 text-white p-4 rounded-lg shadow-md mb-6 flex justify-between items-center">
+                        <div>
                                     <h2 className="text-white font-bold">Jornada de Hoy</h2>
                                     <p className="text-sm">{jornadaActual?.fecha ? getFormattedLocalDateDisplay(jornadaActual.fecha) : getCurrentLocalDateDisplay()}</p>
                                 </div>

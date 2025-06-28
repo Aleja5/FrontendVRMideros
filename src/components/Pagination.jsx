@@ -23,14 +23,14 @@ const Pagination = ({ currentPage, totalResults, itemsPerPage, onPageChange }) =
     }
   }
 
-  const goToPreviousGroup = () => {
+    const goToPreviousGroup = () => {
     const newStartPage = Math.max(1, currentGroupStartPage - pagesPerGroup);
     setCurrentGroupStartPage(newStartPage);
     // Opcionalmente, cambiar a la primera página del nuevo grupo:
     // onPageChange(newStartPage); 
   };
 
-  const goToNextGroup = () => {
+    const goToNextGroup = () => {
     const newStartPage = currentGroupStartPage + pagesPerGroup;
     if (newStartPage <= totalPages) {
       setCurrentGroupStartPage(newStartPage);
@@ -38,8 +38,8 @@ const Pagination = ({ currentPage, totalResults, itemsPerPage, onPageChange }) =
       // onPageChange(newStartPage);
     }
   };
-  
-  if (totalPages <= 1) {
+
+        if (totalPages <= 1) {
     return null; // No mostrar paginación si hay 0 o 1 página
   }
 

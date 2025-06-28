@@ -50,29 +50,29 @@ const ConfirmacionEliminar = ({
     }
   };
 
-  const handleConfirmar = () => {
+    const handleConfirmar = () => {
     if (puedeEliminar) {
       onConfirm();
     }
   };
 
-  const getNombreEntidad = () => {
+    const getNombreEntidad = () => {
     if (!entidad) return '';
     return entidad.nombre || entidad.name || entidad.numeroOti || 'Elemento';
   };
 
-  const getTituloModal = () => {
+    const getTituloModal = () => {
     const nombreEntidad = getNombreEntidad();
     return `Eliminar ${tipoEntidad}: ${nombreEntidad}`;
   };
 
-  if (!isOpen) return null;
+        if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b">
+                        <div className="flex items-center justify-between p-6 border-b">
           <h3 className="text-lg font-semibold text-gray-900 flex items-center">
             <Trash2 className="w-5 h-5 text-red-600 mr-2" />
             {getTituloModal()}
@@ -86,7 +86,7 @@ const ConfirmacionEliminar = ({
         </div>
 
         {/* Content */}
-        <div className="p-6">
+                        <div className="p-6">
           {verificandoIntegridad ? (
             <div className="flex items-center justify-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -100,7 +100,7 @@ const ConfirmacionEliminar = ({
             <div>
               <div className="flex items-start mb-4">
                 <Info className="w-5 h-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" />
-                <div>
+                        <div>
                   <p className="text-gray-900 font-medium">Confirmación de eliminación</p>
                   <p className="text-gray-600 mt-1">
                     ¿Está seguro de que desea eliminar este {tipoEntidad}? Esta acción no se puede deshacer.
@@ -118,7 +118,7 @@ const ConfirmacionEliminar = ({
             <div>
               <div className="flex items-start mb-4">
                 <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5 mr-3 flex-shrink-0" />
-                <div>
+                        <div>
                   <p className="text-red-900 font-medium">No se puede eliminar</p>
                   <p className="text-red-700 mt-1">
                     {detallesIntegridad?.mensaje || 'Este elemento tiene registros asociados'}
@@ -173,7 +173,7 @@ const ConfirmacionEliminar = ({
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end space-x-3 p-6 border-t bg-gray-50">
+                        <div className="flex justify-end space-x-3 p-6 border-t bg-gray-50">
           <button
             onClick={onClose}
             className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"

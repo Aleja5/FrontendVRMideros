@@ -22,8 +22,8 @@ const OperarioForm = ({ operarioInicial, onGuardar, onCancelar }) => {
 
   return (
     <form onSubmit={handleSubmit}>
-        <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Nombre del Operario:</label>
+                        <div>
+                            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Nombre del Operario:</label>
             <input
                 type="text"
                 id="name"
@@ -34,8 +34,8 @@ const OperarioForm = ({ operarioInicial, onGuardar, onCancelar }) => {
                 placeholder="Ingrese el nombre del operario"
             />
         </div>
-        <div>
-            <label htmlFor="cedula" className="block text-sm font-medium text-gray-700 mb-1">Cédula del Operario:</label>
+                        <div>
+                            <label htmlFor="cedula" className="block text-sm font-medium text-gray-700 mb-1">Cédula del Operario:</label>
             <input
                 type="text"
                 id="cedula"

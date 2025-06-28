@@ -18,23 +18,23 @@ function ResetPassword() {
     setError('');
     setMensaje('');
 
-    console.log('Token recibido desde URL:', token);
-    console.log('Nueva contraseña ingresada:', newPassword);
+    // REMOVED: console.log
+    // REMOVED: console.log
 
     // Validación de contraseñas
     if (newPassword !== confirmPassword) {
-      console.log('Error: las contraseñas no coinciden');
+      // REMOVED: console.log
       setError('Las contraseñas no coinciden');
       return;
     }
 
-    if (newPassword.length < 6) {
-      console.log('Error: contraseña demasiado corta');
+        if (newPassword.length < 6) {
+      // REMOVED: console.log
       setError('La contraseña debe tener al menos 6 caracteres');
       return;
     }
 
-    if (!token) {
+        if (!token) {
       setError('Token inválido o faltante');
       return;
     }
@@ -47,7 +47,7 @@ function ResetPassword() {
         newPassword,
       });
 
-      console.log('Respuesta del backend:', res.data);
+      // REMOVED: console.log
       setMensaje(res.data.message || 'Contraseña actualizada correctamente');
       setError('');
       
@@ -80,7 +80,7 @@ function ResetPassword() {
         <h2 className="text-2xl font-bold mb-6 text-center text-white">Restablecer Contraseña</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="block mb-1">Nueva Contraseña</label>
+                            <label className="block mb-1">Nueva Contraseña</label>
             <input
               type="password"
               value={newPassword}
@@ -90,7 +90,7 @@ function ResetPassword() {
             />
           </div>
           <div className="mb-6">
-            <label className="block mb-1">Confirmar Contraseña</label>
+                            <label className="block mb-1">Confirmar Contraseña</label>
             <input
               type="password"
               value={confirmPassword}

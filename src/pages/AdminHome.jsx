@@ -29,7 +29,7 @@ const ResumenKPI = ({ title, value, icon, bgColor, textColor}) => {
   return (
     <Card className={`${bgColor} p-6 rounded-2xl shadow-lg transition-transform transform hover:scale-105 border-none`}>
       <div className="flex justify-between items-start">
-        <div>
+                        <div>
           <h3 className="text-sm font-semibold text-gray-600 tracking-wide">{title}</h3>
           <p className={`text-4xl font-extrabold ${textColor} mt-1 drop-shadow-sm`}>{value}</p>          
         </div>
@@ -51,7 +51,7 @@ const TablaJornadasRecientes = ({ jornadas, loading, navigate }) => {
     );
   }
 
-  if (!jornadas || jornadas.length === 0) {
+        if (!jornadas || jornadas.length === 0) {
     return (
       <div className="flex justify-center items-center h-48 bg-white rounded-lg shadow">
         <p className="text-gray-500">No hay jornadas recientes para mostrar</p>
@@ -117,12 +117,12 @@ const TablaJornadasRecientes = ({ jornadas, loading, navigate }) => {
   );
 };
 
-const ajustarFechaLocal = (fechaUTC) => {
+    const ajustarFechaLocal = (fechaUTC) => {
   const fecha = new Date(fechaUTC);
   return new Date(fecha.getTime() + fecha.getTimezoneOffset() * 60000);
 };
 
-const AdminHome = () => {
+    const AdminHome = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [kpis, setKpis] = useState({
@@ -165,8 +165,8 @@ const AdminHome = () => {
         <div className="flex-1 overflow-auto">
           <div className="container mx-auto px-4 py-6">
             {/* Encabezado */}
-            <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <div>
+                        <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                        <div>
                 <h1 className="text-4xl font-extrabold text-gray-800 tracking-tight drop-shadow-sm">Panel de Administración</h1>
                 <p className="text-lg text-gray-500 mt-2">Bienvenido al sistema de gestión de producción</p>
               </div>
@@ -202,7 +202,7 @@ const AdminHome = () => {
             </section>
 
             {/* Jornadas Recientes y Accesos Rápidos */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
               {/* Jornadas Recientes */}
               <section className="lg:col-span-2">
                 <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">

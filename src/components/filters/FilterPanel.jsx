@@ -34,7 +34,7 @@ const FilterPanel = ({ onBuscar, onExportar, onOtiMapChange }) => {
     onBuscar(filters);
   };
 
-  const handleClearFilters = () => {
+    const handleClearFilters = () => {
     setFilters({
       oti: "",
       operario: "",
@@ -47,7 +47,7 @@ const FilterPanel = ({ onBuscar, onExportar, onOtiMapChange }) => {
     onBuscar({});
   };
 
-  const handleChange = (e) => {
+    const handleChange = (e) => {
     const { name, value } = e.target;
     
     // Si se cambia la OTI, reiniciar el campo de operario
@@ -71,7 +71,7 @@ const FilterPanel = ({ onBuscar, onExportar, onOtiMapChange }) => {
     <Card className="mb-4 border border-gray-200 shadow-sm">
       <CardContent className="p-4">
         {/* Header with title and action buttons */}
-        <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <Filter className="h-4 w-4 text-gray-500" />
             <h3 className="text-m font-medium text-gray-700">Filtros de Búsqueda</h3>
@@ -105,7 +105,7 @@ const FilterPanel = ({ onBuscar, onExportar, onOtiMapChange }) => {
         </div>
 
         {/* Compact filter grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-7 gap-3">
+                        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-7 gap-3">
           {/* Select fields */}
           {filterFields({ oti, operarios, procesos, areasProduccion, maquinas })
             .sort((a, b) => a.order - b.order)

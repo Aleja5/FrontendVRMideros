@@ -64,8 +64,8 @@ const ProcesoForm = ({ procesoInicial, onGuardar, onCancelar }) => {
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-                <label htmlFor="nombre" className="block text-sm font-medium text-gray-700 mb-1">Nombre del Proceso:</label>
+                        <div>
+                            <label htmlFor="nombre" className="block text-sm font-medium text-gray-700 mb-1">Nombre del Proceso:</label>
                 <input
                     type="text"
                     id="nombre"
@@ -76,9 +76,8 @@ const ProcesoForm = ({ procesoInicial, onGuardar, onCancelar }) => {
                     placeholder="Ingrese el nombre del proceso"
                 />
             </div>
-
-            <div>
-                <label htmlFor="areas" className="block text-sm font-medium text-gray-700 mb-1">Áreas de Producción:</label>
+                        <div>
+                            <label htmlFor="areas" className="block text-sm font-medium text-gray-700 mb-1">Áreas de Producción:</label>
                 <Select
                     inputId="areas"
                     isMulti

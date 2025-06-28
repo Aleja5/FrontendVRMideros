@@ -23,12 +23,14 @@ const Login = () => {
       setError('Todos los campos son obligatorios');
       setLoading(false);
       return;
-    }    try {      console.log('🔍 Intentando login con:', { email, password: '***' });
+    }
+
+        try {      // REMOVED: console.log
       
       // Hacemos la petición POST al backend para el login      
       const response = await axiosInstance.post('/auth/login', { email, password });
       
-      console.log('✅ Respuesta recibida:', response);
+      // REMOVED: console.log
 
       // Si la respuesta tiene un token y usuario, lo guardamos en el localStorage
       const { token, refreshToken, user, redirect } = response.data;
@@ -39,7 +41,7 @@ const Login = () => {
         localStorage.setItem('user', JSON.stringify(user));
         localStorage.setItem('idOperario', user._id);
         
-        console.log('✅ Login exitoso, tokens guardados');
+        // REMOVED: console.log
         
         // Redirigimos al usuario a la página correspondiente
         setTimeout(() => navigate(redirect), 100);

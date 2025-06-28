@@ -27,9 +27,9 @@ export const useFiltrosProduccion = (otiSeleccionada = null) => {
           axiosInstance.get("produccion/areas"),
           axiosInstance.get("produccion/maquinas")
         ]);
-        console.log("OTI Data:", otiData);
-        console.log("OTI Map creado:", otiData.length, "entradas");
-        console.log("Operarios Data:", operariosData);
+        // REMOVED: console.log("OTI Data:", otiData);
+        // REMOVED: console.log("OTI Map creado:", otiData.length, "entradas");
+        // REMOVED: console.log("Operarios Data:", operariosData);
 
         setOti(otiData);
         setOperarios(operariosData);
@@ -56,16 +56,16 @@ export const useFiltrosProduccion = (otiSeleccionada = null) => {
     const cargarOperariosPorOti = async () => {
       if (otiSeleccionada) {
         try {
-          console.log("Cargando operarios para OTI:", otiSeleccionada);
+          // REMOVED: console.log("Cargando operarios para OTI:", otiSeleccionada);
           const { data } = await axiosInstance.get(`produccion/operarios-por-oti/${otiSeleccionada}`);
-          console.log("Operarios filtrados recibidos:", data);
+          // REMOVED: console.log("Operarios filtrados recibidos:", data);
           setOperariosFiltrados(data);
         } catch (error) {
           console.error("Error al cargar operarios por OTI:", error);
           setOperariosFiltrados([]);
         }
       } else {
-        console.log("No hay OTI seleccionada, usando todos los operarios");
+        // REMOVED: console.log("No hay OTI seleccionada, usando todos los operarios");
         setOperariosFiltrados(operarios);
       }
     };

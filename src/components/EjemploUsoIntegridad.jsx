@@ -57,16 +57,16 @@ const EjemploListaOperarios = () => {
     }
   };
 
-  const handleEliminar = (operario) => {
+    const handleEliminar = (operario) => {
     iniciarEliminacion(operario);
   };
 
-  const handleEditar = (operario) => {
+    const handleEditar = (operario) => {
     // Lógica para editar operario
-    console.log('Editar operario:', operario);
+    // REMOVED: console.log
   };
 
-  if (cargando) {
+        if (cargando) {
     return (
       <div className="flex justify-center items-center py-8">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -78,12 +78,12 @@ const EjemploListaOperarios = () => {
   return (
     <div className="bg-white rounded-lg shadow">
       {/* Header */}
-      <div className="px-6 py-4 border-b border-gray-200">
+                        <div className="px-6 py-4 border-b border-gray-200">
         <div className="flex justify-between items-center">
           <h2 className="text-lg font-semibold text-gray-900">Lista de Operarios</h2>
           <button
             className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            onClick={() => console.log('Crear nuevo operario')}
+            onClick={() => // REMOVED: console.log
           >
             <Plus className="w-4 h-4 mr-2" />
             Nuevo Operario
@@ -92,7 +92,7 @@ const EjemploListaOperarios = () => {
       </div>
 
       {/* Lista */}
-      <div className="overflow-x-auto">
+                        <div className="overflow-x-auto">
         <table className="w-full">
           <thead className="bg-gray-50">
             <tr>

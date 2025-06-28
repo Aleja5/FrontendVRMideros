@@ -41,7 +41,7 @@ const OperarioListMejorado = ({ operarios, onEditar, onActualizar, cargando = fa
         }
     };
 
-    if (cargando) {
+        if (cargando) {
         return (
             <div className="flex justify-center items-center py-12">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -50,7 +50,7 @@ const OperarioListMejorado = ({ operarios, onEditar, onActualizar, cargando = fa
         );
     }
 
-    if (!operarios || operarios.length === 0) {
+        if (!operarios || operarios.length === 0) {
         return (
             <div className="text-center py-10 bg-gray-50 rounded-lg">
                 <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -65,7 +65,7 @@ const OperarioListMejorado = ({ operarios, onEditar, onActualizar, cargando = fa
     return (
         <div className="bg-white shadow rounded-lg overflow-hidden">
             {/* Header con información de protección */}
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-3 border-b border-blue-100">
+                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-3 border-b border-blue-100">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center">
                         <Shield className="w-5 h-5 text-blue-600 mr-2" />
@@ -80,7 +80,7 @@ const OperarioListMejorado = ({ operarios, onEditar, onActualizar, cargando = fa
             </div>
 
             {/* Tabla */}
-            <div className="overflow-x-auto">
+                        <div className="overflow-x-auto">
                 <table className="w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                         <tr>

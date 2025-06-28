@@ -20,11 +20,11 @@ export const Sidebar = () => {
     localStorage.setItem("sidebarCollapsed", newState);
   };
 
-  const handleLogout = () => {
+    const handleLogout = () => {
     navigate("/validate-cedula");
   };
 
-  const menuItems = [
+    const menuItems = [
     { to: "/operario-dashboard", icon: Home, label: "Inicio" },
     { to: "/registro-produccion", icon: PlusCircle, label: "Registrar Actividad" },
     { to: "/mi-jornada", icon: ClipboardList, label: "Mi Jornada Actual" },
@@ -41,7 +41,7 @@ export const Sidebar = () => {
       transition={{ duration: 0.1 }}
     >
       {/* Logo and Toggle Button */}
-      <div className={`flex items-center p-4 ${collapsed ? 'justify-center' : 'justify-between'}`}>
+                        <div className={`flex items-center p-4 ${collapsed ? 'justify-center' : 'justify-between'}`}>
         {!collapsed && (
           <img src={logo} alt="Logo" className="h-30 w-auto" /> // Mostrar logo cuando no está colapsado
         )}
@@ -75,7 +75,7 @@ export const Sidebar = () => {
 
       {/* Logout - Se pegará al fondo con un margen y un estilo distintivo */}
       {/* Añadido 'mt-auto' para empujarlo al final, y 'pb-4' para darle espacio desde abajo */}
-      <div className="mt-auto p-2 pb-4 border-t border-gray-700"> {/* Cambié p-2 por p-2 pb-4 */}
+                        <div className="mt-auto p-2 pb-4 border-t border-gray-700"> {/* Cambié p-2 por p-2 pb-4 */}
         <button
           onClick={handleLogout}
           className="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-md w-full text-red-400 hover:text-red-300"

@@ -59,8 +59,8 @@ const ActividadCard = ({
       if (esCruzaMedianoche) {
         fin = new Date(`1970-01-02T${actividad.horaFin}:00`);
       }
-      
-      if (fin > inicio) {
+
+        if (fin > inicio) {
         const minutos = Math.floor((fin - inicio) / 60000);
         setTiempoCalculado(minutos);
       } else {
@@ -147,9 +147,9 @@ const ActividadCard = ({
   return (
     <Card className="relative p-6 border-l-4 border-l-blue-500 bg-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-lg border border-gray-100">
       {/* Header con gradiente */}
-      <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
-        <div className="flex items-center gap-3">          
-          <div>
+                        <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
+        <div className="flex items-center gap-3">
+                        <div>
             <h3 className="text-lg font-bold text-gray-800">Actividad N° {index + 1}</h3>
             <p className="text-xs text-gray-500">Registro de tiempo de producción</p>
           </div>
@@ -167,10 +167,10 @@ const ActividadCard = ({
         )}
       </div>      <div className="space-y-6">
         {/* Sección de Información Básica */}
-        <div className="bg-gradient-to-r from-gray-50 to-gray-60 p-4 rounded-xl border border-gray-200">          
+                        <div className="bg-gradient-to-r from-gray-50 to-gray-60 p-4 rounded-xl border border-gray-200">          
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 p-4">
             <div className="space-y-2">
-              <label className="flex items-center gap-2 text-m font-medium text-gray-700">
+                            <label className="flex items-center gap-2 text-m font-medium text-gray-700">
                 <span className="w-2 h-2 bg-red-500 rounded-full"></span>
                 OTI *
               </label>
@@ -186,7 +186,7 @@ const ActividadCard = ({
             </div>
 
             <div className="space-y-2">
-              <label className="flex items-center gap-2 text-m font-medium text-gray-700">
+                            <label className="flex items-center gap-2 text-m font-medium text-gray-700">
                 <span className="w-2 h-2 bg-red-500 rounded-full"></span>
                 Área de Producción *
               </label>
@@ -205,7 +205,7 @@ const ActividadCard = ({
               </Input>
             </div>
             <div className="space-y-2 relative">
-              <label className="flex items-center gap-2 text-m font-medium text-gray-700">
+                            <label className="flex items-center gap-2 text-m font-medium text-gray-700">
                 <span className="w-2 h-2 bg-red-500 rounded-full"></span>
                 Proceso(s) *
               </label>
@@ -273,7 +273,7 @@ const ActividadCard = ({
               </div>
             </div>
             <div className="space-y-2">
-              <label className="flex items-center gap-2 text-m font-medium text-gray-700">
+                            <label className="flex items-center gap-2 text-m font-medium text-gray-700">
                 <span className="w-2 h-2 bg-red-500 rounded-full"></span>
                 Máquina *
               </label>
@@ -294,7 +294,7 @@ const ActividadCard = ({
               </Input>
             </div>
             <div className="space-y-2 relative">
-              <label className="flex items-center gap-2 text-m font-medium text-gray-700">
+                            <label className="flex items-center gap-2 text-m font-medium text-gray-700">
                 <span className="w-2 h-2 bg-red-500 rounded-full"></span>
                 Insumo(s) *
               </label>
@@ -361,7 +361,7 @@ const ActividadCard = ({
               </div>
             </div>
             <div className="space-y-2">
-              <label className="flex items-center gap-2 text-m font-medium text-gray-700">
+                            <label className="flex items-center gap-2 text-m font-medium text-gray-700">
                 <span className="w-2 h-2 bg-red-500 rounded-full"></span>
                 Tipo de Tiempo *
               </label>
@@ -380,7 +380,7 @@ const ActividadCard = ({
               </Input>
             </div>
              <div className="space-y-2">
-              <label className="flex items-center gap-2 text-m font-medium text-gray-700">
+                            <label className="flex items-center gap-2 text-m font-medium text-gray-700">
                 <span className="w-2 h-2 bg-red-500 rounded-full"></span>
                 Hora Inicio *
               </label>
@@ -395,7 +395,7 @@ const ActividadCard = ({
             </div>
 
             <div className="space-y-2">
-              <label className="flex items-center gap-2 text-m font-medium text-gray-700">
+                            <label className="flex items-center gap-2 text-m font-medium text-gray-700">
                 <span className="w-2 h-2 bg-red-500 rounded-full"></span>
                 Hora Fin *
               </label>
@@ -410,7 +410,7 @@ const ActividadCard = ({
             </div>
 
             <div className="space-y-2">
-              <label className="flex items-center gap-2 text-m font-medium text-gray-700">
+                            <label className="flex items-center gap-2 text-m font-medium text-gray-700">
                 <Timer className="w-3 h-3 text-green-600" />
                 Tiempo Calculado
               </label>
@@ -428,7 +428,7 @@ const ActividadCard = ({
             </div>            
           </div>
           {/* Observaciones */}
-          <div className="flex items-center gap-2 mb-3">
+                        <div className="flex items-center gap-2 mb-3">
             <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
             <h4 className="font-semibold text-gray-700 text-sm">Observaciones</h4>
           </div>
@@ -499,7 +499,7 @@ export default function RegistroProduccion() {
         return;
       }
 
-      try {
+        try {
         const operarioData = JSON.parse(operario);
         if (operarioData?.name) setNombreOperario(operarioData.name);
         if (operarioData?._id || operarioData?.id) {
@@ -655,10 +655,11 @@ export default function RegistroProduccion() {
       return hours * 60 + minutes;
     };
 
-    if (horasInicio.length > 0) {
+        if (horasInicio.length > 0) {
       primeraHora = horasInicio.sort((a, b) => parseTime(a) - parseTime(b))[0];
     }
-    if (horasFin.length > 0) {
+
+        if (horasFin.length > 0) {
       ultimaHora = horasFin.sort((a, b) => parseTime(a) - parseTime(b))[horasFin.length - 1];
     }
 
@@ -707,7 +708,7 @@ export default function RegistroProduccion() {
     return null;
   };
 
-  const fetchProcesosForActivity = useCallback(async (activityIndex, areaId) => {
+    const fetchProcesosForActivity = useCallback(async (activityIndex, areaId) => {
     if (!areaId) {
       setActividades(prev =>
         prev.map((act, idx) =>
@@ -716,7 +717,8 @@ export default function RegistroProduccion() {
       );
       return;
     }
-    try {
+
+        try {
       const response = await fetch(`${API_BASE_URL}/api/procesos?areaId=${areaId}`);
       if (response.ok) {
         const data = await response.json();
@@ -793,8 +795,8 @@ export default function RegistroProduccion() {
             if (finDate <= inicioDate) {
               finDate = new Date(`1970-01-02T${fin}:00`);
             }
-            
-            if (finDate > inicioDate) {
+
+        if (finDate > inicioDate) {
               updatedAct.tiempo = Math.floor((finDate - inicioDate) / 60000);
             } else {
               updatedAct.tiempo = 0;
@@ -811,7 +813,8 @@ export default function RegistroProduccion() {
     });
     setActividades(nuevasActividades);
   };
-  const combinarFechaYHora = (fecha, hora) => {
+
+    const combinarFechaYHora = (fecha, hora) => {
     if (!hora || typeof hora !== 'string' || !hora.match(/^\d{2}:\d{2}$/)) return null;
 
     const [hh, mm] = hora.split(":");
@@ -822,7 +825,8 @@ export default function RegistroProduccion() {
     // Mantener en timezone local en lugar de convertir a UTC
     return isNaN(date.getTime()) ? null : date;
   };
-  const addActividad = () => {
+
+    const addActividad = () => {
     setActividades(prev => [...prev, {
       oti: "",
       procesos: [],
@@ -860,7 +864,7 @@ export default function RegistroProduccion() {
     }, 100);
   };
 
-  const scrollToTop = () => {
+    const scrollToTop = () => {
     window.scrollTo({ 
       top: 0, 
       behavior: 'smooth' 
@@ -880,7 +884,7 @@ export default function RegistroProduccion() {
     });
   };
 
-  const removeActividad = (index) => {
+    const removeActividad = (index) => {
     if (actividades.length > 1) {
       setActividades(prev => prev.filter((_, i) => i !== index));
     } else {
@@ -888,7 +892,7 @@ export default function RegistroProduccion() {
     }
   };
 
-  const handleSubmitJornada = async (e) => {
+    const handleSubmitJornada = async (e) => {
     e.preventDefault();
     setCurrentStep(3);
 
@@ -923,7 +927,7 @@ export default function RegistroProduccion() {
       }
     }
 
-    if (!jornadaData.horaInicio || !jornadaData.horaFin) {
+        if (!jornadaData.horaInicio || !jornadaData.horaFin) {
       toast.error("Horas de inicio o fin de jornada vacías.");
       return;
     }
@@ -949,7 +953,7 @@ export default function RegistroProduccion() {
       }))
     };
 
-    try {
+        try {
       const endpoint = urlJornadaId        ? `${API_BASE_URL}/api/jornadas/${urlJornadaId}`
         : `${API_BASE_URL}/api/jornadas/completa`;
       const method = urlJornadaId ? "PUT" : "POST";
@@ -980,8 +984,8 @@ export default function RegistroProduccion() {
     <div className="flex bg-gray-100 min-h-screen h-screen">
       <Sidebar />
       <div className="flex-1 p-6 overflow-auto">
-          <div className="container mx-auto py-8 max-w-7xl space-y-4 pb-24">                   
-            <div>
+          <div className="container mx-auto py-8 max-w-7xl space-y-4 pb-24">
+                        <div>
               <h1 className="text-4xl font-extrabold text-gray-800 tracking-tight drop-shadow-sm">
                 Registro de Tiempos de Producción
               </h1>              
@@ -990,7 +994,7 @@ export default function RegistroProduccion() {
                 <Card className="p-3 shadow-lg bg-white border border-gray-200 rounded-xl">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <label className="flex items-center gap-2 text-m font-semibold text-gray-700">Operario Asignado</label>
+                            <label className="flex items-center gap-2 text-m font-semibold text-gray-700">Operario Asignado</label>
                       <Input 
                         type="text" 
                         value={nombreOperario || "Cargando..."} 
@@ -999,7 +1003,7 @@ export default function RegistroProduccion() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="flex items-center gap-2 text-m font-semibold text-gray-700">
+                            <label className="flex items-center gap-2 text-m font-semibold text-gray-700">
                         <span className="w-2 h-2 bg-red-500 rounded-full"></span>
                         Fecha de la Jornada *
                       </label>
@@ -1024,7 +1028,7 @@ export default function RegistroProduccion() {
                       <div className="bg-amber-500 p-2 rounded-lg">
                         <AlertCircle className="w-5 h-5 text-white" />
                       </div>
-                      <div>
+                        <div>
                         <h3 className="text-lg font-bold text-white">
                           Actividades Registradas
                         </h3>
@@ -1045,7 +1049,7 @@ export default function RegistroProduccion() {
                     </div>
                   </div>
                     {/* Tabla de actividades existentes */}
-                  <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
+                        <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
                     <div className="overflow-x-auto">
                       <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
@@ -1098,8 +1102,8 @@ export default function RegistroProduccion() {
                                 // Agregar un día a la fecha de fin
                                 fin = new Date(fin.getTime() + 24 * 60 * 60 * 1000);
                               }
-                              
-                              const diffMs = fin - inicio;
+
+    const diffMs = fin - inicio;
                               const diffMinutos = Math.floor(diffMs / (1000 * 60));
                               const horas = Math.floor(diffMinutos / 60);
                               const minutos = diffMinutos % 60;
@@ -1148,7 +1152,7 @@ export default function RegistroProduccion() {
                     </div>
                   </div>
                 </div>              )}              {/* Actividades */}
-              <div className="space-y-4">
+                        <div className="space-y-4">
                 {actividades.map((actividad, index) => (
                   <ActividadCard
                     key={index}
@@ -1165,11 +1169,12 @@ export default function RegistroProduccion() {
                   />
                 ))}
               </div>{/* Botones de acción */}
-              <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4">
+                        <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="p-2 bg-gradient-to-br from-green-500 to-green-600 rounded-lg shadow-md">
                     <Save className="w-5 h-5 text-white" />
-                  </div>                  <div>
+                  </div>
+                        <div>
                     <h2 className="text-lg font-bold text-gray-800">Guardar Jornada</h2>
                     <p className="text-sm text-gray-600">Guarda todas las actividades registradas en esta jornada</p>
                   </div>
@@ -1197,7 +1202,7 @@ export default function RegistroProduccion() {
           </div>
         </div>
           {/* Botón Flotante para Agregar Actividad */}
-        <div className={`fixed bottom-6 right-6 z-50 transition-all duration-500 ${
+                        <div className={`fixed bottom-6 right-6 z-50 transition-all duration-500 ${
           showFloatingButton 
             ? 'opacity-100 translate-y-0 scale-100' 
             : 'opacity-0 translate-y-4 scale-90 pointer-events-none'
@@ -1211,15 +1216,15 @@ export default function RegistroProduccion() {
               aria-label="Agregar nueva actividad"
             >
               {/* Efecto de pulso de fondo */}
-              <div className="absolute inset-0 rounded-full bg-purple-600 animate-ping opacity-20"></div>
+                        <div className="absolute inset-0 rounded-full bg-purple-600 animate-ping opacity-20"></div>
               
               {/* Icono principal con animación */}
-              <div className="relative flex items-center justify-center">
+                        <div className="relative flex items-center justify-center">
                 <Plus className="w-6 h-6 transition-transform duration-300 group-hover:rotate-180" />
               </div>
               
               {/* Tooltip mejorado */}
-              <div className="absolute bottom-full right-0 mb-3 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none transform group-hover:translate-y-0 translate-y-2">
+                        <div className="absolute bottom-full right-0 mb-3 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none transform group-hover:translate-y-0 translate-y-2">
                 <div className="bg-gray-900 text-white text-sm px-4 py-3 rounded-xl whitespace-nowrap shadow-2xl border border-gray-700">
                   <div className="flex items-center gap-2">
                     <Zap className="w-4 h-4 text-yellow-400" />
@@ -1229,7 +1234,7 @@ export default function RegistroProduccion() {
                     Click para agregar
                   </div>
                   {/* Flecha del tooltip */}
-                  <div className="absolute top-full right-6 w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-transparent border-t-gray-900"></div>
+                        <div className="absolute top-full right-6 w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-transparent border-t-gray-900"></div>
                 </div>
               </div>
             </button>

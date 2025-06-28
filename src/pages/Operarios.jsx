@@ -83,17 +83,16 @@ const OperariosPage = ({ currentPage: propCurrentPage, totalResults: propTotalRe
         setCurrentPage(newPage);
     };
 
-
-  const handleCrear = () => {
+    const handleCrear = () => {
     setModo('crear');
   };
 
-  const handleEditar = (operario) => {
+    const handleEditar = (operario) => {
     setOperarioAEditar(operario);
     setModo('editar');
   };
 
-  const handleGuardar = async (operario) => {
+    const handleGuardar = async (operario) => {
     try {
       if (operarioAEditar) {
         await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/operarios/${operarioAEditar._id}`, operario);
@@ -107,7 +106,8 @@ const OperariosPage = ({ currentPage: propCurrentPage, totalResults: propTotalRe
       console.error('Error al guardar operario:', error);
     }
   };
-  const handleEliminar = async (id) => {
+
+    const handleEliminar = async (id) => {
     try {
       await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/api/operarios/${id}`);
       cargarOperarios(currentPage, searchText, estadoFiltro);
@@ -116,7 +116,7 @@ const OperariosPage = ({ currentPage: propCurrentPage, totalResults: propTotalRe
     }
   };
 
-  const handleCancelar = () => {
+    const handleCancelar = () => {
     setModo('listar');
     setOperarioAEditar(null);
   };
@@ -129,9 +129,9 @@ const OperariosPage = ({ currentPage: propCurrentPage, totalResults: propTotalRe
             <div className="flex-1 overflow-auto">
                 <div className="container mx-auto px-4 py-6">
                     {/* Header Card Mejorado */}
-                    <div className="bg-gradient-to-r from-white to-gray-50 shadow-2xl rounded-3xl p-6 md:p-8 border border-gray-100 mb-6">
-                        <div className="flex items-center gap-4 mb-6">                            
-                            <div>
+                        <div className="bg-gradient-to-r from-white to-gray-50 shadow-2xl rounded-3xl p-6 md:p-8 border border-gray-100 mb-6">
+                        <div className="flex items-center gap-4 mb-6">
+                        <div>
                                 <h1 className="text-4xl font-extrabold text-gray-800 tracking-tight drop-shadow-sm">Gestión de Operarios</h1>
                                 <p className="text-gray-600 mt-2 text-lg">Administra y gestiona el personal operativo de la planta de producción</p>
                             </div>
@@ -148,7 +148,7 @@ const OperariosPage = ({ currentPage: propCurrentPage, totalResults: propTotalRe
                                 </button>
 
                                 {/* Botones de filtro por estado mejorados */}
-                                <div className="flex gap-1 p-1 bg-gray-100 rounded-2xl">
+                        <div className="flex gap-1 p-1 bg-gray-100 rounded-2xl">
                                     <button
                                         onClick={() => handleEstadoChange('activo')}
                                         className={`px-6 py-2.5 rounded-xl font-medium transition-all duration-300 flex items-center gap-2 ${
@@ -216,7 +216,7 @@ const OperariosPage = ({ currentPage: propCurrentPage, totalResults: propTotalRe
 
                             {modo === 'listar' && (
                                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
-                                    <label htmlFor="searchText" className="sr-only"> 
+                            <label htmlFor="searchText" className="sr-only"> 
                                         Buscar por Nombre:
                                     </label>
                                     <div className="relative">
@@ -240,7 +240,7 @@ const OperariosPage = ({ currentPage: propCurrentPage, totalResults: propTotalRe
                     </div>
 
                     {/* Main Content Card */}
-                    <div className="bg-white shadow-xl rounded-2xl p-6 md:p-8 border border-gray-100">                        {loading ? (
+                        <div className="bg-white shadow-xl rounded-2xl p-6 md:p-8 border border-gray-100">                        {loading ? (
                             <div className="flex justify-center items-center py-16">
                                 <div className="relative">
                                     <div className="animate-spin rounded-full h-20 w-20 border-4 border-gray-200"></div>
@@ -262,7 +262,7 @@ const OperariosPage = ({ currentPage: propCurrentPage, totalResults: propTotalRe
                                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
                                                             </svg>
                                                         </div>
-                                                        <div>
+                        <div>
                                                             <h3 className="text-lg font-semibold text-gray-800">Total de Operarios</h3>
                                                             <p className="text-gray-600">Personal operativo registrado</p>
                                                         </div>

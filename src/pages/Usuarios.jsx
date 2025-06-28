@@ -66,7 +66,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
     );
 };
 
-const UsuariosPage = ({ currentPage: propCurrentPage, totalResults: propTotalResults, itemsPerPage = 5 }) => {
+    const UsuariosPage = ({ currentPage: propCurrentPage, totalResults: propTotalResults, itemsPerPage = 5 }) => {
     const [usuarios, setUsuarios] = useState([]);
     const [modo, setModo] = useState('listar'); // 'listar', 'crear', 'editar'
     const [usuarioAEditar, setUsuarioAEditar] = useState(null);
@@ -106,11 +106,15 @@ const UsuariosPage = ({ currentPage: propCurrentPage, totalResults: propTotalRes
 
     const handleCrear = () => {
         setModo('crear');    
-    };    const handleEditar = (usuario) => {
-        console.log('Usuario a editar:', usuario); // Debug log
+    };
+
+    const handleEditar = (usuario) => {
+        // REMOVED: console.log('Usuario a editar:', usuario); // Debug log
         setModo('editar');
         setUsuarioAEditar(usuario);
-    };const handleGuardar = async (usuario) => {
+    };
+
+    const handleGuardar = async (usuario) => {
         setSavingUser(true);
         try {
             let res;
@@ -146,7 +150,9 @@ const UsuariosPage = ({ currentPage: propCurrentPage, totalResults: propTotalRes
         } finally {
             setSavingUser(false);
         }
-    };const handleEliminar = async (id) => {
+    };
+
+    const handleEliminar = async (id) => {
         try {
             await axiosInstance.delete(`/usuarios/${id}`);
             toast.success('Usuario eliminado exitosamente');
@@ -170,8 +176,8 @@ const UsuariosPage = ({ currentPage: propCurrentPage, totalResults: propTotalRes
                     <div className="container mx-auto px-4 py-6">
                         {/* Header Card Mejorado */}
                         <div className="bg-gradient-to-r from-white to-gray-50 shadow-2xl rounded-3xl p-6 md:p-8 border border-gray-100 mb-6">
-                            <div className="flex items-center gap-4 mb-6">                            
-                                <div>
+                            <div className="flex items-center gap-4 mb-6">
+                        <div>
                                     <h1 className="text-4xl font-extrabold text-gray-800 tracking-tight drop-shadow-sm">Gestión de Usuarios</h1>
                                     <p className="text-gray-600 mt-2 text-lg">Administra y controla las cuentas de usuario del sistema</p>
                                 </div>
@@ -190,7 +196,7 @@ const UsuariosPage = ({ currentPage: propCurrentPage, totalResults: propTotalRes
 
                                 {modo === 'listar' && (
                                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
-                                        <label htmlFor="searchText" className="sr-only"> 
+                            <label htmlFor="searchText" className="sr-only"> 
                                             Buscar por Nombre:
                                         </label>
                                         <div className="relative">
@@ -235,7 +241,7 @@ const UsuariosPage = ({ currentPage: propCurrentPage, totalResults: propTotalRes
                                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
                                                                 </svg>
                                                             </div>
-                                                            <div>
+                        <div>
                                                                 <h3 className="text-lg font-semibold text-gray-800">Total de Usuarios</h3>
                                                                 <p className="text-gray-600">Cuentas de usuario registradas</p>
                                                             </div>

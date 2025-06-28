@@ -55,7 +55,7 @@ axiosInstance.interceptors.request.use(
         
         requestCount++;
         const token = localStorage.getItem('token');
-        console.log("Token recuperado de localStorage:", token);
+        // REMOVED: console.log
         if (token) {
             config.headers['Authorization'] = `Bearer ${token}`;
         }
@@ -87,7 +87,7 @@ axiosInstance.interceptors.response.use(
             const retryAfter = error.response.headers['retry-after'];
             const delay = retryAfter ? parseInt(retryAfter) * 1000 : 5000;
             
-            console.log(`⏳ Reintentando en ${delay/1000} segundos...`);
+            // REMOVED: console.log
             await new Promise(resolve => setTimeout(resolve, delay));
             return axiosInstance(originalRequest);
         }
@@ -121,13 +121,13 @@ axiosInstance.interceptors.response.use(
                 localStorage.removeItem('operario');
                 localStorage.removeItem('idOperario');
                 
-                console.log('🔒 Sesión expirada. Redirigiendo al login...');
+                // REMOVED: console.log
                 window.location.href = '/login';
                 
                 return Promise.reject(new Error('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.'));
             }
 
-            try {
+        try {
                 const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/auth/refresh-token`, {
                     refreshToken: refreshToken
                 });
@@ -143,7 +143,7 @@ axiosInstance.interceptors.response.use(
                 
                 processQueue(null, newToken);
                 
-                console.log('🔄 Token renovado automáticamente');
+                // REMOVED: console.log
                 
                 return axiosInstance(originalRequest);
                 
@@ -157,7 +157,7 @@ axiosInstance.interceptors.response.use(
                 localStorage.removeItem('operario');
                 localStorage.removeItem('idOperario');
                 
-                console.log('🔒 Sesión expirada. Redirigiendo al login...');
+                // REMOVED: console.log
                 window.location.href = '/login';
                 
                 return Promise.reject(new Error('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.'));

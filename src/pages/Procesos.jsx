@@ -81,7 +81,9 @@ const ProcesoPage = ({ currentPage: propCurrentPage, totalResults: propTotalResu
         } catch (error) {
             console.error('Error al guardar el proceso:', error);
         }
-    };    const handleEliminar = async (id) => {
+    };
+
+    const handleEliminar = async (id) => {
         try {
             await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/api/procesos/${id}`);
             cargarProcesos(currentPage, searchText); // Recarga con la página y búsqueda actuales
@@ -104,8 +106,8 @@ const ProcesoPage = ({ currentPage: propCurrentPage, totalResults: propTotalResu
                     <div className="container mx-auto px-4 py-6">
                         {/* Header Card Mejorado */}
                         <div className="bg-gradient-to-r from-white to-gray-50 shadow-2xl rounded-3xl p-6 md:p-8 border border-gray-100 mb-6">
-                            <div className="flex items-center gap-4 mb-6">                            
-                                <div>
+                            <div className="flex items-center gap-4 mb-6">
+                        <div>
                                     <h1 className="text-4xl font-extrabold text-gray-800 tracking-tight drop-shadow-sm">Gestión de Procesos</h1>
                                     <p className="text-gray-600 mt-2 text-lg">Administra y controla todos los procesos de producción de la planta</p>
                                 </div>
@@ -124,7 +126,7 @@ const ProcesoPage = ({ currentPage: propCurrentPage, totalResults: propTotalResu
 
                                 {modo === 'listar' && (
                                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
-                                        <label htmlFor="searchText" className="sr-only"> 
+                            <label htmlFor="searchText" className="sr-only"> 
                                             Buscar por Nombre:
                                         </label>
                                         <div className="relative">
@@ -170,7 +172,7 @@ const ProcesoPage = ({ currentPage: propCurrentPage, totalResults: propTotalResu
                                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                                                                 </svg>
                                                             </div>
-                                                            <div>
+                        <div>
                                                                 <h3 className="text-lg font-semibold text-gray-800">Total de Procesos</h3>
                                                                 <p className="text-gray-600">Procesos de producción definidos</p>
                                                             </div>

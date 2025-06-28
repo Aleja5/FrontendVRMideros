@@ -13,7 +13,8 @@ const useAuth = () => {
         const updateAuthState = () => {
             const token = localStorage.getItem('token');
             const user = JSON.parse(localStorage.getItem('user')) || {};
-            const operario = JSON.parse(localStorage.getItem('operario')) || {};
+
+    const operario = JSON.parse(localStorage.getItem('operario')) || {};
 
             setAuthState({
                 isAuthenticated: !!token,

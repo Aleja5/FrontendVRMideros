@@ -15,7 +15,8 @@ export const authService = {
                 if (response.data.refreshToken) {
                     apiService.setRefreshToken(response.data.refreshToken);
                 }
-                if (response.data.user) {
+
+        if (response.data.user) {
                     localStorage.setItem('user', JSON.stringify(response.data.user));
                 }
             }

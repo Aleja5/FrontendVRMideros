@@ -19,8 +19,8 @@ const InsumoForm = ({ insumoInicial, onGuardar, onCancelar }) => {
 
     return (
         <form onSubmit={handleSubmit}>
-            <div>
-                <label htmlFor="nombre" className="block text-sm font-medium text-gray-700 mb-1">Nombre del Insumo:</label>
+                        <div>
+                            <label htmlFor="nombre" className="block text-sm font-medium text-gray-700 mb-1">Nombre del Insumo:</label>
                 <input
                     type="text"
                     id="nombre"

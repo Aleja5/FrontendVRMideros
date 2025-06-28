@@ -89,7 +89,7 @@ const ActivityCard = ({ actividad, onVerDetalle, onEditarActividad }) => {
             transition={{ duration: 0.3 }}
         >
             {/* Contenido principal de la tarjeta */}
-            <div className="relative z-10 flex items-center gap-3 mb-3">
+                        <div className="relative z-10 flex items-center gap-3 mb-3">
                 <Hammer className="w-6 h-6 text-blue-500" aria-label="Actividad" />
                 <div className="flex-1">
                     <h4 className="font-medium text-gray-800 text-lg">
@@ -102,7 +102,7 @@ const ActivityCard = ({ actividad, onVerDetalle, onEditarActividad }) => {
             </div>
 
             <div className="relative z-10 grid grid-cols-2 gap-2 text-sm text-gray-600 mb-4">
-                <div>
+                        <div>
                     <span className="font-semibold block">Inicio</span>
                     {formatTime(actividad.horaInicio)}
                 </div>
@@ -128,7 +128,7 @@ const ActivityCard = ({ actividad, onVerDetalle, onEditarActividad }) => {
             </div>
 
             {/* BARRA DE PROGRESO INFERIOR */}
-            <div className="absolute bottom-0 left-0 w-full h-1.5 bg-gray-200 rounded-b-xl overflow-hidden">
+                        <div className="absolute bottom-0 left-0 w-full h-1.5 bg-gray-200 rounded-b-xl overflow-hidden">
                 <div
                     className="h-full"
                     style={{

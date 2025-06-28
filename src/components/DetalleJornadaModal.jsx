@@ -16,12 +16,12 @@ const getHora = (valor) => {
     }
 };
 
-const ajustarFechaLocal = (fechaUTC) => {
+    const ajustarFechaLocal = (fechaUTC) => {
     const fecha = new Date(fechaUTC);
     return new Date(fecha.getTime() + fecha.getTimezoneOffset() * 60000);
 };
 
-const DetalleJornadaModal = ({ jornadaId, onClose, onEditarActividad, onEliminarActividad }) => {
+    const DetalleJornadaModal = ({ jornadaId, onClose, onEditarActividad, onEliminarActividad }) => {
     const navigate = useNavigate(); // Initialize useNavigate
     const [jornada, setJornada] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -30,10 +30,10 @@ const DetalleJornadaModal = ({ jornadaId, onClose, onEditarActividad, onEliminar
     const [selectedProduccion, setSelectedProduccion] = useState(null);    const fetchDetalleJornada = async () => { // Renamed for clarity and consistency
         setLoading(true);
         try {
-            console.log('🔍 Cargando detalles de la jornada:', jornadaId);
+            // REMOVED: console.log
             const response = await axiosInstance.get(`/jornadas/${jornadaId}`);
             if (response.data) {
-                console.log('✅ Detalle jornada API:', response.data);
+                // REMOVED: console.log
                 setJornada(response.data);
                 setError(''); // Limpiar errores previos
             } else {
@@ -83,7 +83,9 @@ const DetalleJornadaModal = ({ jornadaId, onClose, onEditarActividad, onEliminar
         // Finally, navigate to the dashboard.
         // The fetchDetalleJornada() call is removed as we are navigating away.
         navigate('/operario-dashboard'); 
-    };    if (loading) return (
+    };
+
+        if (loading) return (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
             <div className="fixed inset-0 bg-black bg-opacity-60 transition-opacity" />
             <div className="relative bg-white rounded-2xl shadow-2xl p-8 z-10">
@@ -115,21 +117,21 @@ const DetalleJornadaModal = ({ jornadaId, onClose, onEditarActividad, onEliminar
     );    return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             {/* Fondo oscuro mejorado */}
-            <div 
+                        <div 
                 className="fixed inset-0 bg-black/70 backdrop-blur-sm transition-opacity" 
                 onClick={onClose}
             />
 
             {/* Contenedor modal rediseñado */}
-            <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-6xl max-h-[95vh] overflow-hidden z-10">
+                        <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-6xl max-h-[95vh] overflow-hidden z-10">
                 {/* Header del modal */}
-                <div className="bg-gradient-to-r from-blue-600 to-indigo-700 px-8 py-6 text-white">
+                        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 px-8 py-6 text-white">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <div className="bg-white/20 p-2 rounded-xl">
                                 <Calendar className="w-6 h-6" />
                             </div>
-                            <div>
+                        <div>
                                 <h2 className="text-2xl font-bold">Detalle de la Jornada</h2>
                                 <p className="text-blue-100 flex items-center gap-2 mt-1">
                                     <Calendar className="w-4 h-4" />
@@ -152,13 +154,13 @@ const DetalleJornadaModal = ({ jornadaId, onClose, onEditarActividad, onEliminar
                 </div>
 
                 {/* Información de la jornada */}
-                <div className="px-8 py-6 bg-gray-50 border-b">
+                        <div className="px-8 py-6 bg-gray-50 border-b">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div className="flex items-center gap-3 bg-white p-4 rounded-xl shadow-sm">
                             <div className="bg-green-100 p-3 rounded-xl">
                                 <User className="w-6 h-6 text-green-600" />
                             </div>
-                            <div>
+                        <div>
                                 <p className="text-sm text-gray-500 font-medium">Operario</p>
                                 <p className="text-lg font-semibold text-gray-800">
                                     {jornada.operario?.name || 'N/A'}
@@ -184,7 +186,7 @@ const DetalleJornadaModal = ({ jornadaId, onClose, onEditarActividad, onEliminar
                             <div className="bg-purple-100 p-3 rounded-xl">
                                 <Settings className="w-6 h-6 text-purple-600" />
                             </div>
-                            <div>
+                        <div>
                                 <p className="text-sm text-gray-500 font-medium">Actividades</p>
                                 <p className="text-lg font-semibold text-gray-800">
                                     {jornada.registros?.length || 0} registradas
@@ -192,7 +194,7 @@ const DetalleJornadaModal = ({ jornadaId, onClose, onEditarActividad, onEliminar
                             </div>
                         </div>
                     </div>                </div>                {/* Contenido scrolleable */}
-                <div className="overflow-y-auto max-h-[calc(95vh-280px)] px-8 py-6">
+                        <div className="overflow-y-auto max-h-[calc(95vh-280px)] px-8 py-6">
                     <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
                         <Settings className="w-5 h-5 text-indigo-600" />
                         Actividades Registradas
@@ -203,7 +205,7 @@ const DetalleJornadaModal = ({ jornadaId, onClose, onEditarActividad, onEliminar
                             {jornada.registros.map((registro, index) => (
                                 <div key={registro._id} className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all relative group">
                                     {/* Botones de acción mejorados */}
-                                    <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                         <button
                                             title="Editar actividad"
                                             className="bg-blue-50 hover:bg-blue-100 text-blue-600 p-2 rounded-xl transition-all"
@@ -221,11 +223,11 @@ const DetalleJornadaModal = ({ jornadaId, onClose, onEditarActividad, onEliminar
                                     </div>
 
                                     {/* Header de la actividad */}
-                                    <div className="flex items-center gap-3 mb-4">
+                        <div className="flex items-center gap-3 mb-4">
                                         <div className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-3 rounded-xl">
                                             <span className="font-bold text-lg">#{index + 1}</span>
                                         </div>
-                                        <div>
+                        <div>
                                             <h4 className="text-xl font-bold text-gray-800">
                                                 Actividad {index + 1}
                                             </h4>
@@ -239,10 +241,10 @@ const DetalleJornadaModal = ({ jornadaId, onClose, onEditarActividad, onEliminar
                                     </div>
 
                                     {/* Grid de información */}
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                         <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
                                             <Package className="w-5 h-5 text-amber-600" />
-                                            <div>
+                        <div>
                                                 <p className="text-xs text-gray-500 font-medium uppercase">OTI</p>
                                                 <p className="font-semibold text-gray-800">
                                                     {registro.oti?.numeroOti || registro.oti || 'N/A'}
@@ -252,7 +254,7 @@ const DetalleJornadaModal = ({ jornadaId, onClose, onEditarActividad, onEliminar
 
                                         <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
                                             <Factory className="w-5 h-5 text-blue-600" />
-                                            <div>
+                        <div>
                                                 <p className="text-xs text-gray-500 font-medium uppercase">Área</p>
                                                 <p className="font-semibold text-gray-800">
                                                     {registro.areaProduccion?.nombre || registro.areaProduccion || 'N/A'}
@@ -262,7 +264,7 @@ const DetalleJornadaModal = ({ jornadaId, onClose, onEditarActividad, onEliminar
 
                                         <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
                                             <Wrench className="w-5 h-5 text-green-600" />
-                                            <div>
+                        <div>
                                                 <p className="text-xs text-gray-500 font-medium uppercase">Máquina</p>
                                                 <p className="font-semibold text-gray-800">
                                                     {registro.maquina?.nombre || registro.maquina || 'N/A'}
@@ -272,7 +274,7 @@ const DetalleJornadaModal = ({ jornadaId, onClose, onEditarActividad, onEliminar
 
                                         <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
                                             <Settings className="w-5 h-5 text-purple-600" />
-                                            <div>
+                        <div>
                                                 <p className="text-xs text-gray-500 font-medium uppercase">Proceso</p>
                                                 <p className="font-semibold text-gray-800">
                                                     {registro.procesos && Array.isArray(registro.procesos) && registro.procesos.length > 0
@@ -285,7 +287,7 @@ const DetalleJornadaModal = ({ jornadaId, onClose, onEditarActividad, onEliminar
 
                                         <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
                                             <Package className="w-5 h-5 text-indigo-600" />
-                                            <div>
+                        <div>
                                                 <p className="text-xs text-gray-500 font-medium uppercase">Insumos</p>
                                                 <p className="font-semibold text-gray-800">
                                                     {registro.insumos && Array.isArray(registro.insumos) && registro.insumos.length > 0
@@ -298,7 +300,7 @@ const DetalleJornadaModal = ({ jornadaId, onClose, onEditarActividad, onEliminar
 
                                         <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
                                             <Clock className="w-5 h-5 text-orange-600" />
-                                            <div>
+                        <div>
                                                 <p className="text-xs text-gray-500 font-medium uppercase">Tipo de Tiempo</p>
                                                 <p className="font-semibold text-gray-800">
                                                     {registro.tipoTiempo || 'N/A'}
@@ -329,7 +331,7 @@ const DetalleJornadaModal = ({ jornadaId, onClose, onEditarActividad, onEliminar
                 </div>
 
                 {/* Footer del modal */}
-                <div className="bg-gray-50 px-8 py-4 border-t flex justify-end">
+                        <div className="bg-gray-50 px-8 py-4 border-t flex justify-end">
                     <button
                         className="bg-gray-700 hover:bg-gray-800 text-white font-medium py-3 px-6 rounded-xl transition-all flex items-center gap-2"
                         onClick={onClose}

@@ -65,7 +65,7 @@ const TokenExpirationMonitor = () => {
               toast.dismiss(globalToastId);
               globalToastId = null;
             }
-            console.log('🔄 Token renovado proactivamente');
+            // REMOVED: console.log('🔄 Token renovado proactivamente');
           }
         }
         

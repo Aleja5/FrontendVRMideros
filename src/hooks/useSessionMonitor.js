@@ -31,8 +31,8 @@ export const useSessionMonitor = () => {
       if (!refreshToken) {
         return;
       }
-      
-      if (token) {
+
+        if (token) {
         const timeRemaining = getTokenTimeRemaining(token);
         
         // Mostrar advertencia solo una vez cuando quedan 3 minutos o menos
@@ -73,7 +73,7 @@ export const useSessionMonitor = () => {
                 position: "top-right"
               });
               
-              console.log('🔄 Token renovado automáticamente');
+              // REMOVED: console.log
             }
           } catch (error) {
             console.error('❌ Error al renovar token automáticamente:', error);
@@ -105,8 +105,8 @@ export const useSessionMonitor = () => {
         clearInterval(monitorInterval);
         monitorInterval = null;
       }
-      
-      if (sessionToastId) {
+
+        if (sessionToastId) {
         toast.dismiss(sessionToastId);
         sessionToastId = null;
       }
@@ -159,8 +159,8 @@ export const clearSessionMonitor = () => {
     clearInterval(monitorInterval);
     monitorInterval = null;
   }
-  
-  if (sessionToastId) {
+
+        if (sessionToastId) {
     toast.dismiss(sessionToastId);
     sessionToastId = null;
   }

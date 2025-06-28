@@ -48,11 +48,11 @@ const OperarioList = ({ operarios, onEditar, onEliminar, onCambiarEstado, estado
         }
     };
 
-    if (!operarios) {
+        if (!operarios) {
         return <p className="text-center text-gray-500 py-8">Cargando operarios...</p>;
     }
 
-    if (operarios.length === 0) {
+        if (operarios.length === 0) {
         return (
             <div className="text-center py-10">
                 <div className="mx-auto h-12 w-12 text-gray-400 mb-3">

@@ -68,19 +68,19 @@ class IntegridadService {
    */
   async verificarProceso(procesoId) {
     try {
-      console.log('🌐 Llamando al backend para verificar proceso:', procesoId);
+      // REMOVED: console.log('🌐 Llamando al backend para verificar proceso:', procesoId);
       const response = await axiosInstance.get(`/procesos/${procesoId}/verificar-integridad`);
-      console.log('📡 Respuesta del backend:', response.data);
+      // REMOVED: console.log('📡 Respuesta del backend:', response.data);
       return response.data;
     } catch (error) {
       console.error('❌ Error verificando integridad del proceso:', error);
       if (error.response?.status === 409) {
-        console.log('⚠️ Respuesta 409 - conflicto de integridad:', error.response.data);
+        // REMOVED: console.log('⚠️ Respuesta 409 - conflicto de integridad:', error.response.data);
         return error.response.data;
       }
       // Si es error 200 pero con puedeEliminar: false, también lo retornamos
       if (error.response?.data) {
-        console.log('ℹ️ Respuesta con datos de error:', error.response.data);
+        // REMOVED: console.log('ℹ️ Respuesta con datos de error:', error.response.data);
         return error.response.data;
       }
       throw error;

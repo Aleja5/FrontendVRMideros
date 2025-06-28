@@ -57,7 +57,7 @@ const ApiConnectionStatus = () => {
 
             <div className="space-y-2">
                 {/* Estado de conexión */}
-                <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">Estado:</span>
                     <span className={`text-sm px-2 py-1 rounded-full ${getStatusColor()}`}>
                         {getStatusIcon()} {getStatusText()}
@@ -65,7 +65,7 @@ const ApiConnectionStatus = () => {
                 </div>
 
                 {/* URL de la API */}
-                <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">URL:</span>
                     <span className="text-sm font-mono text-gray-800 truncate max-w-xs" title={apiUrl}>
                         {apiUrl}
@@ -73,7 +73,7 @@ const ApiConnectionStatus = () => {
                 </div>
 
                 {/* Entorno */}
-                <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">Entorno:</span>
                     <span className={`text-sm px-2 py-1 rounded ${
                         environment === 'production' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'

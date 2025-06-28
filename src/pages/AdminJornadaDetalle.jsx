@@ -11,7 +11,7 @@ const ajustarFechaLocal = (fechaUTC) => {
   return new Date(fecha.getTime() + fecha.getTimezoneOffset() * 60000);
 };
 
-const badge = (text, color) => (
+    const badge = (text, color) => (
   <span className={`inline-block px-2 py-0.5 rounded text-xs font-semibold bg-${color}-100 text-${color}-700 mr-2 mb-1`}>{text}</span>
 );
 
@@ -41,7 +41,8 @@ const AdminJornadaDetalle = () => {
   if (loading) {
     return <div className="flex justify-center items-center h-64">Cargando...</div>;
   }
-  if (error || !jornada) {
+
+        if (error || !jornada) {
     return <div className="flex justify-center items-center h-64 text-red-600">{error || 'No se encontró la jornada.'}</div>;
   }
 
@@ -64,7 +65,7 @@ const AdminJornadaDetalle = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                 {/* Columna 1 */}
-                <div className="space-y-2 text-gray-700">
+                        <div className="space-y-2 text-gray-700">
                   <div className="flex items-center">                    
                     <span className="font-semibold">Operario: </span>&nbsp;{jornada.operario?.name || 'Sin asignar'}
                   </div>
@@ -74,7 +75,7 @@ const AdminJornadaDetalle = () => {
                 </div>
 
                 {/* Columna 2 */}
-                <div className="space-y-2 text-gray-700">
+                        <div className="space-y-2 text-gray-700">
                   <div className="flex items-center">                    
                     <span className="font-semibold">Hora Inicio: </span>&nbsp;
                     {jornada.horaInicio ? new Date(jornada.horaInicio).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A'}

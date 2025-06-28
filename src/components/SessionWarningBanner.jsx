@@ -20,8 +20,8 @@ const SessionWarningBanner = () => {
         setIsVisible(false);
         return;
       }
-      
-      const timeRemaining = getTokenTimeRemaining(token);
+
+    const timeRemaining = getTokenTimeRemaining(token);
       
       // Mostrar banner cuando quedan entre 3 y 1 minutos
       if (timeRemaining <= 3 && timeRemaining > 0) {
@@ -47,7 +47,7 @@ const SessionWarningBanner = () => {
     setIsVisible(false);
   };
 
-  if (!isVisible) {
+        if (!isVisible) {
     return null;
   }
 

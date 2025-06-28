@@ -20,16 +20,16 @@ const useEliminarConIntegridad = () => {
    */
   const manejarEliminacion = async (entidadId, nombreEntidad, tipoEntidad, onEliminar) => {
     try {
-      console.log('🔍 Verificando integridad para:', { entidadId, nombreEntidad, tipoEntidad });
+      // REMOVED: console.log('🔍 Verificando integridad para:', { entidadId, nombreEntidad, tipoEntidad });
       
       // Verificar integridad referencial
       const verificacion = await integridadService.verificarIntegridad(tipoEntidad, entidadId);
       
-      console.log('📊 Resultado de verificación:', verificacion);
+      // REMOVED: console.log('📊 Resultado de verificación:', verificacion);
       
       if (!verificacion.puedeEliminar) {
         // Mostrar modal con información de por qué no se puede eliminar
-        console.log('❌ No se puede eliminar - mostrando modal de error');
+        // REMOVED: console.log('❌ No se puede eliminar - mostrando modal de error');
         setDatosModal({
           puedeEliminar: false,
           entidadId,
@@ -42,7 +42,7 @@ const useEliminarConIntegridad = () => {
         });
       } else {
         // Mostrar modal de confirmación para eliminación
-        console.log('✅ Se puede eliminar - mostrando modal de confirmación');
+        // REMOVED: console.log('✅ Se puede eliminar - mostrando modal de confirmación');
         setDatosModal({
           puedeEliminar: true,
           entidadId,

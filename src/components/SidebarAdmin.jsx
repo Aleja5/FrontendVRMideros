@@ -19,12 +19,13 @@ export const SidebarAdmin = () => {
     navigate("/login");
   };
 
-  const toggleSidebar = () => {
+    const toggleSidebar = () => {
     const newState = !collapsed;
     setCollapsed(newState);
     localStorage.setItem("sidebarCollapsed", newState);
   };
-  const menuItems = [
+
+    const menuItems = [
   { to: "/admin-home", icon: Home, label: "Dashboard" },
   { to: "/admin-dashboard", icon: LayoutDashboard, label: "Consulta de Producción" },
   { to: "/admin/jornadas", icon: Calendar, label: "Consulta de Jornadas" },
@@ -46,7 +47,7 @@ export const SidebarAdmin = () => {
       transition={{ duration: 0.1 }} // Duración de la animación
     >
       {/* Logo and Toggle Button */}
-      <div className={`flex items-center p-4 ${collapsed ? 'justify-center' : 'justify-between'}`}>
+                        <div className={`flex items-center p-4 ${collapsed ? 'justify-center' : 'justify-between'}`}>
         {!collapsed && (
           <img src={logo} alt="Logo" className="h-30 w-auto" /> // Mostrar logo cuando no está colapsado
         )}
@@ -78,7 +79,7 @@ export const SidebarAdmin = () => {
       </nav>
 
       {/* Logout */}
-      <div className="p-2 border-t border-gray-700">
+                        <div className="p-2 border-t border-gray-700">
         <button
           onClick={handleLogout}
           className="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-md w-full"

@@ -24,12 +24,12 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
         return children;
     }
 
-    if (!finalOperarioId && currentPath !== '/validate-cedula') {
+        if (!finalOperarioId && currentPath !== '/validate-cedula') {
         debugLog("Redirigiendo a validación de cédula. No se encontró el operario.");
         return <Navigate to="/validate-cedula" />;
     }
 
-    if (!storedToken) {
+        if (!storedToken) {
         debugLog("Redirigiendo al login por falta de token.");
         return <Navigate to="/" />;
     }

@@ -18,8 +18,8 @@ const AreaForm = ({ areaInicial, onGuardar, onCancelar }) => {
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-                <label htmlFor="nombre" className="block text-sm font-medium text-gray-700 mb-1">Nombre del Área:</label>
+                        <div>
+                            <label htmlFor="nombre" className="block text-sm font-medium text-gray-700 mb-1">Nombre del Área:</label>
                 <input
                     type="text"
                     id="nombre"

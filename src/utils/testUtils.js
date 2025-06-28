@@ -5,7 +5,7 @@
 
 // Función para monitorear las actualizaciones automáticas
 window.testAutoRefresh = function() {
-  console.log('🧪 Iniciando prueba de auto-refresh...');
+  // REMOVED: console.log('🧪 Iniciando prueba de auto-refresh...');
   
   // Monitorear requests de red
   const originalFetch = window.fetch;
@@ -19,7 +19,7 @@ window.testAutoRefresh = function() {
     const url = args[0];
     if (url.includes('/api/')) {
       requestCount++;
-      console.log(`📡 Request #${requestCount}: ${url} (${new Date().toLocaleTimeString()})`);
+      // REMOVED: console.log(`📡 Request #${requestCount}: ${url} (${new Date().toLocaleTimeString()})`);
     }
     return originalFetch.apply(this, args);
   };
@@ -28,7 +28,7 @@ window.testAutoRefresh = function() {
   XMLHttpRequest.prototype.open = function(method, url, ...args) {
     if (url.includes('/api/')) {
       requestCount++;
-      console.log(`📡 XHR Request #${requestCount}: ${method} ${url} (${new Date().toLocaleTimeString()})`);
+      // REMOVED: console.log(`📡 XHR Request #${requestCount}: ${method} ${url} (${new Date().toLocaleTimeString()})`);
     }
     return originalXMLHttpRequest.apply(this, [method, url, ...args]);
   };
@@ -36,12 +36,12 @@ window.testAutoRefresh = function() {
   // Mostrar estadísticas cada 30 segundos
   const interval = setInterval(() => {
     const elapsed = Math.round((Date.now() - startTime) / 1000);
-    console.log(`📊 Estadísticas (${elapsed}s): ${requestCount} requests realizados`);
+    // REMOVED: console.log(`📊 Estadísticas (${elapsed}s): ${requestCount} requests realizados`);
     
     // Mostrar estadísticas de caché
     if (window.CacheManager) {
       const stats = window.CacheManager.getCacheStats();
-      console.log('💾 Caché:', stats);
+      // REMOVED: console.log('💾 Caché:', stats);
     }
   }, 30000);
   
@@ -52,21 +52,21 @@ window.testAutoRefresh = function() {
     XMLHttpRequest.prototype.open = originalXMLHttpRequest;
     
     const totalTime = Math.round((Date.now() - startTime) / 1000);
-    console.log(`✅ Prueba completada. Total: ${requestCount} requests en ${totalTime} segundos`);
+    // REMOVED: console.log(`✅ Prueba completada. Total: ${requestCount} requests en ${totalTime} segundos`);
   }, 600000); // 10 minutos
 };
 
 // Función para probar la visibilidad de página
 window.testPageVisibility = function() {
-  console.log('👁️ Iniciando prueba de visibilidad de página...');
+  // REMOVED: console.log('👁️ Iniciando prueba de visibilidad de página...');
   
   document.addEventListener('visibilitychange', () => {
     const state = document.visibilityState;
     const timestamp = new Date().toLocaleTimeString();
-    console.log(`🔄 Página ${state} a las ${timestamp}`);
+    // REMOVED: console.log(`🔄 Página ${state} a las ${timestamp}`);
   });
   
-  console.log('👁️ Monitoreo de visibilidad activado. Cambia de pestaña para probarlo.');
+  // REMOVED: console.log('👁️ Monitoreo de visibilidad activado. Cambia de pestaña para probarlo.');
 };
 
 // Función para limpiar caché manualmente
@@ -88,7 +88,7 @@ window.showCacheStats = function() {
   }
 };
 
-console.log(`
+// REMOVED: console.log(`
 🧪 Herramientas de prueba cargadas:
 - testAutoRefresh(): Monitorea requests automáticos
 - testPageVisibility(): Prueba cambios de visibilidad

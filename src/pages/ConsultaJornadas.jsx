@@ -19,7 +19,7 @@ const parseLocalDate = (dateString) => {
   return new Date(year, month - 1, day); // Month is 0-indexed
 };
 
-const ConsultaJornadas = () => {
+    const ConsultaJornadas = () => {
   const navigate = useNavigate(); // Initialize navigate
   const [jornadas, setJornadas] = useState([]);
   const [loading, setLoading] = useState(true); // Combined loading state for this page
@@ -33,12 +33,13 @@ const ConsultaJornadas = () => {
     if (showLoadingSpinner) {
       setLoading(true);
     }
-    try {
+
+        try {
       // Add cache-busting parameter
       const timestamp = Date.now();      const response = await axiosInstance.get(`/jornadas?t=${timestamp}`);
       setJornadas(response.data);
       setLastUpdated(new Date());
-      console.log('🔄 Jornadas actualizadas:', response.data.length);
+      // REMOVED: console.log
     } catch (error) {
       console.error('Error al cargar jornadas:', error);
       if (showLoadingSpinner) {
@@ -75,6 +76,7 @@ const ConsultaJornadas = () => {
             coincideRangoFechas = false;
           }
         }
+
         if (coincideRangoFechas && jornadaFechaFin) {
           const fechaFinFiltro = parseLocalDate(jornadaFechaFin);
           if (fechaJornada && fechaFinFiltro && fechaJornada > fechaFinFiltro) {
@@ -118,11 +120,11 @@ const ConsultaJornadas = () => {
     }
   };
 
-  const handleJornadasPageChange = (newPage) => {
+    const handleJornadasPageChange = (newPage) => {
     setJornadasTablePage(newPage);
   };
 
-  const filteredJornadas = jornadas
+    const filteredJornadas = jornadas
     .filter(j => {
       const tieneRegistros = j.registros && j.registros.length > 0;
       const coincideBusquedaOperario = !jornadaSearch || (j.operario?.name || "").toLowerCase().includes(jornadaSearch.toLowerCase());
@@ -136,7 +138,8 @@ const ConsultaJornadas = () => {
           coincideRangoFechas = false;
         }
       }
-      if (coincideRangoFechas && jornadaFechaFin) {
+
+        if (coincideRangoFechas && jornadaFechaFin) {
         const fechaFinFiltro = parseLocalDate(jornadaFechaFin);
         if (fechaJornada && fechaFinFiltro && fechaJornada > fechaFinFiltro) {
           coincideRangoFechas = false;
@@ -190,7 +193,7 @@ const ConsultaJornadas = () => {
                 </div>
               </div>
               {/* Filtros rápidos */}
-              <div className="flex flex-col md:flex-row gap-2 mb-4">
+                        <div className="flex flex-col md:flex-row gap-2 mb-4">
                 <input
                   type="text"
                   placeholder="Buscar por operario..."

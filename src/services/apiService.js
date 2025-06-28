@@ -22,11 +22,7 @@ class ApiService {
     }
 
     logConfiguration() {
-        console.log('🔧 API Service Configuration:', {
-            baseURL: API_CONFIG.baseURL,
-            environment: API_CONFIG.environment,
-            timeout: API_CONFIG.timeout
-        });
+        // REMOVED: console.log
     }
 
     setupInterceptors() {
@@ -41,7 +37,7 @@ class ApiService {
 
                 // Log en desarrollo
                 if (API_CONFIG.environment === 'development') {
-                    console.log(`🚀 API Request: ${config.method?.toUpperCase()} ${config.url}`, {
+                    // REMOVED: console.log
                         headers: config.headers,
                         data: config.data
                     });
@@ -60,7 +56,7 @@ class ApiService {
             (response) => {
                 // Log en desarrollo
                 if (API_CONFIG.environment === 'development') {
-                    console.log(`✅ API Response: ${response.status}`, response.data);
+                    // REMOVED: console.log
                 }
                 return response;
             },
@@ -278,10 +274,11 @@ class ApiService {
         if (newConfig.baseURL) {
             this.client.defaults.baseURL = newConfig.baseURL;
         }
+
         if (newConfig.timeout) {
             this.client.defaults.timeout = newConfig.timeout;
         }
-        console.log('🔄 API configuration updated:', newConfig);
+        // REMOVED: console.log
     }
 }
 

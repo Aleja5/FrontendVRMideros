@@ -6,7 +6,7 @@ export const crearNuevaEntidad = async (valor, nombreColeccion) => {
             ? { numeroOti: valor.trim() }
             : { nombre: valor.trim() };
 
-        const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/crear/${nombreColeccion}`, {
+    const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/crear/${nombreColeccion}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(bodyData),
@@ -39,7 +39,7 @@ export const verificarYCrear = async (valor, nombreColeccion) => {
             throw new Error(`Error al buscar ${nombreColeccion}: ${res.status} ${res.statusText}`);
         }
 
-        const data = await res.json();
+    const data = await res.json();
         const entidad = data.entidad || data;
         const normalizado = valor.trim().toLowerCase();
 

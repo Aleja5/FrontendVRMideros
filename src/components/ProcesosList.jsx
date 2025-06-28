@@ -17,7 +17,7 @@ const ProcesoList = ({ procesos, onEditar, onEliminar }) => {
         return <p className="text-center text-gray-500 py-8">Cargando procesos...</p>;
     }
 
-    if (procesos.length === 0) {
+        if (procesos.length === 0) {
         return (
             <div className="text-center py-10">
                 <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">

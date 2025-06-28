@@ -31,15 +31,15 @@ export const useAutoRefresh = (callback, interval = 5 * 60 * 1000, dependencies 
 
   useEffect(() => {
     if (!isVisible) {
-      console.log('⏸️ Pausando auto-refresh: página no visible');
+      // REMOVED: console.log('⏸️ Pausando auto-refresh: página no visible');
       return;
     }
 
-    console.log('▶️ Iniciando auto-refresh cada', interval / 1000, 'segundos');
+    // REMOVED: console.log('▶️ Iniciando auto-refresh cada', interval / 1000, 'segundos');
     
     const intervalId = setInterval(() => {
       if (document.visibilityState === 'visible') {
-        console.log('🔄 Auto-refresh ejecutándose...');
+        // REMOVED: console.log('🔄 Auto-refresh ejecutándose...');
         callback();
       }
     }, interval);

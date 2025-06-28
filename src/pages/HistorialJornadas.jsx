@@ -15,7 +15,7 @@ const ajustarFechaLocal = (fechaUTC) => {
   return new Date(fecha.getTime() + fecha.getTimezoneOffset() * 60000);
 };
 
-const HistorialJornadas = () => {
+    const HistorialJornadas = () => {
   const [jornadas, setJornadas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedJornada, setExpandedJornada] = useState(null);
@@ -43,18 +43,20 @@ const HistorialJornadas = () => {
         navigate("/validate-cedula");
         return;
       }
-      const operarioId = localStoredOperario._id;
+
+    const operarioId = localStoredOperario._id;
       
       let url = `/jornadas/operario/${operarioId}`;
       const params = new URLSearchParams();
       if (filterDate) { 
         params.append('fecha', filterDate); 
       }
-      if (params.toString()) {
+
+        if (params.toString()) {
         url += `?${params.toString()}`;
       }
 
-      const response = await axiosInstance.get(url);
+    const response = await axiosInstance.get(url);
       setJornadas(response.data);
     } catch (error) {
       console.error("Error al obtener las jornadas:", error);
@@ -76,33 +78,34 @@ const HistorialJornadas = () => {
     setCurrentPage(1); // Reset to first page
     await fetchJornadas(fechaFiltro); // Pass the current fechaFiltro
   };
-  const handleLimpiarFiltro = async () => {
+
+    const handleLimpiarFiltro = async () => {
     setFechaFiltro(''); // Clear the date input
     setCurrentPage(1); // Reset to first page
     await fetchJornadas(''); // Fetch all jornadas by passing an empty string
   };
 
-  const toggleExpand = (jornadaId) => {
+    const toggleExpand = (jornadaId) => {
     setExpandedJornada((prev) => (prev === jornadaId ? null : jornadaId));
   };
 
-  const handleOpenEditModal = (produccion) => {
+    const handleOpenEditModal = (produccion) => {
     setSelectedProduccion(produccion);
     setShowEditModal(true);
   };
 
-  const handleCloseEditModal = () => {
+    const handleCloseEditModal = () => {
     setShowEditModal(false);
     setSelectedProduccion(null);
   };
 
-  const handleGuardarEditModal = async () => {
+    const handleGuardarEditModal = async () => {
     setShowEditModal(false);
     setSelectedProduccion(null);
     await fetchJornadas();
   };
 
-const handleEliminarActividad = async (jornadaId, actividadId) => {
+    const handleEliminarActividad = async (jornadaId, actividadId) => {
   confirmAlert({
     title: 'Confirmar Eliminación',
     message: '¿Estás seguro de que quieres eliminar esta actividad? Esta acción es irreversible.',
@@ -131,8 +134,8 @@ const handleEliminarActividad = async (jornadaId, actividadId) => {
     overlayClassName: "custom-overlay-confirm-alert"
   });
 };
-      
-  if (loading) return <p>Cargando historial de jornadas...</p>;
+
+        if (loading) return <p>Cargando historial de jornadas...</p>;
 
   // Pagination logic
   const indexOfLastJornada = currentPage * jornadasPerPage;
@@ -151,7 +154,7 @@ const handleEliminarActividad = async (jornadaId, actividadId) => {
           <div className="container mx-auto max-w-full">
             <div className="flex flex-wrap justify-between items-center mb-6">
               {/* Título y Nombre del Operario */}
-              <div className="flex-grow">
+                        <div className="flex-grow">
                 <h1 className="text-4xl font-extrabold text-gray-800 tracking-tight drop-shadow-sm">
                   Historial de Jornadas
                 </h1>
@@ -160,9 +163,9 @@ const handleEliminarActividad = async (jornadaId, actividadId) => {
                 </p>
               </div>
            
-              <div className="flex items-end gap-4 mt-4 md:mt-0"> 
-                <div>
-                  <label htmlFor="fechaFiltro" className="block text-sm font-medium text-gray-700 mb-1">Fecha:</label>
+              <div className="flex items-end gap-4 mt-4 md:mt-0">
+                        <div>
+                            <label htmlFor="fechaFiltro" className="block text-sm font-medium text-gray-700 mb-1">Fecha:</label>
                   <input 
                     type="date" 
                     id="fechaFiltro" 
@@ -186,7 +189,7 @@ const handleEliminarActividad = async (jornadaId, actividadId) => {
                 {currentJornadas.map((jornada) => (
                   <Card key={jornada._id} className="p-6 shadow-lg border border-gray-200 rounded-xl bg-white transition-shadow duration-300 hover:shadow-xl">
                     <div className="flex justify-between items-center">
-                      <div>
+                        <div>
                         <p className="text-xl font-semibold text-gray-700">Fecha: {ajustarFechaLocal(jornada.fecha).toLocaleDateString()}</p>
                         {/* Modificación para mostrar el tiempo total desde jornada.totalTiempoActividades */}
                         <p className="text-sm text-gray-500">

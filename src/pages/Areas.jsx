@@ -68,7 +68,9 @@ const AreasPage = ({ currentPage: propCurrentPage, totalResults: propTotalResult
     const handleEditar = (area) => {
         setAreaAEditar(area);
         setModo('editar');
-    };    const handleGuardar = async (area) => {
+    };
+
+    const handleGuardar = async (area) => {
         try {
             if (areaAEditar) {
                 await axios.put(buildApiUrl(`api/areas/${areaAEditar._id}`), area);
@@ -106,9 +108,9 @@ return (
             <div className="flex-1 overflow-auto">
                 <div className="container mx-auto px-4 py-6">
                     {/* Header Card Mejorado */}
-                    <div className="bg-gradient-to-r from-white to-gray-50 shadow-2xl rounded-3xl p-6 md:p-8 border border-gray-100 mb-6">
-                        <div className="flex items-center gap-4 mb-6">                            
-                            <div>
+                        <div className="bg-gradient-to-r from-white to-gray-50 shadow-2xl rounded-3xl p-6 md:p-8 border border-gray-100 mb-6">
+                        <div className="flex items-center gap-4 mb-6">
+                        <div>
                                 <h1 className="text-4xl font-extrabold text-gray-800 tracking-tight drop-shadow-sm">Gestión de Áreas de Producción</h1>
                                 <p className="text-gray-600 mt-2 text-lg">Administra y organiza las diferentes áreas de tu planta de producción</p>
                             </div>
@@ -127,7 +129,7 @@ return (
 
                             {modo === 'listar' && (
                                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
-                                    <label htmlFor="searchText" className="sr-only"> 
+                            <label htmlFor="searchText" className="sr-only"> 
                                         Buscar por Nombre:
                                     </label>
                                     <div className="relative">
@@ -151,7 +153,7 @@ return (
                     </div>
 
                     {/* Main Content Card */}
-                    <div className="bg-white shadow-xl rounded-2xl p-6 md:p-8 border border-gray-100">                        
+                        <div className="bg-white shadow-xl rounded-2xl p-6 md:p-8 border border-gray-100">                        
                         {loading ? (
                             <div className="flex justify-center items-center py-16">
                                 <div className="relative">
@@ -174,7 +176,7 @@ return (
                                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                                                             </svg>
                                                         </div>
-                                                        <div>
+                        <div>
                                                             <h3 className="text-lg font-semibold text-gray-800">Total de Áreas</h3>
                                                             <p className="text-gray-600">Áreas de producción registradas</p>
                                                         </div>

@@ -61,7 +61,6 @@ const MaquinasPage = ({ currentPage: propCurrentPage, totalResults: propTotalRes
         setCurrentPage(newPage);
     };
 
-
     const handleCrear = () => {
         setModo('crear');
     };
@@ -84,7 +83,9 @@ const MaquinasPage = ({ currentPage: propCurrentPage, totalResults: propTotalRes
         } catch (error) {
             console.error('Error al guardar la máquina:', error);
         }
-    };    const handleEliminar = async (id) => {
+    };
+
+    const handleEliminar = async (id) => {
         try {
             await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/api/maquinas/${id}`);
             cargarMaquinas(currentPage, searchText); // Recarga con la página y búsqueda actuales
@@ -104,8 +105,8 @@ const MaquinasPage = ({ currentPage: propCurrentPage, totalResults: propTotalRes
                     <div className="container mx-auto px-4 py-6">
                         {/* Header Card Mejorado */}
                         <div className="bg-gradient-to-r from-white to-gray-50 shadow-2xl rounded-3xl p-6 md:p-8 border border-gray-100 mb-6">
-                            <div className="flex items-center gap-4 mb-6">                            
-                                <div>
+                            <div className="flex items-center gap-4 mb-6">
+                        <div>
                                     <h1 className="text-4xl font-extrabold text-gray-800 tracking-tight drop-shadow-sm">Gestión de Máquinas</h1>
                                     <p className="text-gray-600 mt-2 text-lg">Administra y controla todas las máquinas y equipos de producción</p>
                                 </div>
@@ -124,7 +125,7 @@ const MaquinasPage = ({ currentPage: propCurrentPage, totalResults: propTotalRes
 
                                 {modo === 'listar' && (
                                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
-                                        <label htmlFor="searchText" className="sr-only"> 
+                            <label htmlFor="searchText" className="sr-only"> 
                                             Buscar por Nombre:
                                         </label>
                                         <div className="relative">
@@ -170,7 +171,7 @@ const MaquinasPage = ({ currentPage: propCurrentPage, totalResults: propTotalRes
                                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                                                 </svg>
                                                             </div>
-                                                            <div>
+                        <div>
                                                                 <h3 className="text-lg font-semibold text-gray-800">Total de Máquinas</h3>
                                                                 <p className="text-gray-600">Equipos y máquinas registradas</p>
                                                             </div>

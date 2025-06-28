@@ -19,7 +19,7 @@ const axiosInstance = axios.create({
 // Interceptor simple para logging
 axiosInstance.interceptors.request.use(
     (config) => {
-        console.log('🚀 Request:', config.method?.toUpperCase(), config.url, config.data);
+        // REMOVED: console.log('🚀 Request:', config.method?.toUpperCase(), config.url, config.data);
         return config;
     },
     (error) => {
@@ -30,7 +30,7 @@ axiosInstance.interceptors.request.use(
 
 axiosInstance.interceptors.response.use(
     (response) => {
-        console.log('✅ Response:', response.status, response.data);
+        // REMOVED: console.log('✅ Response:', response.status, response.data);
         return response;
     },
     (error) => {

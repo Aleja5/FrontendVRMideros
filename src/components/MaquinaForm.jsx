@@ -18,8 +18,8 @@ const MaquinaForm = ({ maquinaInicial, onGuardar, onCancelar }) => {
 
     return (
         <form onSubmit={handleSubmit}>
-            <div>
-                <label htmlFor="nombre">Nombre:</label>
+                        <div>
+                            <label htmlFor="nombre">Nombre:</label>
                 <input
                     type="text"
                     id="nombre"
