@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import ReactDOM from "react-dom";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Sidebar } from "../components/Sidebar";
@@ -17,11 +18,81 @@ import {
   CheckCircle,
   Moon,
   Timer,
-  Zap
+  Zap,
+  Users,
+  Coffee,
+  Utensils
 } from 'lucide-react';
 
 // Configuración de API usando variable de entorno
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+
+// Plantillas de actividades predefinidas editables
+const PLANTILLAS_ACTIVIDADES = [
+  {
+    id: 'reunion-inicial',
+    nombre: 'Reunión Inicial',
+    descripcion: 'Reunión diaria de inicio de turno',  
+    color: 'from-blue-500 to-blue-600',
+    icono: <Users className="w-4 h-4" />,
+    horasSugeridas: { inicio: '07:00', fin: '07:15' },
+    procesoDefecto: 'Reunion Inicial', // Nombre por defecto del proceso
+    busquedaProceso: ['reunion', 'reunión', 'inicial', 'coordinacion', 'coordinación', 'planificacion', 'planificación', 'inicio'],
+    template: {
+      oti: 'VR',
+      areaProduccion: '', // Se configurará automáticamente
+      procesos: [], // Se configurará automáticamente
+      maquina: '', // Se configurará automáticamente
+      insumos: [], // Vacío ya que no aplica
+      tipoTiempo: 'Preparación',
+      horaInicio: '', // Editable
+      horaFin: '', // Editable
+      observaciones: ''
+    }
+  },
+  {
+    id: 'desayuno',
+    nombre: 'Desayuno',
+    descripcion: 'Tiempo de alimentación - desayuno',    
+    color: 'from-orange-500 to-orange-600',
+    icono: <Coffee className="w-4 h-4" />,
+    horasSugeridas: { inicio: '10:00', fin: '10:20' },
+    procesoDefecto: 'Desayuno',
+    busquedaProceso: ['desayuno', 'alimentacion', 'alimentación', 'comida', 'merienda', 'refrigerio'],
+    template: {
+      oti: 'VR',
+      areaProduccion: '',
+      procesos: [],
+      maquina: '',
+      insumos: [],
+      tipoTiempo: 'Alimentación',
+      horaInicio: '',
+      horaFin: '',
+      observaciones: ''
+    }
+  },
+  {
+    id: 'almuerzo',
+    nombre: 'Almuerzo',
+    descripcion: 'Tiempo de alimentación - almuerzo',    
+    color: 'from-green-500 to-green-600',
+    icono: <Utensils className="w-4 h-4" />,
+    horasSugeridas: { inicio: '01:00', fin: '01:35' },
+    procesoDefecto: 'Almuerzo',
+    busquedaProceso: ['almuerzo', 'alimentacion', 'alimentación', 'comida', 'lunch'],
+    template: {
+      oti: 'VR',
+      areaProduccion: '',
+      procesos: [],
+      maquina: '',
+      insumos: [],
+      tipoTiempo: 'Alimentación',
+      horaInicio: '',
+      horaFin: '',
+      observaciones: ''
+    }
+  }
+];
 
 // Componente separado para cada actividad
 const ActividadCard = ({ 
@@ -147,11 +218,24 @@ const ActividadCard = ({
   return (
     <Card className="relative p-6 border-l-4 border-l-blue-500 bg-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-lg border border-gray-100">
       {/* Header con gradiente */}
-                        <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
+      <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
         <div className="flex items-center gap-3">
-                        <div>
-            <h3 className="text-lg font-bold text-gray-800">Actividad N° {index + 1}</h3>
-            <p className="text-xs text-gray-500">Registro de tiempo de producción</p>
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="text-lg font-bold text-gray-800">Actividad N° {index + 1}</h3>
+              {actividad.oti === 'VR' && actividad.tipoTiempo && (
+                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 border border-indigo-200">
+                  <Zap className="w-3 h-3 mr-1" />
+                  Plantilla
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-gray-500">
+              {actividad.oti === 'VR' && actividad.tipoTiempo 
+                ? "Actividad predefinida - Puedes editar cualquier campo" 
+                : "Registro de tiempo de producción"
+              }
+            </p>
           </div>
         </div>
         {canRemove && (
@@ -443,6 +527,251 @@ const ActividadCard = ({
         </div> 
       </div>
     </Card>
+  );
+};
+
+// Componente mejorado para plantillas rápidas editables
+const PlantillasRapidas = ({ onAgregarPlantilla, areasProduccionData, maquinasData, insumosData, procesosData, disabled = false }) => {
+  const [showPlantillas, setShowPlantillas] = useState(false);
+
+  // Configurar las plantillas con los IDs correctos de la base de datos
+  const configurarPlantilla = async (plantilla) => {
+    // Buscar el área "Otros" o similar
+    const areaOtros = areasProduccionData.find(area => 
+      area.nombre.toLowerCase().includes('otros')
+    );
+
+    // Buscar máquina "No Aplica" o similar
+    const maquinaNoAplica = maquinasData.find(maq => 
+      maq.nombre.toLowerCase().includes('no aplica')
+    );
+
+    // Buscar insumo "No aplica" - siempre se usa para todas las plantillas
+    const insumoNoAplica = insumosData.find(insumo =>
+      insumo.nombre.toLowerCase().includes('no aplica')
+    );
+
+    // Configurar insumos - siempre usar "No aplica" para todas las plantillas
+    let insumosConfigured = [];
+    if (insumoNoAplica) {
+      insumosConfigured = [insumoNoAplica._id];
+    }
+
+    // Log para debug
+    console.log(`Configurando plantilla ${plantilla.nombre}:`, {
+      area: areaOtros?.nombre || 'No encontrada',
+      maquina: maquinaNoAplica?.nombre || 'No encontrada',
+      insumo: insumoNoAplica?.nombre || 'No encontrado',
+      procesoDefecto: plantilla.procesoDefecto
+    });
+
+    return {
+      ...plantilla.template,
+      areaProduccion: areaOtros?._id || '',
+      maquina: maquinaNoAplica?._id || '',
+      insumos: insumosConfigured, // Configurar insumos automáticamente
+      availableProcesos: [],
+      // Mantener las horas como sugerencia pero editables
+      horaInicio: plantilla.horasSugeridas?.inicio || '',
+      horaFin: plantilla.horasSugeridas?.fin || ''
+    };
+  };
+
+  const handleAgregarPlantilla = async (plantilla) => {
+    const actividadConfigurada = await configurarPlantilla(plantilla);
+    
+    // Buscar procesos específicos después de configurar la plantilla
+    if (actividadConfigurada.areaProduccion) {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/procesos?areaId=${actividadConfigurada.areaProduccion}`);
+        if (response.ok) {
+          const data = await response.json();
+          let procesosDisponibles = Array.isArray(data) ? data : (data.procesos || []);
+          
+          // Buscar proceso específico usando la nueva configuración de búsqueda
+          let procesoSeleccionado = null;
+          
+          console.log(`🔍 Buscando proceso para plantilla "${plantilla.nombre}":`, {
+            procesoDefecto: plantilla.procesoDefecto,
+            busquedaProceso: plantilla.busquedaProceso,
+            procesosDisponibles: procesosDisponibles.map(p => p.nombre)
+          });
+          
+          // 1. Primero buscar por nombre exacto del proceso por defecto
+          if (plantilla.procesoDefecto) {
+            procesoSeleccionado = procesosDisponibles.find(p => 
+              p.nombre.toLowerCase() === plantilla.procesoDefecto.toLowerCase()
+            );
+            
+            if (procesoSeleccionado) {
+              console.log(`✅ Proceso encontrado por nombre exacto: ${procesoSeleccionado.nombre}`);
+            }
+          }
+          
+          // 2. Si no se encuentra por nombre exacto, buscar por términos de búsqueda
+          if (!procesoSeleccionado && plantilla.busquedaProceso && plantilla.busquedaProceso.length > 0) {
+            procesoSeleccionado = procesosDisponibles.find(p => {
+              const nombreProceso = p.nombre.toLowerCase();
+              return plantilla.busquedaProceso.some(termino => 
+                nombreProceso.includes(termino.toLowerCase())
+              );
+            });
+            
+            if (procesoSeleccionado) {
+              console.log(`✅ Proceso encontrado por búsqueda flexible: ${procesoSeleccionado.nombre}`);
+            }
+          }
+          
+          // 3. Si aún no se encuentra, intentar búsqueda más amplia
+          if (!procesoSeleccionado && plantilla.procesoDefecto) {
+            const palabrasClaveDefecto = plantilla.procesoDefecto.toLowerCase().split(' ');
+            procesoSeleccionado = procesosDisponibles.find(p => {
+              const nombreProceso = p.nombre.toLowerCase();
+              return palabrasClaveDefecto.some(palabra => nombreProceso.includes(palabra));
+            });
+            
+            if (procesoSeleccionado) {
+              console.log(`✅ Proceso encontrado por búsqueda amplia: ${procesoSeleccionado.nombre}`);
+            }
+          }
+          
+          // 4. Como último recurso, usar el primer proceso disponible
+          if (!procesoSeleccionado && procesosDisponibles.length > 0) {
+            procesoSeleccionado = procesosDisponibles[0];
+            console.log(`⚠️ Usando proceso fallback (primer disponible): ${procesoSeleccionado.nombre}`);
+          }
+          
+          // Si no hay procesos disponibles en absoluto
+          if (!procesoSeleccionado) {
+            console.log(`❌ No se encontró ningún proceso para la plantilla "${plantilla.nombre}"`);
+          }
+          
+          // Configurar la actividad con el proceso encontrado
+          actividadConfigurada.availableProcesos = procesosDisponibles;
+          if (procesoSeleccionado) {
+            actividadConfigurada.procesos = [procesoSeleccionado._id];
+            console.log(`🎯 Proceso asignado a plantilla: ${procesoSeleccionado.nombre} (ID: ${procesoSeleccionado._id})`);
+          } else {
+            // Si no hay procesos disponibles, dejar vacío y mostrar mensaje
+            console.log('No hay procesos disponibles para el área seleccionada');
+            actividadConfigurada.procesos = [];
+          }
+        }
+      } catch (error) {
+        console.log('No se pudieron cargar los procesos automáticamente:', error);
+        actividadConfigurada.availableProcesos = [];
+        actividadConfigurada.procesos = [];
+      }
+    }
+    
+    onAgregarPlantilla(actividadConfigurada, plantilla.nombre);
+    setShowPlantillas(false);
+  };
+
+  return (
+    <div className="relative z-0">
+      {/* Botón principal compacto para mostrar plantillas */}
+      <Button
+        type="button"
+        onClick={() => setShowPlantillas(!showPlantillas)}
+        disabled={disabled}
+        className="group flex items-center gap-3 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95 font-medium text-sm border border-blue-500/20"
+      >
+        <div className="p-1.5 bg-white/20 backdrop-blur-sm rounded-lg shadow-inner">
+          <Plus className="w-4 h-4" />
+        </div>
+        <span className="font-semibold">Explorar Plantillas</span>
+        <ChevronRight className={`w-4 h-4 transition-all duration-300 ${showPlantillas ? 'rotate-90 text-yellow-300' : 'group-hover:translate-x-1'}`} />
+      </Button>
+
+      {/* Panel desplegable usando Portal para máximo z-index */}
+      {showPlantillas && ReactDOM.createPortal(
+        <div 
+          className="fixed inset-0 flex items-center justify-center p-4"
+          style={{ 
+            zIndex: 999999,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            backdropFilter: 'blur(4px)'
+          }}
+          onClick={() => setShowPlantillas(false)}
+        >
+          <div 
+            className="bg-white rounded-2xl shadow-2xl border border-gray-200 p-4 w-full max-w-md max-h-[85vh] overflow-y-auto relative"
+            style={{ zIndex: 1000000 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header compacto */}
+            <div className="mb-4">
+              <div className="flex items-center gap-2.5 mb-2">
+                <div className="p-1.5 bg-gradient-to-br from-purple-500 via-indigo-600 to-blue-600 rounded-lg shadow-md">
+                  <Zap className="w-4 h-4 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-gray-800">Biblioteca de Plantillas</h3>
+                  <p className="text-xs text-gray-600">Selecciona una plantilla optimizada</p>
+                </div>
+              </div>
+            </div>
+          
+          {/* Lista de plantillas compacta con altura ajustada */}
+          <div className="space-y-1.5 max-h-[50vh] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 mb-4">
+            {PLANTILLAS_ACTIVIDADES.map((plantilla, index) => (
+              <div
+                key={plantilla.id}
+                className="group relative bg-gradient-to-r from-gray-50/80 via-white to-blue-50/30 hover:from-blue-50 hover:via-indigo-50 hover:to-purple-50 border border-gray-200/60 hover:border-blue-300/60 rounded-lg p-3 cursor-pointer transition-all duration-300 hover:shadow-md transform hover:scale-[1.01] active:scale-[0.99] backdrop-blur-sm"
+                onClick={() => handleAgregarPlantilla(plantilla)}
+              >
+                {/* Número de plantilla muy compacto */}
+                <div className="absolute top-1.5 right-1.5 w-5 h-5 bg-gradient-to-br from-gray-200 to-gray-300 group-hover:from-blue-200 group-hover:to-indigo-300 rounded flex items-center justify-center text-xs font-bold text-gray-600 group-hover:text-blue-800 transition-all duration-300">
+                  {index + 1}
+                </div>
+                
+                <div className="flex items-center gap-2.5">
+                  <div className="text-lg transform group-hover:scale-110 transition-all duration-300">
+                    {plantilla.icono}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-sm text-gray-800 mb-1 group-hover:text-blue-800 transition-colors duration-300 truncate">
+                      {plantilla.nombre}
+                    </div>
+                    <div className="text-xs text-gray-600 mb-2 group-hover:text-blue-600 transition-colors duration-300 leading-tight">
+                      {plantilla.descripcion}
+                    </div>
+                    
+                    {/* Información de horas muy compacta */}
+                    {plantilla.horasSugeridas && (
+                      <div className="flex items-center gap-1.5 text-xs text-gray-500 bg-white/80 group-hover:bg-blue-50/80 px-2 py-1 rounded border border-gray-200/60 group-hover:border-blue-200/60 transition-all duration-300">
+                        <Clock className="w-3 h-3 text-blue-600 flex-shrink-0" />
+                        <span className="font-medium text-xs">{plantilla.horasSugeridas.inicio} - {plantilla.horasSugeridas.fin}</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="text-gray-400 group-hover:text-blue-500 transition-all duration-300 transform group-hover:scale-105 flex-shrink-0">
+                    <Plus className="w-4 h-4" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Botón para cerrar más visible */}
+          <div className="pt-3 border-t border-gray-200/60 flex justify-center">
+            <button
+              type="button"
+              onClick={() => setShowPlantillas(false)}
+              className="group flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-100/80 px-4 py-2.5 rounded-lg transition-all duration-300 border border-transparent hover:border-gray-200 font-medium"
+            >
+              <span>Cerrar Panel</span>
+              <div className="transform group-hover:rotate-90 transition-transform duration-300">
+                <ChevronRight className="w-4 h-4" />
+              </div>
+            </button>
+          </div>
+          </div>
+        </div>,
+        document.body
+      )}
+    </div>
   );
 };
 
@@ -826,8 +1155,8 @@ export default function RegistroProduccion() {
     return isNaN(date.getTime()) ? null : date;
   };
 
-    const addActividad = () => {
-    setActividades(prev => [...prev, {
+    const addActividad = (plantilla = null, nombrePlantilla = null) => {
+    const nuevaActividad = plantilla || {
       oti: "",
       procesos: [],
       areaProduccion: "",
@@ -839,12 +1168,81 @@ export default function RegistroProduccion() {
       tiempo: 0,
       observaciones: "",
       availableProcesos: []
-    }]);
+    };
+
+    // Log para debug
+    if (plantilla) {
+      console.log(`📝 Agregando plantilla "${nombrePlantilla}":`, {
+        procesos: nuevaActividad.procesos,
+        availableProcesos: nuevaActividad.availableProcesos?.length || 0,
+        areaProduccion: nuevaActividad.areaProduccion
+      });
+    }
+
+    // Si es una plantilla y solo hay una actividad que está vacía, completarla en lugar de agregar nueva
+    if (plantilla && actividades.length === 1) {
+      const primeraActividad = actividades[0];
+      const estaVacia = !primeraActividad.oti && 
+                       !primeraActividad.areaProduccion && 
+                       !primeraActividad.maquina && 
+                       (!primeraActividad.procesos || primeraActividad.procesos.length === 0) &&
+                       (!primeraActividad.insumos || primeraActividad.insumos.length === 0) &&
+                       !primeraActividad.tipoTiempo &&
+                       !primeraActividad.horaInicio &&
+                       !primeraActividad.horaFin;
+
+      if (estaVacia) {
+        // Completar la primera actividad con los datos de la plantilla
+        setActividades([nuevaActividad]);
+        
+        // Mostrar mensaje específico para reemplazo
+        toast.success(`✨ ${nombrePlantilla} aplicada! Primera actividad completada.`, {
+          position: "bottom-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+        
+        // Scroll hacia la primera actividad
+        setTimeout(() => {
+          const firstElement = document.querySelector('[class*="ActividadCard"]');
+          if (firstElement) {
+            firstElement.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'center' 
+            });
+          }
+        }, 100);
+        
+        return;
+      }
+    }
+
+    // Comportamiento normal: agregar nueva actividad
+    setActividades(prev => [...prev, nuevaActividad]);
+    
+    // Solo cargar procesos automáticamente si NO es una plantilla
+    // (las plantillas ya vienen con procesos preconfigurados)
+    if (!plantilla) {
+      // Es una actividad normal, no una plantilla
+      const newIndex = actividades.length;
+      if (nuevaActividad.areaProduccion) {
+        setTimeout(() => {
+          fetchProcesosForActivity(newIndex, nuevaActividad.areaProduccion);
+        }, 100);
+      }
+    }
     
     // Mostrar mensaje de confirmación con toast
-    toast.success(`✨ Nueva actividad agregada! Total: ${actividades.length + 1}`, {
+    const mensaje = nombrePlantilla 
+      ? `✨ ${nombrePlantilla} agregada! Puedes editar las horas y otros campos.`
+      : `✨ Nueva actividad agregada! Total: ${actividades.length + 1}`;
+      
+    toast.success(mensaje, {
       position: "bottom-right",
-      autoClose: 2000,
+      autoClose: 3000,
       hideProgressBar: false,
       closeOnClick: true,
       pauseOnHover: true,
@@ -1151,8 +1549,49 @@ export default function RegistroProduccion() {
                       </table>
                     </div>
                   </div>
-                </div>              )}              {/* Actividades */}
-                        <div className="space-y-4">
+                                    
+                </div>              )}
+                {/* Plantillas Rápidas - Diseño Compacto */}
+              <div className="bg-gradient-to-br from-white via-blue-50/30 to-indigo-50/40 rounded-xl shadow-lg border border-blue-100/50 p-4 relative backdrop-blur-sm">
+                <div className="relative">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-md">
+                        <Plus className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h2 className="text-lg font-bold text-gray-800">Plantillas Rápidas</h2>
+                        <p className="text-sm text-gray-600">Configuraciones predefinidas optimizadas</p>
+                      </div>
+                    </div>
+                    
+                    {/* Componente de plantillas rápidas integrado */}
+                    <PlantillasRapidas 
+                      onAgregarPlantilla={addActividad}
+                      areasProduccionData={areasProduccionData}
+                      maquinasData={maquinasData}
+                      insumosData={insumosData}
+                      disabled={loading}
+                    />
+                  </div>
+
+                  {/* Información adicional compacta */}
+                  <div className="bg-gradient-to-r from-emerald-50/80 to-teal-50/80 border border-emerald-200/40 rounded-lg p-3">
+                    <div className="flex items-center gap-3">
+                      <div className="p-1.5 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg">
+                        <CheckCircle className="w-4 h-4 text-white" />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-semibold text-emerald-800">Sistema de Plantillas Inteligentes</h4>
+                        <p className="text-xs text-emerald-700 leading-tight">
+                          Cada plantilla incluye configuraciones optimizadas y completamente personalizables.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>              {/* Actividades */}
+                <div className="space-y-4">
                 {actividades.map((actividad, index) => (
                   <ActividadCard
                     key={index}
@@ -1168,8 +1607,9 @@ export default function RegistroProduccion() {
                     onValidationChange={handleValidationChange}
                   />
                 ))}
-              </div>{/* Botones de acción */}
-                        <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4">
+              </div>
+              {/* Botones de acción */}
+              <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="p-2 bg-gradient-to-br from-green-500 to-green-600 rounded-lg shadow-md">
                     <Save className="w-5 h-5 text-white" />

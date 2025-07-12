@@ -1,6 +1,6 @@
 // frontend/src/components/OperarioListMejorado.jsx
 import React from 'react';
-import { Pencil, Trash2, Shield, AlertTriangle } from 'lucide-react';
+import { Pencil, Trash2, Shield } from 'lucide-react';
 import { toast } from 'react-toastify';
 
 import ConfirmacionEliminar from './ConfirmacionEliminar';
@@ -13,13 +13,9 @@ const OperarioListMejorado = ({ operarios, onEditar, onActualizar, cargando = fa
     
     // Hook para manejar eliminaciones con integridad
     const {
-        mostrarConfirmacion,
         entidadAEliminar,
         eliminando,
         iniciarEliminacion,
-        cancelarEliminacion,
-        confirmarEliminacion,
-        verificarIntegridad,
         propsConfirmacion
     } = useEliminarConIntegridad('operario', (operarioEliminado) => {
         // Callback ejecutado después de eliminación exitosa

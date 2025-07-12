@@ -58,8 +58,7 @@ const ValidateCedula = () => {
 
         setTimeout(() => {
           navigate('/operario-dashboard');
-        }, 500);
-      } catch (error) {
+        }, 500);        } catch (error) {
         console.error('Error al validar cédula:', error);
         
         // Manejo específico para error 429
@@ -72,6 +71,8 @@ const ValidateCedula = () => {
           setMessage('Cédula no encontrada en el sistema');
         } else if (error.response?.status === 400) {
           setMessage('Cédula inválida. Verifica el número ingresado.');
+        } else if (error.response?.status === 403) {
+          setMessage(error.response?.data?.message || 'Acceso denegado: Operario inactivo');
         } else {
           setMessage('Error al validar cédula. Intenta nuevamente.');
         }

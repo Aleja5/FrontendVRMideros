@@ -6,7 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 import { Sidebar } from '../components/Sidebar';
-import { Button, Card, Input } from '../components/ui/index';
+import { Button, Card } from '../components/ui/index';
 import EditarProduccion from './EditarProduccion';
 import DetalleJornadaModal from '../components/DetalleJornadaModal';
 import { ClipboardList, UserCircle2 } from 'lucide-react';
@@ -15,7 +15,7 @@ import useInactivityTimeout from '../hooks/useInactivityTimeout';
 
 // --- NUEVAS IMPORTACIONES ---
 import ActivityCard from '../components/ActivityCard';
-import { getFormattedLocalDateDisplay, getFechaISOForComparison, getFechaLocalHoy, getFechaLocalForComparison, getCurrentLocalDateDisplay } from '../utils/helpers'; // Importa de helpers
+import { getFormattedLocalDateDisplay, getFechaLocalHoy, getFechaLocalForComparison, getCurrentLocalDateDisplay } from '../utils/helpers'; // Importa de helpers
 
 // ---
 // Loading Skeleton Component

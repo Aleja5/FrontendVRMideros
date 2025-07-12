@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Pencil, Trash2, Shield, UserCheck, UserX, Eye, EyeOff, MoreVertical } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Pencil, Trash2, Shield, UserCheck, UserX, MoreVertical } from 'lucide-react';
 import { toast } from 'react-toastify';
 
 import ConfirmacionEliminar from './ConfirmacionEliminar';
@@ -34,7 +34,6 @@ const OperarioList = ({ operarios, onEditar, onEliminar, onCambiarEstado, estado
         }
     });
 
-    // Nueva función que usa el sistema de integridad
     const handleDeleteClick = (operario) => {
         iniciarEliminacion(operario);
     };
