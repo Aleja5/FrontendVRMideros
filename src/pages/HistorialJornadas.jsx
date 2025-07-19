@@ -260,7 +260,13 @@ const ajustarFechaLocal = (fechaUTC) => {
                                   <div className="break-words leading-relaxed">{actividad.areaProduccion?.nombre || "N/A"}</div>
                                 </td>
                                 <td className="px-2 py-3 text-sm text-gray-500" style={{width: '15%', minWidth: '120px'}}>
-                                  <div className="break-words leading-relaxed">{actividad.maquina?.nombre || "N/A"}</div>
+                                  <div className="break-words leading-relaxed">
+                                    {actividad.maquina && actividad.maquina.length > 0 ? (
+                                      actividad.maquina.map(m => m.nombre).join(', ')
+                                    ) : (
+                                      "N/A"
+                                    )}
+                                  </div>
                                 </td>
                                 <td className="px-2 py-3 text-sm text-gray-500" style={{width: '15%', minWidth: '120px'}}>
                                   <div className="break-words leading-relaxed">

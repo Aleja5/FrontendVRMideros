@@ -11,7 +11,7 @@ const ajustarFechaLocal = (fechaUTC) => {
   return new Date(fecha.getTime() + fecha.getTimezoneOffset() * 60000);
 };
 
-    const badge = (text, color) => (
+const badge = (text, color) => (
   <span className={`inline-block px-2 py-0.5 rounded text-xs font-semibold bg-${color}-100 text-${color}-700 mr-2 mb-1`}>{text}</span>
 );
 
@@ -42,12 +42,12 @@ const AdminJornadaDetalle = () => {
     return <div className="flex justify-center items-center h-64">Cargando...</div>;
   }
 
-        if (error || !jornada) {
+  if (error || !jornada) {
     return <div className="flex justify-center items-center h-64 text-red-600">{error || 'No se encontró la jornada.'}</div>;
   }
 
   return (
-    <>     
+    <>
       <div className="flex bg-gray-100 h-screen">
         <SidebarAdmin />
         <div className="flex-1 overflow-y-auto">
@@ -65,26 +65,26 @@ const AdminJornadaDetalle = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                 {/* Columna 1 */}
-                        <div className="space-y-2 text-gray-700">
-                  <div className="flex items-center">                    
+                <div className="space-y-2 text-gray-700">
+                  <div className="flex items-center">
                     <span className="font-semibold">Operario: </span>&nbsp;{jornada.operario?.name || 'Sin asignar'}
                   </div>
-                  <div className="flex items-center">                    
+                  <div className="flex items-center">
                     <span className="font-semibold">Fecha: </span>&nbsp;{ajustarFechaLocal(jornada.fecha).toLocaleDateString()}
                   </div>
                 </div>
 
                 {/* Columna 2 */}
-                        <div className="space-y-2 text-gray-700">
-                  <div className="flex items-center">                    
+                <div className="space-y-2 text-gray-700">
+                  <div className="flex items-center">
                     <span className="font-semibold">Hora Inicio: </span>&nbsp;
                     {jornada.horaInicio ? new Date(jornada.horaInicio).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A'}
                   </div>
-                  <div className="flex items-center">                    
+                  <div className="flex items-center">
                     <span className="font-semibold">Hora Fin: </span>&nbsp;
                     {jornada.horaFin ? new Date(jornada.horaFin).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A'}
                   </div>
-                  <div className="flex items-center">                    
+                  <div className="flex items-center">
                     <span className="font-semibold">Tiempo Total: </span>&nbsp;
                     {jornada.totalTiempoActividades?.horas || 0}h {jornada.totalTiempoActividades?.minutos || 0}m
                   </div>
@@ -104,7 +104,7 @@ const AdminJornadaDetalle = () => {
                   <table className="min-w-full divide-y divide-gray-300">
                     <thead className="bg-gray-50">
                       <tr>
-                        <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Proceso</th>                        
+                        <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Proceso</th>
                         <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">OTI</th>
                         <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Área</th>
                         <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 w-75">Máquina</th>
@@ -113,7 +113,7 @@ const AdminJornadaDetalle = () => {
                         <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">H. Inicio</th>
                         <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">H. Fin</th>
                         <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Tiempo (min)</th>
-                        <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Observaciones</th>                    
+                        <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Observaciones</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 bg-white">
@@ -124,7 +124,13 @@ const AdminJornadaDetalle = () => {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{actividad.oti?.numeroOti || 'N/A'}</td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{actividad.areaProduccion?.nombre || 'N/A'}</td>
-                          <td className="px-3 py-4 text-sm text-gray-500 w-75 break-words">{actividad.maquina?.nombre || 'N/A'}</td>
+                          <td className="px-3 py-4 text-sm text-gray-500 w-75">
+                            {actividad.maquina && actividad.maquina.length > 0 ? (
+                              actividad.maquina.map(i => <div key={i._id || i.nombre}>{i.nombre}</div>)
+                            ) : (
+                              "N/A"
+                            )}
+                          </td>
                           <td className="px-3 py-4 text-sm text-gray-500 w-75">
                             {actividad.insumos && actividad.insumos.length > 0 ? (
                               actividad.insumos.map(i => <div key={i._id || i.nombre}>{i.nombre}</div>)

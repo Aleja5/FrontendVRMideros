@@ -7,7 +7,6 @@ import { useNavigate } from "react-router-dom";
 import { SidebarAdmin } from '../components/SidebarAdmin';
 
 const MaquinasPage = ({ currentPage: propCurrentPage, totalResults: propTotalResults, itemsPerPage = 5 }) => {
-    const navigate = useNavigate();
     const [maquinas, setMaquinas] = useState([]);
     const [modo, setModo] = useState('listar'); // 'listar', 'crear', 'editar'
     const [maquinaAEditar, setMaquinaAEditar] = useState(null);

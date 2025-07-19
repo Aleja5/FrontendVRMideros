@@ -1,26 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import Select from 'react-select';
 import { Card, Input, Button } from '../components/ui/index';
-import  axiosInstance  from '../utils/axiosInstance';
+import axiosInstance from '../utils/axiosInstance';
 import { toast } from 'react-toastify';
-import { verificarYCrear } from '../utils/verificarYCrear';
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 import { useNavigate, useParams } from 'react-router-dom';
 
-function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invokedAsModal }) { 
+function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invokedAsModal }) {
   const { id: paramId } = useParams();
   const [registroEditado, setRegistroEditado] = useState({});
   const [produccionLocal, setProduccionLocal] = useState(produccionProp);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null); 
+  const [error, setError] = useState(null);
   const [allProcesos, setAllProcesos] = useState([]); // Todos los procesos
   // Procesos filtrados por área (legacy, para compatibilidad con el select actual)
   const [filteredProcesos, setFilteredProcesos] = useState([]);
   // Procesos válidos para el área seleccionada (fetch dinámico, igual que en RegistroProduccion)
   const [availableProcesos, setAvailableProcesos] = useState([]);
   const [insumosColeccion, setInsumosColeccion] = useState([]);
-  const [maquinas, setMaquinas] = useState([]);
+  const [maquinasColeccion, setMaquinasColeccion] = useState([]);
   const [areasProduccion, setAreasProduccion] = useState([]);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
@@ -35,16 +34,16 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
 
   // Helper function to get responsive select styles
   const getSelectStyles = () => ({
-    control: (base, state) => ({ 
-      ...base, 
-      borderColor: state.isFocused ? '#3B82F6' : 'hsl(var(--input))', 
+    control: (base, state) => ({
+      ...base,
+      borderColor: state.isFocused ? '#3B82F6' : 'hsl(var(--input))',
       '&:hover': { borderColor: '#3B82F6' },
       minHeight: windowWidth < 640 ? '36px' : '40px',
       fontSize: windowWidth < 640 ? '14px' : '16px',
       boxShadow: state.isFocused ? '0 0 0 2px rgba(59, 130, 246, 0.1)' : base.boxShadow
-    }), 
-    placeholder: (base) => ({ 
-      ...base, 
+    }),
+    placeholder: (base) => ({
+      ...base,
       color: 'hsl(var(--muted-foreground))',
       fontSize: windowWidth < 640 ? '14px' : '16px'
     }),
@@ -135,15 +134,15 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
   useEffect(() => {
     const fetchProduccionById = async (id) => {
       setIsLoading(true);
-      setError(null); 
+      setError(null);
       try {
         const response = await axiosInstance.get(`/produccion/buscar-produccion?_id=\${id}`);
         if (response.data) {
-          
-          const fetchedData = Array.isArray(response.data.resultados) && response.data.resultados.length === 1 
-                              ? response.data.resultados[0] 
-                              : (Array.isArray(response.data) && response.data.length === 1 ? response.data[0] : response.data);
-          
+
+          const fetchedData = Array.isArray(response.data.resultados) && response.data.resultados.length === 1
+            ? response.data.resultados[0]
+            : (Array.isArray(response.data) && response.data.length === 1 ? response.data[0] : response.data);
+
           if (typeof fetchedData === 'object' && fetchedData !== null && !Array.isArray(fetchedData)) {
             setProduccionLocal(fetchedData);
           } else {
@@ -168,18 +167,16 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
       setError(null);
     } else if (paramId) {
       fetchProduccionById(paramId);
-    } else if (!invokedAsModal) { 
+    } else if (!invokedAsModal) {
       setProduccionLocal(null);
       setIsLoading(false);
-     
+
     }
   }, [produccionProp, paramId, invokedAsModal]);
 
   useEffect(() => {
     if (produccionLocal) {
       const fechaFormateada = produccionLocal.fecha ? new Date(produccionLocal.fecha).toISOString().split('T')[0] : "";
-      // formatTime is now defined at component scope
-      // normalizeOti is now defined at component scope
 
       // --- NUEVO: Esperar a que allProcesos esté cargado antes de setear procesos ---
       // Si no hay procesos cargados aún, esperar y reintentar
@@ -203,7 +200,6 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
       } else if (produccionLocal.proceso) {
         procesosIds = [produccionLocal.proceso];
       }
-
       // Validar que los procesos existan en allProcesos (por si hay datos antiguos)
       procesosIds = procesosIds.filter(pid => allProcesos.some(p => String(p._id) === String(pid)));
 
@@ -217,6 +213,16 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
         insumosIds = [produccionLocal.insumos];
       }
 
+      // Normalizar maquina: obtener siempre array de IDs (string)
+      let maquinaIds = [];
+      if (Array.isArray(produccionLocal.maquina)) {
+        maquinaIds = produccionLocal.maquina.map(m => (typeof m === 'object' && m !== null ? m._id : m)).filter(Boolean);
+      } else if (produccionLocal.maquina?._id) {
+        maquinaIds = [produccionLocal.maquina._id];
+        } else if (produccionLocal.maquina) {
+        maquinaIds = [produccionLocal.maquina];
+      }
+
       // Normalizar área de producción: siempre string (ID)
       let areaProduccionId = "";
       if (produccionLocal.areaProduccion) {
@@ -227,34 +233,25 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
         }
       }
 
-      // Debug temporal para ver los datos
-      console.log('allProcesos:', allProcesos);
-      console.log('procesosIds:', procesosIds);
-      console.log('areaProduccionId:', areaProduccionId);
-
       setRegistroEditado({
         ...produccionLocal, // Spread first to get all existing fields
         fecha: fechaFormateada,
         oti: normalizeOti(produccionLocal.oti), // Use component-scoped normalizeOti
         procesos: procesosIds,
         insumos: insumosIds,
-        maquina: produccionLocal.maquina?._id || produccionLocal.maquina || "",
+        maquina: maquinaIds,
         areaProduccion: areaProduccionId,
         observaciones: produccionLocal.observaciones || "",
         tipoTiempo: produccionLocal.tipoTiempo || "",
         horaInicio: formatTime(produccionLocal.horaInicio), // Use component-scoped formatTime
         horaFin: formatTime(produccionLocal.horaFin),       // Use component-scoped formatTime
         tiempo: produccionLocal.tiempo || 0
-        // Ensure operario is handled if it's part of produccionLocal and needs to be in registroEditado
-        // operario: produccionLocal.operario?._id || produccionLocal.operario || "", // Example if needed
       });
 
-  // REMOVE REDUNDANT normalizeOti definition from here if it existed
-  // REMOVE REDUNDANT formatTime definition from here
 
     } else {
       setRegistroEditado({
-        oti: { numeroOti: "" }, procesos: [], insumos: [], maquina: "", areaProduccion: "",
+        oti: { numeroOti: "" }, procesos: [], insumos: [], maquina: [], areaProduccion: "",
         fecha: "", tipoTiempo: "", horaInicio: "", horaFin: "", tiempo: 0, observaciones: ""
       });
     }
@@ -270,7 +267,7 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
         setInsumosColeccion(insumosResponse.data);
 
         const maquinasResponse = await axiosInstance.get('produccion/maquinas');
-        setMaquinas(maquinasResponse.data);
+        setMaquinasColeccion(maquinasResponse.data);
 
         const areasResponse = await axiosInstance.get('produccion/areas');
         setAreasProduccion(areasResponse.data);
@@ -349,9 +346,14 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
           ...prev,
           insumos: selectedOptions ? selectedOptions.map(opt => opt.value) : []
         }));
-      }
-    } else if (selectedOptions && selectedOptions.target) {
-      // Evento de select nativo (maquina, tipoTiempo, areaProduccion)
+      } else if (name === 'maquina') {
+        setRegistroEditado(prev => ({
+          ...prev,
+          maquina: selectedOptions ? selectedOptions.map(opt => opt.value) : []
+        }));
+      }} 
+      else if (selectedOptions && selectedOptions.target) {
+      // Evento de select nativo (tipoTiempo, areaProduccion)
       const { name, value } = selectedOptions.target;
       if (name === 'areaProduccion') {
         // Al cambiar el área, limpiar procesos y fetch dinámico (el useEffect se encarga del fetch)
@@ -371,30 +373,30 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
   // Función de validación mejorada
   const validateForm = () => {
     const errors = [];
-    
+
     if (!registroEditado.fecha) errors.push("La fecha es requerida");
     if (!registroEditado.procesos || registroEditado.procesos.length === 0) errors.push("Debe seleccionar al menos un proceso");
     if (!registroEditado.insumos || registroEditado.insumos.length === 0) errors.push("Debe seleccionar al menos un insumo");
-    if (!registroEditado.maquina) errors.push("La máquina es requerida");
+    if (!registroEditado.maquina || registroEditado.maquina.length === 0) errors.push("Debe seleccionar al menos una máquina");
     if (!registroEditado.areaProduccion) errors.push("El área de producción es requerida");
     if (!registroEditado.tipoTiempo) errors.push("El tipo de tiempo es requerido");
     if (!registroEditado.horaInicio) errors.push("La hora de inicio es requerida");
     if (!registroEditado.horaFin) errors.push("La hora de fin es requerida");
-      if (registroEditado.horaInicio && registroEditado.horaFin) {
+    if (registroEditado.horaInicio && registroEditado.horaFin) {
       const inicio = new Date(`1970-01-01T${registroEditado.horaInicio}:00`);
       let fin = new Date(`1970-01-01T${registroEditado.horaFin}:00`);
-      
+
       // Permitir cruce de medianoche: si fin <= inicio, considerarlo válido (día siguiente)
       if (fin <= inicio) {
         fin = new Date(`1970-01-02T${registroEditado.horaFin}:00`); // Día siguiente
       }
-      
+
       // Solo validar si después del ajuste sigue siendo inválido
       if (fin <= inicio) {
         errors.push("La hora de fin debe ser posterior a la hora de inicio");
       }
     }
-    
+
     return errors;
   };
 
@@ -405,7 +407,9 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
       if (validationErrors.length > 0) {
         toast.error(`⚠️ ${validationErrors[0]}`);
         return;
-      }      confirmAlert({
+      }
+      
+      confirmAlert({
         title: 'Confirmar Guardado',
         message: '¿Estás seguro de que deseas guardar los cambios?',
         overlayClassName: 'react-confirm-alert-overlay',
@@ -424,10 +428,8 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
                 toast.error("⚠️ No se pudo determinar el ID de la producción a actualizar.");
                 return;
               }
-
               const normalizarTexto = (texto) => (typeof texto === 'string' ? texto.trim().toLowerCase() : texto);              // --- OTI PATCH: Mantener el número OTI en el estado tras guardar ---
               const numeroOtiOriginalFormulario = registroEditado.oti?.numeroOti || "";
-              // No need to call verificarYCrear here - send the OTI number to backend directly
               // const otiId = await verificarYCrear(normalizarTexto(numeroOtiOriginalFormulario), "oti");
               // Asegurar que procesos e insumos sean siempre arrays de strings
               const procesosIds = Array.isArray(registroEditado.procesos)
@@ -437,7 +439,11 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
                 ? registroEditado.insumos.filter(Boolean).map(String)
                 : registroEditado.insumos ? [String(registroEditado.insumos)] : [];
               const areaId = registroEditado.areaProduccion;
-              const maquinaId = registroEditado.maquina;              if (!procesosIds || procesosIds.length === 0 || !areaId || !maquinaId || !insumosIds || insumosIds.length === 0) {
+              const maquinaIds = Array.isArray(registroEditado.maquina)
+                ? registroEditado.maquina.filter(Boolean).map(String)
+                : registroEditado.maquina ? [String(registroEditado.maquina)] : []; 
+
+              if (!procesosIds || procesosIds.length === 0 || !areaId || !insumosIds || insumosIds.length === 0 || !maquinaIds || maquinaIds.length === 0) {
                 toast.error("❌ No se pudieron verificar o crear todas las entidades requeridas.");
                 return;
               }
@@ -447,11 +453,11 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
               let horaFinISO = null;
               if (registroEditado.horaInicio && registroEditado.horaFin && registroEditado.fecha) {
                 // Combinar fecha y hora para formato ISO
-                const [year, month, day] = registroEditado.fecha.split('-');                horaInicioISO = new Date(Number(year), Number(month) - 1, Number(day), ...registroEditado.horaInicio.split(':')).toISOString();
+                const [year, month, day] = registroEditado.fecha.split('-'); horaInicioISO = new Date(Number(year), Number(month) - 1, Number(day), ...registroEditado.horaInicio.split(':')).toISOString();
                 horaFinISO = new Date(Number(year), Number(month) - 1, Number(day), ...registroEditado.horaFin.split(':')).toISOString();
                 const inicio = new Date(horaInicioISO);
                 let fin = new Date(horaFinISO);
-                
+
                 // Manejar cruce de medianoche: si fin <= inicio, agregar un día a fin
                 if (fin <= inicio) {
                   fin = new Date(fin.getTime() + 24 * 60 * 60 * 1000); // Agregar 24 horas
@@ -463,18 +469,18 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
                     duracionCalculada: Math.floor((fin - inicio) / 60000)
                   });
                 }
-                
+
                 if (fin > inicio) {
                   tiempo = Math.floor((fin - inicio) / 60000);
                 }
-              }              const datosActualizados = {
+              } const datosActualizados = {
                 _id: currentProduccionId,
                 oti: numeroOtiOriginalFormulario,
                 operario: produccionLocal?.operario?._id || produccionLocal?.operario || registroEditado.operario,
                 procesos: procesosIds,
                 insumos: insumosIds,
                 areaProduccion: areaId,
-                maquina: maquinaId,
+                maquina: maquinaIds,
                 fecha: registroEditado.fecha || null,
                 tipoTiempo: registroEditado.tipoTiempo,
                 horaInicio: horaInicioISO,
@@ -492,7 +498,9 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
               console.log("Backend response:", response.data);
 
               if (response.status >= 200 && response.status < 300) {
-                toast.success("✅ Producción actualizada con éxito");                if (response.data && response.data.produccion) {
+                toast.success("✅ Producción actualizada con éxito");
+                
+                if (response.data && response.data.produccion) {
                   const produccionActualizadaBackend = response.data.produccion;
 
                   console.log("Backend returned produccion:", produccionActualizadaBackend);
@@ -502,13 +510,13 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
                   const nuevaProduccionLocal = {
                     ...produccionActualizadaBackend,
                     // Preservar la estructura OTI que viene del backend (que ya está populada)
-                    oti: produccionActualizadaBackend.oti && produccionActualizadaBackend.oti.numeroOti 
-                      ? produccionActualizadaBackend.oti 
+                    oti: produccionActualizadaBackend.oti && produccionActualizadaBackend.oti.numeroOti
+                      ? produccionActualizadaBackend.oti
                       : { numeroOti: numeroOtiOriginalFormulario }
                   };
 
                   console.log("Processed nuevaProduccionLocal OTI:", nuevaProduccionLocal.oti);
-                  
+
                   setProduccionLocal(nuevaProduccionLocal);// También actualizar el formulario de edición para reflejar los datos guardados
                   // y mantener la consistencia, especialmente el OTI.
                   setRegistroEditado({
@@ -519,10 +527,10 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
                     oti: nuevaProduccionLocal.oti || { numeroOti: numeroOtiOriginalFormulario },
                     procesos: (nuevaProduccionLocal.procesos || []).map(p => (typeof p === 'object' && p !== null ? p._id : p)).filter(Boolean),
                     insumos: (nuevaProduccionLocal.insumos || []).map(i => (typeof i === 'object' && i !== null ? i._id : i)).filter(Boolean),
-                    maquina: nuevaProduccionLocal.maquina?._id || nuevaProduccionLocal.maquina || "",
+                    maquina: (nuevaProduccionLocal.maquina || []).map(m => (typeof m === 'object' && m !== null ? m._id : m)).filter(Boolean),
                     areaProduccion: nuevaProduccionLocal.areaProduccion?._id || nuevaProduccionLocal.areaProduccion || "",
-                    horaInicio: formatTime(nuevaProduccionLocal.horaInicio), // Format for display
-                    horaFin: formatTime(nuevaProduccionLocal.horaFin),       // Format for display
+                    horaInicio: formatTime(nuevaProduccionLocal.horaInicio), 
+                    horaFin: formatTime(nuevaProduccionLocal.horaFin),       
                     // operario: nuevaProduccionLocal.operario?._id || nuevaProduccionLocal.operario, // if needed
                   });
 
@@ -551,7 +559,7 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
           },
           {
             label: 'Cancelar',
-            onClick: () => {}
+            onClick: () => { }
           }
         ]
       });
@@ -576,7 +584,8 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
     </label>
   );
 
-  const renderContent = () => {    if (isLoading) {
+  const renderContent = () => {
+    if (isLoading) {
       return (
         <Card className="w-full max-w-xs sm:max-w-sm md:max-w-md p-6 sm:p-8 rounded-2xl sm:rounded-3xl shadow-2xl bg-white">
           <div className="flex flex-col items-center justify-center py-4 sm:py-8">
@@ -588,7 +597,7 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
       );
     }
 
-    if (error) { 
+    if (error) {
       return (
         <Card className="w-full max-w-xs sm:max-w-sm md:max-w-md p-6 sm:p-8 rounded-2xl sm:rounded-3xl shadow-2xl bg-white">
           <div className="flex flex-col items-center text-center">
@@ -599,8 +608,8 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
             </div>
             <h2 className="text-lg sm:text-2xl font-bold text-red-700 mb-2">{error}</h2>
             <p className="text-sm sm:text-base text-gray-600 mb-6">Ha ocurrido un error al cargar los datos</p>
-            <Button 
-              onClick={() => { if (onClose) onClose(); else navigate(-1); }} 
+            <Button
+              onClick={() => { if (onClose) onClose(); else navigate(-1); }}
               className="bg-gray-500 hover:bg-gray-600 text-white px-4 sm:px-6 py-2 rounded-lg text-sm sm:text-base w-full sm:w-auto"
             >
               {onClose ? 'Cerrar' : 'Volver'}
@@ -609,61 +618,61 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
         </Card>
       );
     }
-    
-      if (!produccionLocal && ((!paramId && !produccionProp && invokedAsModal) || (!paramId && !invokedAsModal))) {
-        return (
-            <Card className="w-full max-w-xs sm:max-w-sm md:max-w-md p-6 sm:p-8 rounded-2xl sm:rounded-3xl shadow-2xl bg-white">
-                <div className="flex flex-col items-center text-center">
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-yellow-100 rounded-full flex items-center justify-center mb-4">
-                        <svg className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                    <h2 className="text-lg sm:text-2xl font-bold text-red-700 mb-2">No hay datos de producción para editar</h2>
-                    <p className="text-sm sm:text-base text-gray-600 mb-6">No se encontraron datos de producción válidos</p>
-                    <Button 
-                        onClick={() => { if (onClose) onClose(); else navigate(-1); }} 
-                        className="bg-gray-500 hover:bg-gray-600 text-white px-4 sm:px-6 py-2 rounded-lg text-sm sm:text-base w-full sm:w-auto"
-                    >
-                        {onClose ? 'Cerrar' : 'Volver'}
-                    </Button>
-                </div>
-            </Card>
-        );
+
+    if (!produccionLocal && ((!paramId && !produccionProp && invokedAsModal) || (!paramId && !invokedAsModal))) {
+      return (
+        <Card className="w-full max-w-xs sm:max-w-sm md:max-w-md p-6 sm:p-8 rounded-2xl sm:rounded-3xl shadow-2xl bg-white">
+          <div className="flex flex-col items-center text-center">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-yellow-100 rounded-full flex items-center justify-center mb-4">
+              <svg className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h2 className="text-lg sm:text-2xl font-bold text-red-700 mb-2">No hay datos de producción para editar</h2>
+            <p className="text-sm sm:text-base text-gray-600 mb-6">No se encontraron datos de producción válidos</p>
+            <Button
+              onClick={() => { if (onClose) onClose(); else navigate(-1); }}
+              className="bg-gray-500 hover:bg-gray-600 text-white px-4 sm:px-6 py-2 rounded-lg text-sm sm:text-base w-full sm:w-auto"
+            >
+              {onClose ? 'Cerrar' : 'Volver'}
+            </Button>
+          </div>
+        </Card>
+      );
     }
 
-   
+
     if (!produccionLocal) {
-        return (
-            <Card className="w-full max-w-xs sm:max-w-sm md:max-w-md p-6 sm:p-8 rounded-2xl sm:rounded-3xl shadow-2xl bg-white">
-                <div className="flex flex-col items-center text-center">
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
-                        <svg className="w-6 h-6 sm:w-8 sm:h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </div>
-                    <h2 className="text-lg sm:text-2xl font-bold text-red-700 mb-2">Datos no disponibles</h2>
-                    <p className="text-sm sm:text-base text-gray-600 mb-6">Los datos de producción no están disponibles en este momento</p>
-                    <Button 
-                        onClick={() => { if (onClose) onClose(); else navigate(-1); }} 
-                        className="bg-gray-500 hover:bg-gray-600 text-white px-4 sm:px-6 py-2 rounded-lg text-sm sm:text-base w-full sm:w-auto"
-                    >
-                        {onClose ? 'Cerrar' : 'Volver'}
-                    </Button>
-                </div>
-            </Card>
-        );
-    }    return (
+      return (
+        <Card className="w-full max-w-xs sm:max-w-sm md:max-w-md p-6 sm:p-8 rounded-2xl sm:rounded-3xl shadow-2xl bg-white">
+          <div className="flex flex-col items-center text-center">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+              <svg className="w-6 h-6 sm:w-8 sm:h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </div>
+            <h2 className="text-lg sm:text-2xl font-bold text-red-700 mb-2">Datos no disponibles</h2>
+            <p className="text-sm sm:text-base text-gray-600 mb-6">Los datos de producción no están disponibles en este momento</p>
+            <Button
+              onClick={() => { if (onClose) onClose(); else navigate(-1); }}
+              className="bg-gray-500 hover:bg-gray-600 text-white px-4 sm:px-6 py-2 rounded-lg text-sm sm:text-base w-full sm:w-auto"
+            >
+              {onClose ? 'Cerrar' : 'Volver'}
+            </Button>
+          </div>
+        </Card>
+      );
+    } return (
       <Card className="w-full p-4 sm:p-6 rounded-2xl sm:rounded-3xl shadow-2xl bg-white border border-blue-100 max-h-[calc(100vh-40px)] overflow-y-auto">
         <h2 className="text-xl sm:text-2xl font-bold text-center mb-4 sm:mb-6 text-blue-700 tracking-tight">Editar Producción</h2>
-        
+
         {/* Required fields note */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4 sm:mb-6">
           <p className="text-xs sm:text-sm text-blue-800">
             <span className="text-red-500 font-semibold">*</span> Campos obligatorios
           </p>
         </div>
-        
+
         <form className="space-y-3 sm:space-y-4" onSubmit={handleSubmit}>{/* OTI y Fecha en grid responsive */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div className="space-y-2">
@@ -706,26 +715,27 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
 
           {/* Procesos e Insumos en grid responsive */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">            <div className="space-y-2">
-              <RequiredLabel htmlFor="procesos" required>Proceso(s)</RequiredLabel>
-              <Select
-                inputId="procesos"
-                isMulti
-                name="procesos"
-                options={availableProcesos.map(p => ({ value: p._id, label: p.nombre }))}
-                value={registroEditado.procesos
-                  ? registroEditado.procesos.map(pId => {
-                      const procesoInfo = availableProcesos.find(ap => String(ap._id) === String(pId));
-                      return procesoInfo ? { value: procesoInfo._id, label: procesoInfo.nombre } : null;
-                    }).filter(p => p !== null)
-                  : []}                onChange={(selectedOptions, actionMeta) => handleChangeRelacion(selectedOptions, { name: 'procesos', action: actionMeta.action })}
-                className="w-full basic-multi-select"
-                classNamePrefix="select"
-                placeholder="Seleccionar Proceso(s)"
-                isDisabled={!registroEditado.areaProduccion || (availableProcesos && availableProcesos.length === 0)}
-                styles={getSelectStyles()}
-                required
-              />
-            </div>            <div className="space-y-2">
+            <RequiredLabel htmlFor="procesos" required>Proceso(s)</RequiredLabel>
+            <Select
+              inputId="procesos"
+              isMulti
+              name="procesos"
+              options={availableProcesos.map(p => ({ value: p._id, label: p.nombre }))}
+              value={registroEditado.procesos
+                ? registroEditado.procesos.map(pId => {
+                  const procesoInfo = availableProcesos.find(ap => String(ap._id) === String(pId));
+                  return procesoInfo ? { value: procesoInfo._id, label: procesoInfo.nombre } : null;
+                }).filter(p => p !== null)
+                : []} onChange={(selectedOptions, actionMeta) => handleChangeRelacion(selectedOptions, { name: 'procesos', action: actionMeta.action })}
+              className="w-full basic-multi-select"
+              classNamePrefix="select"
+              placeholder="Seleccionar Proceso(s)"
+              isDisabled={!registroEditado.areaProduccion || (availableProcesos && availableProcesos.length === 0)}
+              styles={getSelectStyles()}
+              required
+            />
+          </div>
+            <div className="space-y-2">
               <RequiredLabel htmlFor="insumos" required>Insumo(s)</RequiredLabel>
               <Select
                 inputId="insumos"
@@ -736,10 +746,15 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
                   .map(i => ({ value: i._id, label: i.nombre }))}
                 value={registroEditado.insumos
                   ? registroEditado.insumos.map(insumoId => {
-                      const insumoInfo = insumosColeccion.find(i => i._id === insumoId);
-                      return insumoInfo ? { value: insumoInfo._id, label: insumoInfo.nombre } : null;
-                    }).filter(i => i !== null)
-                  : []}                onChange={(selectedOptions, actionMeta) => handleChangeRelacion(selectedOptions, { name: 'insumos', action: actionMeta.action })}
+                    const insumoInfo = insumosColeccion.find(i => i._id === insumoId);
+                    return insumoInfo ? { value: insumoInfo._id, label: insumoInfo.nombre } : null;
+                  }).filter(i => i !== null)
+                  : []}
+                onChange={(selectedOptions, actionMeta) =>
+                  handleChangeRelacion(selectedOptions, {
+                    name: 'insumos',
+                    action: actionMeta.action
+                  })}
                 className="w-full basic-multi-select"
                 classNamePrefix="select"
                 placeholder="Seleccionar Insumo(s)"
@@ -750,21 +765,35 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
           </div>
 
           {/* Máquina y Tipo de Tiempo en grid responsive */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">            <div className="space-y-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <div className="space-y-2">
               <RequiredLabel htmlFor="maquina" required>Máquina</RequiredLabel>
-              <select
-                id="maquina"
-                className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-400 text-sm sm:text-base px-3 py-2"
-                value={registroEditado.maquina || ''}
-                onChange={handleChangeRelacion}
+              <Select
+                inputId="maquina"
+                isMulti
                 name="maquina"
-              >
-                <option value="">Seleccionar Máquina</option>
-                {maquinas.map((maquina) => (
-                  <option key={maquina._id} value={maquina._id}>{maquina.nombre}</option>
-                ))}
-              </select>
-            </div>            <div className="space-y-2">
+                options={maquinasColeccion
+                  .sort((a, b) => a.nombre.localeCompare(b.nombre))
+                  .map(i => ({ value: i._id, label: i.nombre }))}
+                value={registroEditado.maquina
+                  ? registroEditado.maquina.map(maquinaId => {
+                    const maquinaInfo = maquinasColeccion.find(i => i._id === maquinaId);
+                    return maquinaInfo ? { value: maquinaInfo._id, label: maquinaInfo.nombre } : null;
+                  }).filter(i => i !== null)
+                  : []}
+                onChange={(selectedOptions, actionMeta) =>
+                  handleChangeRelacion(selectedOptions, {
+                    name: 'maquina',
+                    action: actionMeta.action
+                  })}
+                className="w-full basic-multi-select"
+                classNamePrefix="select"
+                placeholder="Seleccionar Maquina(s)"
+                styles={getSelectStyles()}
+                required
+              />
+            </div>
+            <div className="space-y-2">
               <RequiredLabel htmlFor="tipoTiempo" required>Tipo de Tiempo</RequiredLabel>
               <select
                 id="tipoTiempo"
@@ -807,14 +836,15 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
             </div>
           </div>          {/* Tiempo calculado */}
           <div className="space-y-2">
-            <label htmlFor="tiempo" className="block text-sm font-semibold text-gray-700">Tiempo (minutos)</label>              <Input
+            <label htmlFor="tiempo" className="block text-sm font-semibold text-gray-700">Tiempo (minutos)</label>              
+            <Input
               id="tiempo"
               type="number"
               value={((inicioStr, finStr) => {
                 if (inicioStr && finStr) {
                   const inicio = new Date(`1970-01-01T${inicioStr}:00`);
                   let fin = new Date(`1970-01-01T${finStr}:00`);
-                  
+
                   // Manejar cruce de medianoche: si fin <= inicio, asumir que fin es del día siguiente
                   if (fin <= inicio) {
                     fin = new Date(`1970-01-02T${finStr}:00`); // Día siguiente
@@ -824,7 +854,7 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
                       duracionCalculada: Math.floor((fin - inicio) / 60000)
                     });
                   }
-                  
+
                   if (fin > inicio) {
                     return Math.floor((fin - inicio) / 60000);
                   }
@@ -853,13 +883,13 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
 
           {/* Botones responsive */}
           <div className="flex flex-col sm:flex-row justify-between gap-3 sm:gap-4 pt-6 sm:pt-8 border-t border-gray-200">
-            <Button 
-              type="button"              
+            <Button
+              type="button"
               onClick={() => {
                 if (onClose) onClose();
-                else if (paramId) navigate(-1); 
-                else navigate('/operario-dashboard'); 
-              }} 
+                else if (paramId) navigate(-1);
+                else navigate('/operario-dashboard');
+              }}
               className="order-2 sm:order-1 bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-300 font-medium px-6 sm:px-8 py-3 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 text-sm sm:text-base w-full sm:w-auto"
             >
               Cancelar
@@ -874,9 +904,10 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
         </form>
       </Card>
     );
-  };  if (invokedAsModal) {  return (
+  }; if (invokedAsModal) {
+    return (
       <>
-        {/* Capa transparente con mínima opacidad */}        <div 
+        {/* Capa transparente con mínima opacidad */}        <div
           className="fixed inset-0 bg-gray-600 bg-opacity-30 z-[9990]"
           onClick={onClose}
           style={{
@@ -885,7 +916,7 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
             backgroundColor: 'rgba(75, 85, 99, 0.25)'
           }}
         ></div>
-        
+
         {/* Modal centrado con z-index mayor */}
         <div className="fixed inset-0 z-[9999] flex justify-center items-center">
           <div className="relative w-full max-w-2xl mx-auto z-[10000] p-3">
@@ -898,7 +929,7 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-100 to-sky-100 flex flex-col justify-center items-center p-2 sm:p-4">
-      {renderContent()} 
+      {renderContent()}
     </div>
   );
 }

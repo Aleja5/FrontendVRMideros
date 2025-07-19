@@ -480,7 +480,7 @@ const AdminDashboard = () => {
         Area: r.areaProduccion?.nombre || '',
         OTI: r.oti?.numeroOti || (r.oti?._id && otiMap.has(r.oti._id) ? otiMap.get(r.oti._id) : r.oti?._id || ''),
         Proceso: r.procesos && r.procesos.length > 0 ? r.procesos.map(p => p.nombre).join(', ') : '',
-        Maquina: r.maquina?.nombre || '',
+        Maquina: r.maquina && r.maquina.length > 0 ? r.maquina.map(m => m.nombre).join(', ') : '',
         Insumos: r.insumos && r.insumos.length > 0 ? r.insumos.map(i => i.nombre).join(', ') : '',
         Operario: r.operario?.name || '',
         'Tipo de Tiempo': r.tipoTiempo || '',
@@ -723,7 +723,13 @@ const AdminDashboard = () => {
                                     </div>
                                   </td>
                                 ) : null}
-                                {columnVisibility.maquina ? <td className="px-4 py-4 text-sm text-gray-700" style={{minWidth: '120px'}}><div className="break-words">{r.maquina?.nombre || 'N/A'}</div></td> : null}
+                                {columnVisibility.maquina ? (
+                                  <td className="px-4 py-4 text-sm text-gray-700" style={{minWidth: '150px'}}>
+                                    <div className="break-words">
+                                      {r.maquina && r.maquina.length > 0 ? r.maquina.map(m => m.nombre).join(', ') : 'N/A'}
+                                    </div>
+                                  </td>
+                                ): null}
                                 {columnVisibility.area ? <td className="px-4 py-4 text-sm text-gray-700" style={{minWidth: '120px'}}><div className="break-words">{r.areaProduccion?.nombre || 'N/A'}</div></td> : null}
                                 {columnVisibility.insumos ? (
                                   <td className="px-4 py-4 text-sm text-gray-700" style={{minWidth: '150px'}}>
