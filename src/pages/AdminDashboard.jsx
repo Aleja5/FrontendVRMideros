@@ -81,7 +81,7 @@ const AdminDashboard = () => {
       } else if (lowerTipoTiempo.includes('alimentacion') || lowerTipoTiempo.includes('alimentación')) {
         bgColor = 'bg-blue-100';
         textColor = 'text-blue-800';
-      }  else if (lowerTipoTiempo.includes('mantenimiento')) {
+      }  else if (lowerTipoTiempo.includes('capacitación') || lowerTipoTiempo.includes('capacitación')) {
         bgColor = 'bg-purple-100';
         textColor = 'text-purple-800';
       }

@@ -219,7 +219,7 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
         maquinaIds = produccionLocal.maquina.map(m => (typeof m === 'object' && m !== null ? m._id : m)).filter(Boolean);
       } else if (produccionLocal.maquina?._id) {
         maquinaIds = [produccionLocal.maquina._id];
-        } else if (produccionLocal.maquina) {
+      } else if (produccionLocal.maquina) {
         maquinaIds = [produccionLocal.maquina];
       }
 
@@ -351,8 +351,9 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
           ...prev,
           maquina: selectedOptions ? selectedOptions.map(opt => opt.value) : []
         }));
-      }} 
-      else if (selectedOptions && selectedOptions.target) {
+      }
+    }
+    else if (selectedOptions && selectedOptions.target) {
       // Evento de select nativo (tipoTiempo, areaProduccion)
       const { name, value } = selectedOptions.target;
       if (name === 'areaProduccion') {
@@ -408,7 +409,7 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
         toast.error(`⚠️ ${validationErrors[0]}`);
         return;
       }
-      
+
       confirmAlert({
         title: 'Confirmar Guardado',
         message: '¿Estás seguro de que deseas guardar los cambios?',
@@ -441,7 +442,7 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
               const areaId = registroEditado.areaProduccion;
               const maquinaIds = Array.isArray(registroEditado.maquina)
                 ? registroEditado.maquina.filter(Boolean).map(String)
-                : registroEditado.maquina ? [String(registroEditado.maquina)] : []; 
+                : registroEditado.maquina ? [String(registroEditado.maquina)] : [];
 
               if (!procesosIds || procesosIds.length === 0 || !areaId || !insumosIds || insumosIds.length === 0 || !maquinaIds || maquinaIds.length === 0) {
                 toast.error("❌ No se pudieron verificar o crear todas las entidades requeridas.");
@@ -499,7 +500,7 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
 
               if (response.status >= 200 && response.status < 300) {
                 toast.success("✅ Producción actualizada con éxito");
-                
+
                 if (response.data && response.data.produccion) {
                   const produccionActualizadaBackend = response.data.produccion;
 
@@ -529,8 +530,8 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
                     insumos: (nuevaProduccionLocal.insumos || []).map(i => (typeof i === 'object' && i !== null ? i._id : i)).filter(Boolean),
                     maquina: (nuevaProduccionLocal.maquina || []).map(m => (typeof m === 'object' && m !== null ? m._id : m)).filter(Boolean),
                     areaProduccion: nuevaProduccionLocal.areaProduccion?._id || nuevaProduccionLocal.areaProduccion || "",
-                    horaInicio: formatTime(nuevaProduccionLocal.horaInicio), 
-                    horaFin: formatTime(nuevaProduccionLocal.horaFin),       
+                    horaInicio: formatTime(nuevaProduccionLocal.horaInicio),
+                    horaFin: formatTime(nuevaProduccionLocal.horaFin),
                     // operario: nuevaProduccionLocal.operario?._id || nuevaProduccionLocal.operario, // if needed
                   });
 
@@ -802,10 +803,12 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
                 onChange={handleChangeRelacion}
                 name="tipoTiempo"
                 required
-              >                <option value="">Seleccionar Tipo de Tiempo</option>
+              >                
+              <option value="">Seleccionar Tipo de Tiempo</option>
                 <option value="Preparación">Preparación</option>
                 <option value="Operación">Operación</option>
                 <option value="Alimentación">Alimentación</option>
+                <option value="Capacitación">Capacitación</option>
               </select>
             </div>
           </div>          {/* Horas en grid responsive */}
@@ -836,7 +839,7 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
             </div>
           </div>          {/* Tiempo calculado */}
           <div className="space-y-2">
-            <label htmlFor="tiempo" className="block text-sm font-semibold text-gray-700">Tiempo (minutos)</label>              
+            <label htmlFor="tiempo" className="block text-sm font-semibold text-gray-700">Tiempo (minutos)</label>
             <Input
               id="tiempo"
               type="number"

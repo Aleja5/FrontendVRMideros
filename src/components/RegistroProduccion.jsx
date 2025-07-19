@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import ReactDOM from "react-dom";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Sidebar } from "../components/Sidebar";
 import { Input, Textarea, Button, Card } from "../components/ui/index";
@@ -12,6 +12,7 @@ import {
   ChevronRight,
   AlertCircle,
   CheckCircle,
+  Copy,
   Moon,
   Timer,
   Zap,
@@ -74,7 +75,7 @@ const PLANTILLAS_ACTIVIDADES = [
     descripcion: 'Tiempo de alimentación - almuerzo',
     color: 'from-green-500 to-green-600',
     icono: <Utensils className="w-4 h-4" />,
-    horasSugeridas: { inicio: '01:00', fin: '01:35' },
+    horasSugeridas: { inicio: '13:00', fin: '13:35' },
     procesoDefecto: 'Almuerzo',
     busquedaProceso: ['almuerzo', 'alimentacion', 'alimentación', 'comida', 'lunch'],
     template: {
@@ -511,6 +512,7 @@ const ActividadCard = ({
                 <option value="Operación">Operación (tiempo dedicado a fabricar o transformar un producto)</option>
                 <option value="Preparación">Preparación (Ej. limpieza, reuniones, alistamiento de herramientas)</option>
                 <option value="Alimentación">Alimentación (Ej. desayuno, almuerzo)</option>
+                <option value="Capacitación">Capacitación</option>
               </Input>
             </div>
             <div className="space-y-2">
@@ -835,12 +837,15 @@ const PlantillasRapidas = ({ onAgregarPlantilla, areasProduccionData, maquinasDa
 export default function RegistroProduccion() {
   const { jornadaId: urlJornadaId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [loading, setLoading] = useState(false);
   const [nombreOperario, setNombreOperario] = useState("");
   const [currentStep, setCurrentStep] = useState(1); // Para wizard steps
   const [showFloatingButton, setShowFloatingButton] = useState(false);
   const [triggerValidation, setTriggerValidation] = useState(false);
   const [actividadesWithErrors, setActividadesWithErrors] = useState(new Set());
+  const [esDuplicacion, setEsDuplicacion] = useState(false);
+  const [datosJornadaOriginal, setDatosJornadaOriginal] = useState(null);
 
   const [jornadaData, setJornadaData] = useState({
     fecha: (() => {
@@ -909,6 +914,69 @@ export default function RegistroProduccion() {
         console.error("Error al cargar datos:", error);
       }
 
+      // 🔄 LÓGICA DE DUPLICACIÓN: Verificar si hay datos de jornada duplicada
+      const searchParams = new URLSearchParams(location.search);
+      const esDuplicacion = searchParams.get('duplicar') === 'true';
+      const jornadaDuplicada = localStorage.getItem('jornadaDuplicada');
+      
+      if (jornadaDuplicada && !urlJornadaId && esDuplicacion) {
+        try {
+          const datosDuplicacion = JSON.parse(jornadaDuplicada);
+          
+          // Establecer estados de duplicación
+          setEsDuplicacion(true);
+          setDatosJornadaOriginal({
+            fechaOriginal: datosDuplicacion.fechaOriginal,
+            jornadaOriginalId: datosDuplicacion.jornadaOriginalId
+          });
+          
+          // Establecer la fecha de duplicación
+          if (datosDuplicacion.fechaDuplicacion) {
+            setJornadaData(prev => ({ ...prev, fecha: datosDuplicacion.fechaDuplicacion }));
+          }
+
+          // Cargar las actividades duplicadas
+          if (datosDuplicacion.actividadesDuplicadas && Array.isArray(datosDuplicacion.actividadesDuplicadas)) {
+            const actividadesDuplicadas = datosDuplicacion.actividadesDuplicadas;
+            
+            console.log('🔄 Cargando actividades duplicadas:', actividadesDuplicadas.length);
+            
+            setActividades(actividadesDuplicadas);
+
+            // 🎯 Los procesos ya vienen precargados desde DuplicarJornada, 
+            // pero reforzamos la carga por si acaso
+            setTimeout(() => {
+              actividadesDuplicadas.forEach((act, index) => {
+                if (act.areaProduccion && (!act.availableProcesos || act.availableProcesos.length === 0)) {
+                  console.log(`🔄 Recargando procesos para actividad ${index + 1}, área: ${act.areaProduccion}`);
+                  fetchProcesosForActivity(index, act.areaProduccion);
+                } else if (act.availableProcesos && act.availableProcesos.length > 0) {
+                  console.log(`✅ Actividad ${index + 1} ya tiene ${act.availableProcesos.length} procesos disponibles`);
+                }
+              });
+            }, 200);
+
+            // Mostrar mensaje de confirmación
+            toast.success(`✨ Jornada del ${new Date(datosDuplicacion.fechaOriginal).toLocaleDateString()} duplicada exitosamente! Puedes editar todos los campos.`, {
+              position: "top-center",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+            });
+          }
+
+          // Limpiar datos de duplicación del localStorage
+          localStorage.removeItem('jornadaDuplicada');
+          
+        } catch (error) {
+          console.error('Error al procesar jornada duplicada:', error);
+          toast.error('Error al cargar la jornada duplicada. Se cargará una jornada nueva.');
+          localStorage.removeItem('jornadaDuplicada');
+        }
+      }
+
       // Lógica principal para obtener o crear la jornada
       if (urlJornadaId) {
         try {
@@ -956,7 +1024,7 @@ export default function RegistroProduccion() {
     };
 
     loadInitialData();
-  }, [navigate, urlJornadaId]);
+  }, [navigate, urlJornadaId, location]);
 
   // Cargar resumen de actividades
   useEffect(() => {
@@ -1447,8 +1515,55 @@ export default function RegistroProduccion() {
               Registro de Tiempos de Producción
             </h1>
           </div>
-          <form onSubmit={handleSubmitJornada} className="space-y-4">{/* Información de la jornada */}
+
+          {/* Banner de duplicación */}
+          {esDuplicacion && datosJornadaOriginal && (
+            <div className="bg-gradient-to-r from-green-50 via-emerald-50 to-teal-50 border border-green-200 rounded-xl p-4 shadow-md">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-green-100 rounded-full">
+                  <Copy className="w-5 h-5 text-green-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-green-800">
+                    🎯 Duplicando Jornada
+                  </h3>
+                  <p className="text-sm text-green-700">
+                    Se han cargado las actividades de la jornada del{' '}
+                    <span className="font-semibold">
+                      {new Date(datosJornadaOriginal.fechaOriginal).toLocaleDateString()}
+                    </span>
+                    . Puedes editar cualquier campo antes de guardar.
+                  </p>
+                </div>
+                <div className="text-green-600">
+                  <CheckCircle className="w-8 h-8" />
+                </div>
+              </div>
+              <div className="mt-3 p-3 bg-white/60 rounded-lg border border-green-200">
+                <p className="text-xs text-green-600 font-medium">
+                  💡 <strong>Tip:</strong> Revisa especialmente las horas de inicio y fin para ajustarlas a tu nueva jornada.
+                </p>
+              </div>
+            </div>
+          )}
+          <form onSubmit={handleSubmitJornada} className="space-y-4">            {/* Información de la jornada */}
             <Card className="p-3 shadow-lg bg-white border border-gray-200 rounded-xl">
+              {/* Información adicional para duplicación */}
+              {esDuplicacion && (
+                <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <AlertCircle className="w-4 h-4 text-blue-600" />
+                    <span className="text-sm font-medium text-blue-800">Campos editables:</span>
+                  </div>
+                  <ul className="text-xs text-blue-700 space-y-1 ml-6">
+                    <li>• <strong>Fecha:</strong> Ya está configurada, pero puedes cambiarla</li>
+                    <li>• <strong>Horarios:</strong> Ajusta las horas de inicio y fin según tu nueva jornada</li>
+                    <li>• <strong>OTIs:</strong> Modifica los números de orden si es necesario</li>
+                    <li>• <strong>Observaciones:</strong> Actualiza cualquier comentario específico</li>
+                  </ul>
+                </div>
+              )}
+              
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="flex items-center gap-2 text-m font-semibold text-gray-700">Operario Asignado</label>

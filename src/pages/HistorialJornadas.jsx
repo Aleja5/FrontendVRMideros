@@ -4,8 +4,9 @@ import { useNavigate, useLocation } from "react-router-dom"; // Import useLocati
 import { toast } from "react-toastify";
 import { Card, Button } from "../components/ui/index";
 import { Sidebar } from "../components/Sidebar";
-import { ChevronDownIcon, ChevronUpIcon, Pencil, Trash2 } from "lucide-react";
+import { ChevronDownIcon, ChevronUpIcon, Pencil, Trash2, Copy } from "lucide-react";
 import EditarProduccion from "./EditarProduccion";
+import DuplicarJornada from "../components/DuplicarJornada";
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 import useInactivityTimeout from "../hooks/useInactivityTimeout";
@@ -23,6 +24,8 @@ const ajustarFechaLocal = (fechaUTC) => {
   const location = useLocation(); // Get location object
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedProduccion, setSelectedProduccion] = useState(null);
+  const [showDuplicarModal, setShowDuplicarModal] = useState(false);
+  const [selectedJornadaDuplicar, setSelectedJornadaDuplicar] = useState(null);
   const [fechaFiltro, setFechaFiltro] = useState('');
   const [currentPage, setCurrentPage] = useState(1); // New state for current page
   const [jornadasPerPage] = useState(5); // New state for jornadas per page
@@ -103,6 +106,16 @@ const ajustarFechaLocal = (fechaUTC) => {
     setShowEditModal(false);
     setSelectedProduccion(null);
     await fetchJornadas();
+  };
+
+  const handleOpenDuplicarModal = (jornada) => {
+    setSelectedJornadaDuplicar(jornada);
+    setShowDuplicarModal(true);
+  };
+
+  const handleCloseDuplicarModal = () => {
+    setShowDuplicarModal(false);
+    setSelectedJornadaDuplicar(null);
   };
 
     const handleEliminarActividad = async (jornadaId, actividadId) => {
@@ -199,21 +212,31 @@ const ajustarFechaLocal = (fechaUTC) => {
                         </p>
                         <p className="text-sm text-gray-500">Actividades: {jornada.registros?.length || 0}</p>
                       </div>
-                      <Button 
-                        onClick={() => toggleExpand(jornada._id)}
-                        variant="outline" 
-                        className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-300"
-                      >
-                        {expandedJornada === jornada._id ? (
-                          <span className="flex items-center gap-2">
-                            Ocultar <ChevronUpIcon className="w-5 h-5" />
-                          </span>
-                        ) : (
-                          <span className="flex items-center gap-2">
-                            Ver Actividades <ChevronDownIcon className="w-5 h-5" />
-                          </span>
-                        )}
-                      </Button>
+                      <div className="flex gap-3">
+                        <Button 
+                          onClick={() => handleOpenDuplicarModal(jornada)}
+                          className="bg-gradient-to-r from-teal-800 to-teal-700 hover:from-emerald-600 hover:to-emerald-700 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg transform hover:scale-105"
+                          title="Duplicar esta jornada"
+                        >
+                          <Copy className="w-4 h-4" />
+                          <span className="hidden sm:inline">Duplicar</span>
+                        </Button>
+                        <Button 
+                          onClick={() => toggleExpand(jornada._id)}
+                          variant="outline" 
+                          className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-300"
+                        >
+                          {expandedJornada === jornada._id ? (
+                            <span className="flex items-center gap-2">
+                              Ocultar <ChevronUpIcon className="w-5 h-5" />
+                            </span>
+                          ) : (
+                            <span className="flex items-center gap-2">
+                              Ver Actividades <ChevronDownIcon className="w-5 h-5" />
+                            </span>
+                          )}
+                        </Button>
+                      </div>
                     </div>
 
                     {expandedJornada === jornada._id && (
@@ -360,6 +383,30 @@ const ajustarFechaLocal = (fechaUTC) => {
           onGuardar={handleGuardarEditModal}
           invokedAsModal={true}
         />
+      )}
+
+      {/* Modal para duplicar jornada */}
+      {showDuplicarModal && selectedJornadaDuplicar && (
+        <div
+          className="fixed inset-0 flex items-center justify-center p-4"
+          style={{
+            zIndex: 999999,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            backdropFilter: 'blur(4px)'
+          }}
+          onClick={handleCloseDuplicarModal}
+        >
+          <div
+            className="w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+            style={{ zIndex: 1000000 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <DuplicarJornada
+              jornada={selectedJornadaDuplicar}
+              onClose={handleCloseDuplicarModal}
+            />
+          </div>
+        </div>
       )}
     </div>
     </div>
