@@ -68,7 +68,6 @@ const DuplicarJornada = ({
             const data = await response.json();
             let procesosDisponibles = Array.isArray(data) ? data : (data.procesos || []);
             actividadTransformada.availableProcesos = procesosDisponibles;
-            console.log(`✅ Procesos cargados para área ${actividad.areaProduccion.nombre}:`, procesosDisponibles.length);
           } else {
             console.warn(`⚠️ No se pudieron cargar procesos para área ${actividad.areaProduccion.nombre}`);
           }

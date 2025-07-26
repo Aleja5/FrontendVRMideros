@@ -98,6 +98,7 @@ const ActividadCard = ({
   index,
   onActividadChange,
   onRemove,
+  onDuplicate,
   areasProduccionData,
   maquinasData,
   insumosData,
@@ -152,22 +153,20 @@ const ActividadCard = ({
   // Función para validar campos requeridos
   const validateField = (fieldName, value) => {
     const isEmpty = !value || (Array.isArray(value) && value.length === 0);
-    setValidationErrors(prev => {
-      const newErrors = {
-        ...prev,
-        [fieldName]: isEmpty
-      };
-
-      // Notificar al componente padre sobre el estado de validación
-      if (onValidationChange) {
-        const hasErrors = Object.values(newErrors).some(error => error === true);
-        onValidationChange(index, hasErrors);
-      }
-
-      return newErrors;
-    });
+    setValidationErrors(prev => ({
+      ...prev,
+      [fieldName]: isEmpty
+    }));
     return !isEmpty;
   };
+
+  // useEffect para manejar los cambios de validación de forma asíncrona
+  useEffect(() => {
+    if (onValidationChange) {
+      const hasErrors = Object.values(validationErrors).some(error => error === true);
+      onValidationChange(index, hasErrors);
+    }
+  }, [validationErrors, index]);
 
   // Función para mostrar tooltips de validación
   const showValidationTooltips = () => {
@@ -242,18 +241,36 @@ const ActividadCard = ({
             </p>
           </div>
         </div>
-        {canRemove && (
+        {/* Botones de acción */}
+        <div className="flex items-center gap-2">
+          {/* Botón para duplicar actividad */}
           <Button
             type="button"
-            onClick={() => onRemove(index)}
+            onClick={() => onDuplicate(index)}
             variant="outline"
             size="sm"
-            className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 hover:border-red-300 h-9 w-9 p-0 rounded-lg transition-all duration-200"
+            className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200 hover:border-blue-300 h-9 w-9 p-0 rounded-lg transition-all duration-200"
+            title="Duplicar actividad"
           >
-            <Trash2 className="w-4 h-4" />
+            <Copy className="w-4 h-4" />
           </Button>
-        )}
-      </div>      <div className="space-y-6">
+          {/* Botón para eliminar (solo si canRemove es true) */}
+          {canRemove && (
+            <Button
+              type="button"
+              onClick={() => onRemove(index)}
+              variant="outline"
+              size="sm"
+              className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 hover:border-red-300 h-9 w-9 p-0 rounded-lg transition-all duration-200"
+              title="Eliminar actividad"
+            >
+              <Trash2 className="w-4 h-4" />
+            </Button>
+          )}
+        </div>
+      </div>
+      
+      <div className="space-y-6">
         {/* Sección de Información Básica */}
         <div className="bg-gradient-to-r from-gray-50 to-gray-60 p-4 rounded-xl border border-gray-200">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 p-4">
@@ -265,7 +282,7 @@ const ActividadCard = ({
               <Input
                 type="text"
                 name="oti"
-                value={actividad.oti}
+                value={actividad.oti || ""}
                 onChange={(e) => onActividadChange(index, e)}
                 placeholder="Número de OTI"
                 className="transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 h-10 text-sm border-gray-300 rounded-lg"
@@ -281,7 +298,7 @@ const ActividadCard = ({
               <Input
                 as="select"
                 name="areaProduccion"
-                value={actividad.areaProduccion}
+                value={actividad.areaProduccion || ""}
                 onChange={(e) => onActividadChange(index, e)}
                 className="transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 h-10 text-sm border-gray-300 rounded-lg"
                 required
@@ -503,7 +520,7 @@ const ActividadCard = ({
               <Input
                 as="select"
                 name="tipoTiempo"
-                value={actividad.tipoTiempo}
+                value={actividad.tipoTiempo || ""}
                 onChange={(e) => onActividadChange(index, e)}
                 className="transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 h-10 text-sm border-gray-300 rounded-lg"
                 required
@@ -523,7 +540,7 @@ const ActividadCard = ({
               <Input
                 type="time"
                 name="horaInicio"
-                value={actividad.horaInicio}
+                value={actividad.horaInicio || ""}
                 onChange={(e) => onActividadChange(index, e)}
                 className="transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 h-11 text-sm border-gray-300 rounded-lg"
                 required
@@ -538,7 +555,7 @@ const ActividadCard = ({
               <Input
                 type="time"
                 name="horaFin"
-                value={actividad.horaFin}
+                value={actividad.horaFin || ""}
                 onChange={(e) => onActividadChange(index, e)}
                 className="transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 h-11 text-sm border-gray-300 rounded-lg"
                 required
@@ -616,12 +633,12 @@ const PlantillasRapidas = ({ onAgregarPlantilla, areasProduccionData, maquinasDa
     }
 
     // Log para debug
-    console.log(`Configurando plantilla ${plantilla.nombre}:`, {
-      area: areaOtros?.nombre || 'No encontrada',
-      maquina: maquinaNoAplica?.nombre || 'No encontrada',
-      insumo: insumoNoAplica?.nombre || 'No encontrado',
-      procesoDefecto: plantilla.procesoDefecto
-    });
+    // console.log(`Configurando plantilla ${plantilla.nombre}:`, {
+    //   area: areaOtros?.nombre || 'No encontrada',
+    //   maquina: maquinaNoAplica?.nombre || 'No encontrada',
+    //   insumo: insumoNoAplica?.nombre || 'No encontrado',
+    //   procesoDefecto: plantilla.procesoDefecto
+    // });
 
     return {
       ...plantilla.template,
@@ -649,21 +666,17 @@ const PlantillasRapidas = ({ onAgregarPlantilla, areasProduccionData, maquinasDa
           // Buscar proceso específico usando la nueva configuración de búsqueda
           let procesoSeleccionado = null;
 
-          console.log(`🔍 Buscando proceso para plantilla "${plantilla.nombre}":`, {
-            procesoDefecto: plantilla.procesoDefecto,
-            busquedaProceso: plantilla.busquedaProceso,
-            procesosDisponibles: procesosDisponibles.map(p => p.nombre)
-          });
+          // console.log(`🔍 Buscando proceso para plantilla "${plantilla.nombre}":`, {
+          //   procesoDefecto: plantilla.procesoDefecto,
+          //   busquedaProceso: plantilla.busquedaProceso,
+          //   procesosDisponibles: procesosDisponibles.map(p => p.nombre)
+          // });
 
           // 1. Primero buscar por nombre exacto del proceso por defecto
           if (plantilla.procesoDefecto) {
             procesoSeleccionado = procesosDisponibles.find(p =>
               p.nombre.toLowerCase() === plantilla.procesoDefecto.toLowerCase()
             );
-
-            if (procesoSeleccionado) {
-              console.log(`✅ Proceso encontrado por nombre exacto: ${procesoSeleccionado.nombre}`);
-            }
           }
 
           // 2. Si no se encuentra por nombre exacto, buscar por términos de búsqueda
@@ -674,10 +687,6 @@ const PlantillasRapidas = ({ onAgregarPlantilla, areasProduccionData, maquinasDa
                 nombreProceso.includes(termino.toLowerCase())
               );
             });
-
-            if (procesoSeleccionado) {
-              console.log(`✅ Proceso encontrado por búsqueda flexible: ${procesoSeleccionado.nombre}`);
-            }
           }
 
           // 3. Si aún no se encuentra, intentar búsqueda más amplia
@@ -688,9 +697,6 @@ const PlantillasRapidas = ({ onAgregarPlantilla, areasProduccionData, maquinasDa
               return palabrasClaveDefecto.some(palabra => nombreProceso.includes(palabra));
             });
 
-            if (procesoSeleccionado) {
-              console.log(`✅ Proceso encontrado por búsqueda amplia: ${procesoSeleccionado.nombre}`);
-            }
           }
 
           // 4. Como último recurso, usar el primer proceso disponible
@@ -708,7 +714,7 @@ const PlantillasRapidas = ({ onAgregarPlantilla, areasProduccionData, maquinasDa
           actividadConfigurada.availableProcesos = procesosDisponibles;
           if (procesoSeleccionado) {
             actividadConfigurada.procesos = [procesoSeleccionado._id];
-            console.log(`🎯 Proceso asignado a plantilla: ${procesoSeleccionado.nombre} (ID: ${procesoSeleccionado._id})`);
+            // console.log(`🎯 Proceso asignado a plantilla: ${procesoSeleccionado.nombre} (ID: ${procesoSeleccionado._id})`);
           } else {
             // Si no hay procesos disponibles, dejar vacío y mostrar mensaje
             console.log('No hay procesos disponibles para el área seleccionada');
@@ -939,7 +945,7 @@ export default function RegistroProduccion() {
           if (datosDuplicacion.actividadesDuplicadas && Array.isArray(datosDuplicacion.actividadesDuplicadas)) {
             const actividadesDuplicadas = datosDuplicacion.actividadesDuplicadas;
             
-            console.log('🔄 Cargando actividades duplicadas:', actividadesDuplicadas.length);
+            // console.log('🔄 Cargando actividades duplicadas:', actividadesDuplicadas.length);
             
             setActividades(actividadesDuplicadas);
 
@@ -951,7 +957,7 @@ export default function RegistroProduccion() {
                   console.log(`🔄 Recargando procesos para actividad ${index + 1}, área: ${act.areaProduccion}`);
                   fetchProcesosForActivity(index, act.areaProduccion);
                 } else if (act.availableProcesos && act.availableProcesos.length > 0) {
-                  console.log(`✅ Actividad ${index + 1} ya tiene ${act.availableProcesos.length} procesos disponibles`);
+                 // console.log(`✅ Actividad ${index + 1} ya tiene ${act.availableProcesos.length} procesos disponibles`);
                 }
               });
             }, 200);
@@ -1297,13 +1303,13 @@ export default function RegistroProduccion() {
     };
 
     // Log para debug
-    if (plantilla) {
-      console.log(`📝 Agregando plantilla "${nombrePlantilla}":`, {
-        procesos: nuevaActividad.procesos,
-        availableProcesos: nuevaActividad.availableProcesos?.length || 0,
-        areaProduccion: nuevaActividad.areaProduccion
-      });
-    }
+    // if (plantilla) {
+    //   console.log(`📝 Agregando plantilla "${nombrePlantilla}":`, {
+    //     procesos: nuevaActividad.procesos,
+    //     availableProcesos: nuevaActividad.availableProcesos?.length || 0,
+    //     areaProduccion: nuevaActividad.areaProduccion
+    //   });
+    //}
 
     // Si es una plantilla y solo hay una actividad que está vacía, completarla en lugar de agregar nueva
     if (plantilla && actividades.length === 1) {
@@ -1414,6 +1420,60 @@ export default function RegistroProduccion() {
     } else {
       toast.warn("Debe haber al menos una actividad.");
     }
+  };
+
+  // Función para duplicar una actividad
+  const duplicateActividad = (index) => {
+    const actividadOriginal = actividades[index];
+    
+    // Crear una copia profunda de la actividad
+    const actividadDuplicada = {
+      ...actividadOriginal,
+      // Mantener todos los datos pero como una nueva instancia
+      oti: actividadOriginal.oti,
+      procesos: [...(actividadOriginal.procesos || [])],
+      areaProduccion: actividadOriginal.areaProduccion,
+      maquina: [...(actividadOriginal.maquina || [])],
+      insumos: [...(actividadOriginal.insumos || [])],
+      tipoTiempo: actividadOriginal.tipoTiempo,
+      horaInicio: actividadOriginal.horaInicio,
+      horaFin: actividadOriginal.horaFin,
+      tiempo: actividadOriginal.tiempo,
+      observaciones: actividadOriginal.observaciones,
+      availableProcesos: [...(actividadOriginal.availableProcesos || [])]
+    };
+
+    // Agregar la actividad duplicada después de la original
+    const nuevasActividades = [
+      ...actividades.slice(0, index + 1),
+      actividadDuplicada,
+      ...actividades.slice(index + 1)
+    ];
+    
+    setActividades(nuevasActividades);
+
+    // Mostrar mensaje de confirmación
+    toast.success(`🔄 Actividad N° ${index + 1} duplicada exitosamente! Nueva actividad creada.`, {
+      position: "bottom-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    });
+
+    // Scroll hacia la nueva actividad duplicada
+    setTimeout(() => {
+      const elements = document.querySelectorAll('[class*="border-l-blue-500"]');
+      const targetElement = elements[index + 1]; // La actividad duplicada estará en la posición index + 1
+      if (targetElement) {
+        targetElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+          inline: 'nearest'
+        });
+      }
+    }, 100);
   };
 
   const handleSubmitJornada = async (e) => {
@@ -1773,6 +1833,7 @@ export default function RegistroProduccion() {
                   index={index}
                   onActividadChange={handleActividadChange}
                   onRemove={removeActividad}
+                  onDuplicate={duplicateActividad}
                   areasProduccionData={areasProduccionData}
                   maquinasData={maquinasData}
                   insumosData={insumosData}
