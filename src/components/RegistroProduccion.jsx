@@ -41,7 +41,7 @@ const PLANTILLAS_ACTIVIDADES = [
       areaProduccion: '', // Se configurará automáticamente
       procesos: [], // Se configurará automáticamente
       maquina: [], // Se configurará automáticamente
-      insumos: [], 
+      insumos: [],
       tipoTiempo: 'Preparación',
       horaInicio: '', // Editable
       horaFin: '', // Editable
@@ -269,7 +269,7 @@ const ActividadCard = ({
           )}
         </div>
       </div>
-      
+
       <div className="space-y-6">
         {/* Sección de Información Básica */}
         <div className="bg-gradient-to-r from-gray-50 to-gray-60 p-4 rounded-xl border border-gray-200">
@@ -387,7 +387,7 @@ const ActividadCard = ({
                 <Select
                   isMulti
                   name="maquina"
-                  options={maquinasData.map(i => ({ value: i._id, label: i.nombre }))}
+                  options={maquinasData.map(i => ({ value: i._id, label: i.nombre }))} // Solo máquinas activas
                   value={actividad.maquina
                     ?.map(mId => {
                       const maquinaInfo = maquinasData.find(ma => ma._id === mId);
@@ -447,14 +447,14 @@ const ActividadCard = ({
             <div className="space-y-2">
               <label className="flex items-center gap-2 text-m font-medium text-gray-700">
                 <span className="w-2 h-2 bg-red-500 rounded-full"></span>
-                
+
                 Insumo(s) *
               </label>
               <div className="relative">
                 <Select
                   isMulti
                   name="insumos"
-                  options={insumosData.map(i => ({ value: i._id, label: i.nombre }))}
+                  options={insumosData.map(i => ({ value: i._id, label: i.nombre }))} // Solo insumos activos
                   value={actividad.insumos
                     ?.map(iId => {
                       const insumoInfo = insumosData.find(ins => ins._id === iId);
@@ -610,13 +610,20 @@ const PlantillasRapidas = ({ onAgregarPlantilla, areasProduccionData, maquinasDa
       area.nombre.toLowerCase().includes('otros')
     );
 
-    // Buscar máquina "No Aplica" o similar
+    // Buscar máquina "No Aplica" o similar (usar campo "estado" = "activo")
     const maquinaNoAplica = maquinasData.find(maq =>
+      (maq.estado === "activo" || !maq.hasOwnProperty('estado')) &&
       maq.nombre.toLowerCase().includes('no aplica')
     );
 
-    // Buscar insumo "No aplica" - siempre se usa para todas las plantillas
+    // Buscar insumo "No aplica" (usar campo adecuado) - siempre se usa para todas las plantillas
     const insumoNoAplica = insumosData.find(insumo =>
+      (insumo.estado === "activo" ||
+        insumo.activo === true ||
+        insumo.activo === "true" ||
+        insumo.activo === 1 ||
+        insumo.activo === "1" ||
+        (!insumo.hasOwnProperty('estado') && !insumo.hasOwnProperty('activo'))) &&
       insumo.nombre.toLowerCase().includes('no aplica')
     );
 
@@ -662,6 +669,17 @@ const PlantillasRapidas = ({ onAgregarPlantilla, areasProduccionData, maquinasDa
         if (response.ok) {
           const data = await response.json();
           let procesosDisponibles = Array.isArray(data) ? data : (data.procesos || []);
+
+          // Filtrar solo procesos activos para configuración de plantillas
+          procesosDisponibles = procesosDisponibles.filter(proceso => {
+            // Verificar campo "estado" = "activo" o campo "activo" = true
+            return proceso.estado === "activo" ||
+              proceso.activo === true ||
+              proceso.activo === "true" ||
+              proceso.activo === 1 ||
+              proceso.activo === "1" ||
+              (!proceso.hasOwnProperty('estado') && !proceso.hasOwnProperty('activo'));
+          });
 
           // Buscar proceso específico usando la nueva configuración de búsqueda
           let procesoSeleccionado = null;
@@ -905,17 +923,43 @@ export default function RegistroProduccion() {
         toast.error("No se pudo leer la información del operario. Por favor, vuelve a validar tu cédula.");
       }
 
-      // Cargar datos de selectores
+      // Cargar datos de selectores - Solo máquinas, insumos y procesos activos
       try {
         const maquinasRes = await fetch(`${API_BASE_URL}/api/produccion/maquinas`);
-        if (maquinasRes.ok) setMaquinasData(await maquinasRes.json());
-        else toast.error("No se pudieron cargar las máquinas. Intenta de nuevo más tarde.");
+        if (maquinasRes.ok) {
+          const maquinasDataRaw = await maquinasRes.json();
+          // Filtrar máquinas activas (usar campo "estado" = "activo")
+          const maquinasActivas = maquinasDataRaw.filter(maquina => {
+            return maquina.estado === "activo" || !maquina.hasOwnProperty('estado');
+          });
+
+          setMaquinasData(maquinasActivas);
+        } else {
+          toast.error("No se pudieron cargar las máquinas. Intenta de nuevo más tarde.");
+        }
 
         const areasRes = await fetch(`${API_BASE_URL}/api/produccion/areas`);
-        if (areasRes.ok) setAreasProduccionData(await areasRes.json());
+        if (areasRes.ok) {
+          // Las áreas no tienen estado activo/inactivo, se cargan todas
+          const areasData = await areasRes.json();
+          setAreasProduccionData(areasData);
+        }
 
         const insumosRes = await fetch(`${API_BASE_URL}/api/produccion/insumos`);
-        if (insumosRes.ok) setInsumosData(await insumosRes.json());
+        if (insumosRes.ok) {
+          const insumosDataRaw = await insumosRes.json();
+          // Filtrar insumos activos 
+          const insumosActivos = insumosDataRaw.filter(insumo => {
+            return insumo.estado === "activo" ||
+              insumo.activo === true ||
+              insumo.activo === "true" ||
+              insumo.activo === 1 ||
+              insumo.activo === "1" ||
+              (!insumo.hasOwnProperty('estado') && !insumo.hasOwnProperty('activo'));
+          });
+
+          setInsumosData(insumosActivos);
+        }
       } catch (error) {
         console.error("Error al cargar datos:", error);
       }
@@ -924,18 +968,18 @@ export default function RegistroProduccion() {
       const searchParams = new URLSearchParams(location.search);
       const esDuplicacion = searchParams.get('duplicar') === 'true';
       const jornadaDuplicada = localStorage.getItem('jornadaDuplicada');
-      
+
       if (jornadaDuplicada && !urlJornadaId && esDuplicacion) {
         try {
           const datosDuplicacion = JSON.parse(jornadaDuplicada);
-          
+
           // Establecer estados de duplicación
           setEsDuplicacion(true);
           setDatosJornadaOriginal({
             fechaOriginal: datosDuplicacion.fechaOriginal,
             jornadaOriginalId: datosDuplicacion.jornadaOriginalId
           });
-          
+
           // Establecer la fecha de duplicación
           if (datosDuplicacion.fechaDuplicacion) {
             setJornadaData(prev => ({ ...prev, fecha: datosDuplicacion.fechaDuplicacion }));
@@ -944,9 +988,9 @@ export default function RegistroProduccion() {
           // Cargar las actividades duplicadas
           if (datosDuplicacion.actividadesDuplicadas && Array.isArray(datosDuplicacion.actividadesDuplicadas)) {
             const actividadesDuplicadas = datosDuplicacion.actividadesDuplicadas;
-            
+
             // console.log('🔄 Cargando actividades duplicadas:', actividadesDuplicadas.length);
-            
+
             setActividades(actividadesDuplicadas);
 
             // 🎯 Los procesos ya vienen precargados desde DuplicarJornada, 
@@ -957,7 +1001,6 @@ export default function RegistroProduccion() {
                   console.log(`🔄 Recargando procesos para actividad ${index + 1}, área: ${act.areaProduccion}`);
                   fetchProcesosForActivity(index, act.areaProduccion);
                 } else if (act.availableProcesos && act.availableProcesos.length > 0) {
-                 // console.log(`✅ Actividad ${index + 1} ya tiene ${act.availableProcesos.length} procesos disponibles`);
                 }
               });
             }, 200);
@@ -975,7 +1018,7 @@ export default function RegistroProduccion() {
 
           // Limpiar datos de duplicación del localStorage
           localStorage.removeItem('jornadaDuplicada');
-          
+
         } catch (error) {
           console.error('Error al procesar jornada duplicada:', error);
           toast.error('Error al cargar la jornada duplicada. Se cargará una jornada nueva.');
@@ -1191,10 +1234,21 @@ export default function RegistroProduccion() {
           determinedProcesos = [];
         }
 
+        // Filtrar solo procesos activos para el registro de producción
+        const procesosActivos = determinedProcesos.filter(proceso => {
+          // Verificar campo "estado" = "activo" o campo "activo" = true
+          return proceso.estado === "activo" ||
+            proceso.activo === true ||
+            proceso.activo === "true" ||
+            proceso.activo === 1 ||
+            proceso.activo === "1" ||
+            (!proceso.hasOwnProperty('estado') && !proceso.hasOwnProperty('activo'));
+        });;
+
         setActividades(prev =>
           prev.map((act, idx) => {
             if (idx === activityIndex) {
-              return { ...act, availableProcesos: determinedProcesos, procesos: [] };
+              return { ...act, availableProcesos: procesosActivos, procesos: [] };
             }
             return act;
           })
@@ -1425,7 +1479,7 @@ export default function RegistroProduccion() {
   // Función para duplicar una actividad
   const duplicateActividad = (index) => {
     const actividadOriginal = actividades[index];
-    
+
     // Crear una copia profunda de la actividad
     const actividadDuplicada = {
       ...actividadOriginal,
@@ -1449,7 +1503,7 @@ export default function RegistroProduccion() {
       actividadDuplicada,
       ...actividades.slice(index + 1)
     ];
-    
+
     setActividades(nuevasActividades);
 
     // Mostrar mensaje de confirmación
@@ -1623,7 +1677,7 @@ export default function RegistroProduccion() {
                   </ul>
                 </div>
               )}
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="flex items-center gap-2 text-m font-semibold text-gray-700">Operario Asignado</label>
@@ -1878,8 +1932,8 @@ export default function RegistroProduccion() {
       </div>
       {/* Botón Flotante para Agregar Actividad */}
       <div className={`fixed bottom-6 right-6 z-50 transition-all duration-500 ${showFloatingButton
-          ? 'opacity-100 translate-y-0 scale-100'
-          : 'opacity-0 translate-y-4 scale-90 pointer-events-none'
+        ? 'opacity-100 translate-y-0 scale-100'
+        : 'opacity-0 translate-y-4 scale-90 pointer-events-none'
         }`}>
         <div className="relative">
           {/* Botón principal */}
