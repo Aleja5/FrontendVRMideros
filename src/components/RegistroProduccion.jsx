@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import { Sidebar } from "../components/Sidebar";
 import { Input, Textarea, Button, Card } from "../components/ui/index";
 import Select from 'react-select';
-import {plantillaActividades} from "../components/templates/PlantillasActividades";
+import { plantillaActividades } from "../components/templates/PlantillasActividades";
 import {
   Clock,
   Trash2,
