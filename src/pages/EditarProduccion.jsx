@@ -243,6 +243,7 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
         areaProduccion: areaProduccionId,
         observaciones: produccionLocal.observaciones || "",
         tipoTiempo: produccionLocal.tipoTiempo || "",
+        tipoPermiso: produccionLocal.tipoPermiso || "",
         horaInicio: formatTime(produccionLocal.horaInicio), // Use component-scoped formatTime
         horaFin: formatTime(produccionLocal.horaFin),       // Use component-scoped formatTime
         tiempo: produccionLocal.tiempo || 0
@@ -252,7 +253,7 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
     } else {
       setRegistroEditado({
         oti: { numeroOti: "" }, procesos: [], insumos: [], maquina: [], areaProduccion: "",
-        fecha: "", tipoTiempo: "", horaInicio: "", horaFin: "", tiempo: 0, observaciones: ""
+        fecha: "", tipoTiempo: "", tipoPermiso: "", horaInicio: "", horaFin: "", tiempo: 0, observaciones: ""
       });
     }
   }, [produccionLocal, allProcesos]);
@@ -363,6 +364,13 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
           [name]: value,
           procesos: []
         }));
+      } else if (name === 'tipoTiempo') {
+        // Al cambiar el tipo de tiempo, limpiar tipoPermiso si no es "Permiso Laboral"
+        setRegistroEditado(prev => ({
+          ...prev,
+          [name]: value,
+          tipoPermiso: value === 'Permiso Laboral' ? prev.tipoPermiso : ''
+        }));
       } else {
         setRegistroEditado(prev => ({
           ...prev,
@@ -381,6 +389,9 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
     if (!registroEditado.maquina || registroEditado.maquina.length === 0) errors.push("Debe seleccionar al menos una máquina");
     if (!registroEditado.areaProduccion) errors.push("El área de producción es requerida");
     if (!registroEditado.tipoTiempo) errors.push("El tipo de tiempo es requerido");
+    if (registroEditado.tipoTiempo === 'Permiso Laboral' && !registroEditado.tipoPermiso) {
+      errors.push("El tipo de permiso es requerido cuando se selecciona Permiso Laboral");
+    }
     if (!registroEditado.horaInicio) errors.push("La hora de inicio es requerida");
     if (!registroEditado.horaFin) errors.push("La hora de fin es requerida");
     if (registroEditado.horaInicio && registroEditado.horaFin) {
@@ -484,6 +495,7 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
                 maquina: maquinaIds,
                 fecha: registroEditado.fecha || null,
                 tipoTiempo: registroEditado.tipoTiempo,
+                tipoPermiso: registroEditado.tipoPermiso || null,
                 horaInicio: horaInicioISO,
                 horaFin: horaFinISO,
                 tiempo,
@@ -809,8 +821,31 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
                 <option value="Operación">Operación</option>
                 <option value="Alimentación">Alimentación</option>
                 <option value="Capacitación">Capacitación</option>
+                <option value="Permiso Laboral">Permiso Laboral</option>
               </select>
             </div>
+
+            {/* Campo condicional para tipo de permiso */}
+            {registroEditado.tipoTiempo === 'Permiso Laboral' && (
+              <div className="space-y-2">
+                <RequiredLabel htmlFor="tipoPermiso" required>Tipo de Permiso</RequiredLabel>
+                <select
+                  id="tipoPermiso"
+                  className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-400 text-sm sm:text-base px-3 py-2"
+                  value={registroEditado.tipoPermiso || ''}
+                  onChange={handleChangeRelacion}
+                  name="tipoPermiso"
+                  required
+                >
+                  <option value="">Seleccionar tipo de permiso...</option>
+                  <option value="permiso de salud">Permiso de Salud</option>
+                  <option value="permiso personal">Permiso Personal</option>
+                  <option value="licencia no remunerada">Licencia No Remunerada</option>
+                  <option value="licencia remunerada">Licencia Remunerada</option>
+                  <option value="banco de tiempo">Banco de Tiempo</option>
+                </select>
+              </div>
+            )}
           </div>          {/* Horas en grid responsive */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div className="space-y-2">

@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import { Sidebar } from "../components/Sidebar";
 import { Input, Textarea, Button, Card } from "../components/ui/index";
 import Select from 'react-select';
+import {plantillaActividades} from "../components/templates/PlantillasActividades";
 import {
   Clock,
   Trash2,
@@ -16,9 +17,6 @@ import {
   Moon,
   Timer,
   Zap,
-  Users,
-  Coffee,
-  Utensils,
   Plus
 } from 'lucide-react';
 
@@ -26,71 +24,7 @@ import {
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
 // Plantillas de actividades predefinidas editables
-const PLANTILLAS_ACTIVIDADES = [
-  {
-    id: 'reunion-inicial',
-    nombre: 'Reunión Inicial',
-    descripcion: 'Reunión diaria de inicio de turno',
-    color: 'from-blue-500 to-blue-600',
-    icono: <Users className="w-4 h-4" />,
-    horasSugeridas: { inicio: '07:00', fin: '07:15' },
-    procesoDefecto: 'Reunion Inicial', // Nombre por defecto del proceso
-    busquedaProceso: ['reunion', 'reunión', 'inicial', 'coordinacion', 'coordinación', 'planificacion', 'planificación', 'inicio'],
-    template: {
-      oti: 'VR',
-      areaProduccion: '', // Se configurará automáticamente
-      procesos: [], // Se configurará automáticamente
-      maquina: [], // Se configurará automáticamente
-      insumos: [],
-      tipoTiempo: 'Preparación',
-      horaInicio: '', // Editable
-      horaFin: '', // Editable
-      observaciones: ''
-    }
-  },
-  {
-    id: 'desayuno',
-    nombre: 'Desayuno',
-    descripcion: 'Tiempo de alimentación - desayuno',
-    color: 'from-orange-500 to-orange-600',
-    icono: <Coffee className="w-4 h-4" />,
-    horasSugeridas: { inicio: '10:00', fin: '10:20' },
-    procesoDefecto: 'Desayuno',
-    busquedaProceso: ['desayuno', 'alimentacion', 'alimentación', 'comida', 'merienda', 'refrigerio'],
-    template: {
-      oti: 'VR',
-      areaProduccion: '',
-      procesos: [],
-      maquina: [],
-      insumos: [],
-      tipoTiempo: 'Alimentación',
-      horaInicio: '',
-      horaFin: '',
-      observaciones: ''
-    }
-  },
-  {
-    id: 'almuerzo',
-    nombre: 'Almuerzo',
-    descripcion: 'Tiempo de alimentación - almuerzo',
-    color: 'from-green-500 to-green-600',
-    icono: <Utensils className="w-4 h-4" />,
-    horasSugeridas: { inicio: '13:00', fin: '13:35' },
-    procesoDefecto: 'Almuerzo',
-    busquedaProceso: ['almuerzo', 'alimentacion', 'alimentación', 'comida', 'lunch'],
-    template: {
-      oti: 'VR',
-      areaProduccion: '',
-      procesos: [],
-      maquina: [],
-      insumos: [],
-      tipoTiempo: 'Alimentación',
-      horaInicio: '',
-      horaFin: '',
-      observaciones: ''
-    }
-  }
-];
+const PLANTILLAS_ACTIVIDADES = plantillaActividades;
 
 // Componente separado para cada actividad
 const ActividadCard = ({
@@ -530,8 +464,35 @@ const ActividadCard = ({
                 <option value="Preparación">Preparación (Ej. limpieza, reuniones, alistamiento de herramientas)</option>
                 <option value="Alimentación">Alimentación (Ej. desayuno, almuerzo)</option>
                 <option value="Capacitación">Capacitación</option>
+                <option value="Permiso Laboral">Permiso Laboral</option>
               </Input>
             </div>
+
+            {/* Campo condicional para tipo de permiso */}
+            {actividad.tipoTiempo === 'Permiso Laboral' && (
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-m font-medium text-gray-700">
+                  <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                  Tipo de Permiso *
+                </label>
+                <Input
+                  as="select"
+                  name="tipoPermiso"
+                  value={actividad.tipoPermiso || ""}
+                  onChange={(e) => onActividadChange(index, e)}
+                  className="transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 h-10 text-sm border-gray-300 rounded-lg"
+                  required
+                >
+                  <option value="">Seleccionar tipo de permiso...</option>
+                  <option value="permiso de salud">Permiso de Salud</option>
+                  <option value="permiso personal">Permiso Personal</option>
+                  <option value="licencia no remunerada">Licencia No Remunerada</option>
+                  <option value="licencia remunerada">Licencia Remunerada</option>
+                  <option value="banco de tiempo">Banco de Tiempo</option>
+                </Input>
+              </div>
+            )}
+
             <div className="space-y-2">
               <label className="flex items-center gap-2 text-m font-medium text-gray-700">
                 <span className="w-2 h-2 bg-red-500 rounded-full"></span>
@@ -889,6 +850,7 @@ export default function RegistroProduccion() {
       maquina: [],
       insumos: [],
       tipoTiempo: "",
+      tipoPermiso: "",
       horaInicio: "",
       horaFin: "",
       tiempo: 0,
@@ -1319,6 +1281,12 @@ export default function RegistroProduccion() {
           } else {
             updatedAct.tiempo = 0;
           }
+        } else if (name === 'tipoTiempo') {
+          updatedAct[name] = value;
+          // Limpiar tipoPermiso si no es "Permiso Laboral"
+          if (value !== 'Permiso Laboral') {
+            updatedAct.tipoPermiso = '';
+          }
         } else {
           updatedAct[name] = value;
         }
@@ -1349,6 +1317,7 @@ export default function RegistroProduccion() {
       maquina: [],
       insumos: [],
       tipoTiempo: "",
+      tipoPermiso: "",
       horaInicio: "",
       horaFin: "",
       tiempo: 0,
@@ -1490,6 +1459,7 @@ export default function RegistroProduccion() {
       maquina: [...(actividadOriginal.maquina || [])],
       insumos: [...(actividadOriginal.insumos || [])],
       tipoTiempo: actividadOriginal.tipoTiempo,
+      tipoPermiso: actividadOriginal.tipoPermiso,
       horaInicio: actividadOriginal.horaInicio,
       horaFin: actividadOriginal.horaFin,
       tiempo: actividadOriginal.tiempo,
@@ -1556,6 +1526,9 @@ export default function RegistroProduccion() {
       if (!actividad.procesos || actividad.procesos.length === 0) camposFaltantes.push('Proceso(s)');
       if (!actividad.insumos || actividad.insumos.length === 0) camposFaltantes.push('Insumo(s)');
       if (!actividad.tipoTiempo) camposFaltantes.push('Tipo de Tiempo');
+      if (actividad.tipoTiempo === 'Permiso Laboral' && !actividad.tipoPermiso) {
+        camposFaltantes.push('Tipo de Permiso');
+      }
       if (!actividad.horaInicio) camposFaltantes.push('Hora de Inicio');
       if (!actividad.horaFin) camposFaltantes.push('Hora de Fin');
 
@@ -1584,6 +1557,7 @@ export default function RegistroProduccion() {
         procesos: actividad.procesos || [],
         insumos: actividad.insumos || [],
         tipoTiempo: actividad.tipoTiempo,
+        tipoPermiso: actividad.tipoPermiso || null,
         horaInicio: actividad.horaInicio && actividad.horaInicio !== "" ? combinarFechaYHora(jornadaData.fecha, actividad.horaInicio) : null,
         horaFin: actividad.horaFin && actividad.horaFin !== "" ? combinarFechaYHora(jornadaData.fecha, actividad.horaFin) : null,
         tiempo: actividad.tiempo || 0,

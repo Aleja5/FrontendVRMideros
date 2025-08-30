@@ -27,6 +27,7 @@ const columnOptions = [
   { key: 'insumos', label: 'Insumos', defaultVisible: false },
   { key: 'observaciones', label: 'Observaciones', defaultVisible: false },
   { key: 'tipoTiempo', label: 'Tipo de Tiempo', defaultVisible: true },
+  { key: 'tipoPermiso', label: 'Tipo de Permiso', defaultVisible: false },
   { key: 'tiempo', label: 'Tiempo (min)', defaultVisible: true },
 ];
 
@@ -84,6 +85,9 @@ const AdminDashboard = () => {
       }  else if (lowerTipoTiempo.includes('capacitación') || lowerTipoTiempo.includes('capacitación')) {
         bgColor = 'bg-purple-100';
         textColor = 'text-purple-800';
+      } else if (lowerTipoTiempo.includes('permiso laboral') || lowerTipoTiempo.includes('permiso laboral')) {
+        bgColor = 'bg-red-100';
+        textColor = 'text-red-800';
       }
     }
 
@@ -484,6 +488,7 @@ const AdminDashboard = () => {
         Insumos: r.insumos && r.insumos.length > 0 ? r.insumos.map(i => i.nombre).join(', ') : '',
         Operario: r.operario?.name || '',
         'Tipo de Tiempo': r.tipoTiempo || '',
+        'Tipo de Permiso': r.tipoPermiso || '',
         'Hora Inicio': r.horaInicio ? new Date(r.horaInicio).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
         'Hora Fin': r.horaFin ? new Date(r.horaFin).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
         Tiempo: r.tiempo,
@@ -700,6 +705,7 @@ const AdminDashboard = () => {
                               {columnVisibility.insumos && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider whitespace-nowrap" style={{minWidth: '150px'}}>Insumos</th>}
                               {columnVisibility.observaciones && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider whitespace-nowrap" style={{minWidth: '200px'}}>Observaciones</th>}
                               {columnVisibility.tipoTiempo && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider whitespace-nowrap" style={{minWidth: '120px'}}>Tipo de Tiempo</th>}
+                              {columnVisibility.tipoPermiso && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider whitespace-nowrap" style={{minWidth: '120px'}}>Tipo de Permiso</th>}
                               {columnVisibility.tiempo && <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider whitespace-nowrap" style={{minWidth: '100px'}}>Tiempo (min)</th>}
                             </tr>
                           </thead>{/* Ensured no space after thead */}
@@ -740,6 +746,7 @@ const AdminDashboard = () => {
                                 ) : null}
                                 {columnVisibility.observaciones ? <td className="px-4 py-4 text-sm text-gray-700" style={{minWidth: '200px'}}><div className="break-words">{r.observaciones || ''}</div></td> : null}
                                 {columnVisibility.tipoTiempo ? <td className="px-4 py-4 text-sm text-gray-700 text-center" style={{minWidth: '120px'}}>{getTipoTiempoBadge(r.tipoTiempo)}</td> : null}
+                                {columnVisibility.tipoPermiso ? <td className="px-4 py-4 text-sm text-gray-700 text-center" style={{minWidth: '120px'}}>{r.tipoPermiso || '-'}</td> : null}
                                 {columnVisibility.tiempo ? <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-green-600" style={{minWidth: '100px'}}>{r.tiempo} min</td> : null}
                               </tr>
                             ))}
