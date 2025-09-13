@@ -465,6 +465,7 @@ const ActividadCard = ({
                 <option value="Alimentación">Alimentación (Ej. desayuno, almuerzo)</option>
                 <option value="Capacitación">Capacitación</option>
                 <option value="Permiso Laboral">Permiso Laboral</option>
+                <option value="Horario Laboral"> Horario Laboral</option>
               </Input>
             </div>
 
@@ -484,11 +485,8 @@ const ActividadCard = ({
                   required
                 >
                   <option value="">Seleccionar tipo de permiso...</option>
-                  <option value="permiso de salud">Permiso de Salud</option>
-                  <option value="permiso personal">Permiso Personal</option>
-                  <option value="licencia no remunerada">Licencia No Remunerada</option>
-                  <option value="licencia remunerada">Licencia Remunerada</option>
-                  <option value="banco de tiempo">Banco de Tiempo</option>
+                  <option value="permiso remunerado">Permiso Remunerado</option>
+                  <option value="permiso NO remunerado">Permiso NO Remunerado</option>
                 </Input>
               </div>
             )}
@@ -544,15 +542,29 @@ const ActividadCard = ({
           {/* Observaciones */}
           <div className="flex items-center gap-2 mb-3">
             <div className="w-2 h-2 bg-gray-500 rounded-full"></div>
-            <h4 className="font-semibold text-gray-700 text-sm">Observaciones</h4>
+            <h4 className="font-semibold text-gray-700 text-sm">
+              Observaciones
+              {actividad.tipoTiempo === 'Permiso Laboral' && (
+                <span className="text-red-500 ml-1">*</span>
+              )}
+            </h4>
           </div>
           <Textarea
             name="observaciones"
             value={actividad.observaciones || ''}
             onChange={(e) => onActividadChange(index, e)}
-            placeholder="Notas adicionales sobre la actividad..."
+            placeholder={
+              actividad.tipoTiempo === 'Permiso Laboral' 
+                ? "MOTIVO DEL PERMISO: (Campo obligatorio para permisos laborales)"
+                : "Notas adicionales sobre la actividad..."
+            }
             rows={3}
-            className="transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none text-sm border-gray-300 rounded-lg"
+            className={`transition-all duration-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none text-sm border-gray-300 rounded-lg ${
+              actividad.tipoTiempo === 'Permiso Laboral' 
+                ? 'border-red-300 bg-red-50 placeholder-red-400' 
+                : ''
+            }`}
+            required={actividad.tipoTiempo === 'Permiso Laboral'}
           />
         </div>
       </div>
@@ -1528,6 +1540,10 @@ export default function RegistroProduccion() {
       if (!actividad.tipoTiempo) camposFaltantes.push('Tipo de Tiempo');
       if (actividad.tipoTiempo === 'Permiso Laboral' && !actividad.tipoPermiso) {
         camposFaltantes.push('Tipo de Permiso');
+      }
+      // Validación condicional para observaciones: obligatorias solo para "Permiso Laboral"
+      if (actividad.tipoTiempo === 'Permiso Laboral' && (!actividad.observaciones || actividad.observaciones.trim() === '')) {
+        camposFaltantes.push('Observaciones (requeridas para permisos laborales)');
       }
       if (!actividad.horaInicio) camposFaltantes.push('Hora de Inicio');
       if (!actividad.horaFin) camposFaltantes.push('Hora de Fin');

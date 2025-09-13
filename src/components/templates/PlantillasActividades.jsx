@@ -13,11 +13,11 @@ export const plantillaActividades = [
     busquedaProceso: ['horario', 'laboral', 'entrada', 'salida', 'asistencia', 'turno', 'jornada'],
     template: {
       oti: 'VR',
-      areaProduccion: '',
+      areaProduccion: 'Administración', // Se configurará automáticamente
       procesos: [],
       maquina: [],
       insumos: [],
-      tipoTiempo: 'Preparación',
+      tipoTiempo: 'Horario Laboral',
       horaInicio: '',
       horaFin: '',
       observaciones: 'Control de horario laboral - Entrada y salida'
@@ -106,7 +106,7 @@ export const plantillaActividades = [
       tipoPermiso: '',
       horaInicio: '',
       horaFin: '',
-      observaciones: ''
+      observaciones: '' 
     }
   }
 ];

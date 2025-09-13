@@ -822,6 +822,7 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
                 <option value="Alimentación">Alimentación</option>
                 <option value="Capacitación">Capacitación</option>
                 <option value="Permiso Laboral">Permiso Laboral</option>
+                <option value="Horario Laboral"> Horario Laboral</option>
               </select>
             </div>
 
@@ -838,11 +839,8 @@ function EditarProduccion({ produccion: produccionProp, onClose, onGuardar, invo
                   required
                 >
                   <option value="">Seleccionar tipo de permiso...</option>
-                  <option value="permiso de salud">Permiso de Salud</option>
-                  <option value="permiso personal">Permiso Personal</option>
-                  <option value="licencia no remunerada">Licencia No Remunerada</option>
-                  <option value="licencia remunerada">Licencia Remunerada</option>
-                  <option value="banco de tiempo">Banco de Tiempo</option>
+                  <option value="permiso remunerado">Permiso Remunerado</option>
+                  <option value="permiso NO remunerado">Permiso NO Remunerado</option>
                 </select>
               </div>
             )}
