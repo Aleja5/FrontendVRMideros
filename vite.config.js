@@ -15,4 +15,21 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    rollupOptions: {
+      external: [],
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          xlsx: ['xlsx', 'xlsx-js-style']
+        }
+      }
+    },
+    commonjsOptions: {
+      include: [/xlsx/, /node_modules/]
+    }
+  },
+  optimizeDeps: {
+    include: ['xlsx-js-style']
+  }
 });
