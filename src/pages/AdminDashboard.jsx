@@ -85,10 +85,10 @@ const AdminDashboard = () => {
       }  else if (lowerTipoTiempo.includes('capacitación') || lowerTipoTiempo.includes('capacitación')) {
         bgColor = 'bg-purple-100';
         textColor = 'text-purple-800';
-      } else if (lowerTipoTiempo.includes('permiso laboral') || lowerTipoTiempo.includes('permiso laboral')) {
+      } else if (lowerTipoTiempo.includes('permiso laboral')) {
         bgColor = 'bg-red-100';
         textColor = 'text-red-800';
-      } else if (lowerTipoTiempo.includes('horario laboral') || lowerTipoTiempo.includes('horario laboral')) {
+      } else if (lowerTipoTiempo.includes('horario laboral')) {
         bgColor = 'bg-purple-200';
         textColor = 'text-purple-800';
       }

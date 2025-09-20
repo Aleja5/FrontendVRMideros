@@ -51,7 +51,7 @@ const TablaJornadasRecientes = ({ jornadas, loading, navigate }) => {
     );
   }
 
-        if (!jornadas || jornadas.length === 0) {
+        if (!jornadas || !Array.isArray(jornadas) || jornadas.length === 0) {
     return (
       <div className="flex justify-center items-center h-48 bg-white rounded-lg shadow">
         <p className="text-gray-500">No hay jornadas recientes para mostrar</p>
@@ -142,10 +142,13 @@ const TablaJornadasRecientes = ({ jornadas, loading, navigate }) => {
 
         // Obtener jornadas recientes
         const jornadasResponse = await axiosInstance.get('/jornadas?limit=5&sort=fecha:desc');
-        setJornadasRecientes(jornadasResponse.data);
+        // El backend devuelve {jornadas: [...], pagination: {...}}
+        const jornadasData = jornadasResponse.data.jornadas || jornadasResponse.data;
+        setJornadasRecientes(Array.isArray(jornadasData) ? jornadasData : []);
       } catch (error) {
         console.error("Error al cargar datos del dashboard:", error);
         toast.error("No se pudieron cargar los datos del dashboard.");
+        setJornadasRecientes([]);
       } finally {
         setLoading(false);
       }

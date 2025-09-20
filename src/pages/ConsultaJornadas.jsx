@@ -19,6 +19,12 @@ const parseLocalDate = (dateString) => {
   return new Date(year, month - 1, day); // Month is 0-indexed
 };
 
+// Helper function to capitalize the first letter of a string
+const capitalizeFirstLetter = (str) => {
+  if (!str) return str;
+  return str.charAt(0).toUpperCase() + str.slice(1);
+};
+
     const ConsultaJornadas = () => {
   const navigate = useNavigate(); // Initialize navigate
   const [jornadas, setJornadas] = useState([]);
@@ -39,7 +45,10 @@ const parseLocalDate = (dateString) => {
         try {
       // Add cache-busting parameter
       const timestamp = Date.now();      const response = await axiosInstance.get(`/jornadas?t=${timestamp}`);
-      setJornadas(response.data);
+      
+      // El backend devuelve {jornadas: [...], pagination: {...}}
+      const jornadasData = response.data.jornadas || response.data;
+      setJornadas(Array.isArray(jornadasData) ? jornadasData : []);
       setLastUpdated(new Date());
       // REMOVED: console.log
     } catch (error) {
@@ -117,7 +126,7 @@ const parseLocalDate = (dateString) => {
         permisos.forEach(permiso => {
           const horaInicioPermiso = permiso.horaInicio ? new Date(permiso.horaInicio).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : '';
           const horaFinPermiso = permiso.horaFin ? new Date(permiso.horaFin).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : '';
-          const tipoPermiso = permiso.tipoPermiso || '';
+          const tipoPermiso = capitalizeFirstLetter(permiso.tipoPermiso) || '';
           const tiempoPermisoMinutos = permiso.tiempo || 0;
           const tiempoPermisoFormateado = tiempoPermisoMinutos > 0 
             ? `${Math.floor(tiempoPermisoMinutos / 60)}h ${tiempoPermisoMinutos % 60}m`
@@ -125,9 +134,12 @@ const parseLocalDate = (dateString) => {
           
           // Calcular tiempo efectivo según el tipo de permiso
           let tiempoEfectivoMinutos;
-          let tiempoEfectivoFormateado;
+          let tiempoEfectivoFormateado;          
           
-          if (tipoPermiso === 'permiso remunerado') {
+          // Comparar con el valor original del backend (sin capitalizar) para el cálculo
+          const tipoPermisoOriginal = permiso.tipoPermiso || '';
+          
+          if (tipoPermisoOriginal.toLowerCase() === 'permiso remunerado') {
             // Para permisos remunerados, NO descontar del tiempo total
             tiempoEfectivoMinutos = tiempoTotalJornadaMinutos;
             tiempoEfectivoFormateado = tiempoTotalJornadaFormateado;
@@ -267,7 +279,7 @@ const parseLocalDate = (dateString) => {
     setJornadasTablePage(newPage);
   };
 
-    const filteredJornadas = jornadas
+    const filteredJornadas = (Array.isArray(jornadas) ? jornadas : [])
     .filter(j => {
       const tieneRegistros = j.registros && j.registros.length > 0;
       const coincideBusquedaOperario = !jornadaSearch || (j.operario?.name || "").toLowerCase().includes(jornadaSearch.toLowerCase());
@@ -315,7 +327,7 @@ const parseLocalDate = (dateString) => {
   filteredJornadas.forEach(j => {
     const permisos = j.registros?.filter(registro => registro.tipoTiempo === 'Permiso Laboral') || [];
     permisos.forEach(permiso => {
-      const tipo = permiso.tipoPermiso || 'Sin especificar';
+      const tipo = capitalizeFirstLetter(permiso.tipoPermiso) || 'Sin especificar';
       tipoPermisosStats[tipo] = (tipoPermisosStats[tipo] || 0) + 1;
     });
   });
@@ -439,7 +451,7 @@ const parseLocalDate = (dateString) => {
                         
                         // Tipo de Permiso
                         const tipoPermiso = permisos.length > 0 ? (
-                          permisos.map(p => p.tipoPermiso || 'Sin especificar').join('\n')
+                          permisos.map(p => capitalizeFirstLetter(p.tipoPermiso) || 'Sin especificar').join('\n')
                         ) : '-';
                         
                         // Observaciones de Permiso
@@ -482,7 +494,7 @@ const parseLocalDate = (dateString) => {
                             
                             {/* Observaciones de Permiso */}
                             <td className="p-3 max-w-xs" style={{ whiteSpace: 'pre-line' }}>
-                              <div className="truncate" title={observacionesPermiso}>
+                              <div title={observacionesPermiso}>
                                 {observacionesPermiso}
                               </div>
                             </td>
@@ -491,11 +503,7 @@ const parseLocalDate = (dateString) => {
                             <td className="p-3 whitespace-nowrap">
                               <div className="flex flex-col">
                                 <span className="font-medium text-green-600">{tiempoTotalAPagar}</span>
-                                {permisos.some(p => p.tipoPermiso === 'permiso NO remunerado') && (
-                                  <span className="text-xs text-gray-500">
-                                    (Descontado permiso no remunerado)
-                                  </span>
-                                )}
+                                                             
                               </div>
                             </td>
                             
