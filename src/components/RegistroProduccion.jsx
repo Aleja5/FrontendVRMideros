@@ -465,7 +465,7 @@ const ActividadCard = ({
                 <option value="Alimentación">Alimentación (Ej. desayuno, almuerzo)</option>
                 <option value="Capacitación">Capacitación</option>
                 <option value="Permiso Laboral">Permiso Laboral</option>
-                <option value="Horario Laboral"> Horario Laboral</option>
+                <option value="Horario Laboral">Horario Laboral</option>
               </Input>
             </div>
 
