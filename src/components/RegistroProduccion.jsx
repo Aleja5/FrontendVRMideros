@@ -843,6 +843,7 @@ export default function RegistroProduccion() {
   const [actividadesWithErrors, setActividadesWithErrors] = useState(new Set());
   const [esDuplicacion, setEsDuplicacion] = useState(false);
   const [datosJornadaOriginal, setDatosJornadaOriginal] = useState(null);
+  const [formError, setFormError] = useState(null); // Para mostrar errores prominentes en la UI
 
   const [jornadaData, setJornadaData] = useState({
     fecha: (() => {
@@ -1515,6 +1516,9 @@ export default function RegistroProduccion() {
   const handleSubmitJornada = async (e) => {
     e.preventDefault();
     setCurrentStep(3);
+    
+    // Limpiar error previo al intentar guardar de nuevo
+    setFormError(null);
 
     // Disparar validación visual en todos los componentes
     setTriggerValidation(prev => !prev);
@@ -1596,14 +1600,69 @@ export default function RegistroProduccion() {
 
       if (!response.ok) {
         console.error('Error del backend:', result);
-        toast.error(`Error al guardar la jornada: ${result.error || result.msg || "Error inesperado"}`);
+        
+        // Manejo específico de errores conocidos
+        let errorMessage = "Error inesperado";
+        
+        if (result.error || result.msg) {
+          const errorText = result.error || result.msg;
+          
+          // Verificar si es el error específico de horario laboral duplicado
+          if (errorText.includes('Ya existe un registro con el proceso "Horario Laboral"') || 
+              errorText.includes('Ya existe un registro de Horario Laboral')) {
+            errorMessage = "❌ No se puede guardar: Ya registraste un proceso 'Horario Laboral' para esta fecha. Solo se permite un proceso de horario laboral por día.";
+          } else if (errorText.includes('HORARIO_DUPLICADO') || result.code === 'HORARIO_DUPLICADO') {
+            errorMessage = "❌ No se puede guardar: Ya existe un proceso de horario laboral registrado para esta fecha.";
+          } else if (errorText.includes('Hubo un error al guardar la jornada completa')) {
+            // Mostrar detalles adicionales si están disponibles
+            const details = result.details ? ` Detalles: ${result.details}` : '';
+            errorMessage = `❌ Error al procesar la jornada.${details}`;
+          } else if (errorText.includes('validation failed')) {
+            errorMessage = `❌ Error de validación: ${errorText}`;
+          } else {
+            errorMessage = `❌ Error al guardar: ${errorText}`;
+          }
+        }
+        
+        // Mostrar error tanto en toast como en el formulario
+        setFormError(errorMessage);
+        toast.error(errorMessage, {
+          autoClose: 8000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
         setLoading(false);
         return;
-      } toast.success("Jornada guardada exitosamente");
+      } 
+      
+      // Limpiar cualquier error previo
+      setFormError(null);
+      
+      toast.success("✅ Jornada guardada exitosamente", {
+        autoClose: 4000,
+      });
       navigate("/historial-jornadas");
     } catch (error) {
       console.error('Error en la petición:', error);
-      toast.error("No se pudo guardar la jornada. Intenta de nuevo más tarde.");
+      
+      // Manejo específico de errores de conexión
+      let connectionErrorMessage;
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        connectionErrorMessage = "❌ Error de conexión: No se pudo conectar con el servidor. Verifica tu conexión a internet.";
+        toast.error(connectionErrorMessage, {
+          autoClose: 6000,
+        });
+      } else {
+        connectionErrorMessage = "❌ Error inesperado: No se pudo guardar la jornada. Intenta de nuevo más tarde.";
+        toast.error(connectionErrorMessage, {
+          autoClose: 5000,
+        });
+      }
+      
+      // Mostrar también en el formulario
+      setFormError(connectionErrorMessage);
     } finally {
       setLoading(false);
     }
@@ -1898,6 +1957,34 @@ export default function RegistroProduccion() {
                   <p className="text-sm text-gray-600">Guarda todas las actividades registradas en esta jornada</p>
                 </div>
               </div>
+              
+              {/* Mostrar error prominente en la UI */}
+              {formError && (
+                <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0">
+                      <svg className="w-5 h-5 text-red-400 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-sm font-medium text-red-800 mb-1">Error al guardar la jornada</h3>
+                      <p className="text-sm text-red-700">{formError}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setFormError(null)}
+                      className="flex-shrink-0 ml-2 text-red-400 hover:text-red-500 transition-colors"
+                    >
+                      <span className="sr-only">Cerrar</span>
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              )}
+              
               <div className="flex justify-center items-center">
                 <Button
                   type="submit"

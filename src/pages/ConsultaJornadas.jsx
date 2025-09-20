@@ -121,74 +121,67 @@ const capitalizeFirstLetter = (str) => {
         registro.tipoTiempo === 'Permiso Laboral'
       ) || [];
 
-      if (permisos.length > 0) {
-        // Si hay permisos, crear una fila por cada permiso
-        permisos.forEach(permiso => {
-          const horaInicioPermiso = permiso.horaInicio ? new Date(permiso.horaInicio).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : '';
-          const horaFinPermiso = permiso.horaFin ? new Date(permiso.horaFin).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : '';
-          const tipoPermiso = capitalizeFirstLetter(permiso.tipoPermiso) || '';
-          const tiempoPermisoMinutos = permiso.tiempo || 0;
-          const tiempoPermisoFormateado = tiempoPermisoMinutos > 0 
-            ? `${Math.floor(tiempoPermisoMinutos / 60)}h ${tiempoPermisoMinutos % 60}m`
-            : '';
-          
-          // Calcular tiempo efectivo según el tipo de permiso
-          let tiempoEfectivoMinutos;
-          let tiempoEfectivoFormateado;          
-          
-          // Comparar con el valor original del backend (sin capitalizar) para el cálculo
-          const tipoPermisoOriginal = permiso.tipoPermiso || '';
-          
-          if (tipoPermisoOriginal.toLowerCase() === 'permiso remunerado') {
-            // Para permisos remunerados, NO descontar del tiempo total
-            tiempoEfectivoMinutos = tiempoTotalJornadaMinutos;
-            tiempoEfectivoFormateado = tiempoTotalJornadaFormateado;
-          } else {
-            // Para permisos NO remunerados, SÍ descontar del tiempo total
-            tiempoEfectivoMinutos = tiempoTotalJornadaMinutos - tiempoPermisoMinutos;
-            tiempoEfectivoFormateado = tiempoEfectivoMinutos > 0 
-              ? `${Math.floor(tiempoEfectivoMinutos / 60)}h ${tiempoEfectivoMinutos % 60}m`
-              : '';
-          }
-          
-          // Convertir tiempo efectivo a horas decimales
-          const tiempoEfectivoHorasDecimales = minutosAHorasDecimales(tiempoEfectivoMinutos);
+      // Agrupar permisos por tipo y calcular totales
+      let totalPermisosRemunerados = 0;
+      let totalPermisosNoRemunerados = 0;
+      let permisosRemuneradosInfo = [];
+      let permisosNoRemuneradosInfo = [];
+      let todasObservaciones = [];
 
-          datosParaExcel.push({
-            'Fecha': fechaStr,
-            'Operario': operarioNombre,
-            'Inicio jornada': horaInicioJornada,
-            'Fin Jornada': horaFinJornada,
-            'Total Jornada': tiempoTotalJornadaFormateado,
-            'Inicio Permiso': horaInicioPermiso,
-            'Fin Permiso': horaFinPermiso,
-            'Total Permiso': tiempoPermisoFormateado,
-            'Tipo de permiso': tipoPermiso,
-            'Observaciones Permiso': permiso.observaciones || '',
-            'Tiempo Total a Pagar': tiempoEfectivoFormateado,
-            'Tiempo Total a Pagar EN HORAS': tiempoEfectivoHorasDecimales
-          });
-        });
-      } else {
-        // Si no hay permisos, crear una fila con datos de jornada solamente
-        // Convertir tiempo total de jornada a horas decimales
-        const tiempoTotalHorasDecimales = minutosAHorasDecimales(tiempoTotalJornadaMinutos);
+      permisos.forEach(permiso => {
+        const tiempoPermisoMinutos = permiso.tiempo || 0;
+        const tipoPermisoOriginal = (permiso.tipoPermiso || '').toLowerCase();
         
-        datosParaExcel.push({
-          'Fecha': fechaStr,
-          'Operario': operarioNombre,
-          'Inicio jornada': horaInicioJornada,
-          'Fin Jornada': horaFinJornada,
-          'Total Jornada': tiempoTotalJornadaFormateado,
-          'Inicio Permiso': '-',
-          'Fin Permiso': '-',
-          'Total Permiso': '-',
-          'Tipo de permiso': '-',
-          'Observaciones Permiso': '-',
-          'Tiempo Total a Pagar': tiempoTotalJornadaFormateado,
-          'Tiempo Total a Pagar EN HORAS': tiempoTotalHorasDecimales
-        });
-      }
+        if (tipoPermisoOriginal === 'permiso remunerado') {
+          totalPermisosRemunerados += tiempoPermisoMinutos;
+          const horaInicio = permiso.horaInicio ? new Date(permiso.horaInicio).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : '';
+          const horaFin = permiso.horaFin ? new Date(permiso.horaFin).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : '';
+          permisosRemuneradosInfo.push(`${horaInicio}-${horaFin}`);
+        } else if (tipoPermisoOriginal === 'permiso no remunerado') {
+          totalPermisosNoRemunerados += tiempoPermisoMinutos;
+          const horaInicio = permiso.horaInicio ? new Date(permiso.horaInicio).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : '';
+          const horaFin = permiso.horaFin ? new Date(permiso.horaFin).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : '';
+          permisosNoRemuneradosInfo.push(`${horaInicio}-${horaFin}`);
+        }
+        
+        if (permiso.observaciones && permiso.observaciones.trim()) {
+          todasObservaciones.push(permiso.observaciones.trim());
+        }
+      });
+
+      // Formatear tiempos de permisos
+      const totalPermisosRemuneradosFormateado = totalPermisosRemunerados > 0 
+        ? `${Math.floor(totalPermisosRemunerados / 60)}h ${totalPermisosRemunerados % 60}m`
+        : '0h 0m';
+        
+      const totalPermisosNoRemuneradosFormateado = totalPermisosNoRemunerados > 0 
+        ? `${Math.floor(totalPermisosNoRemunerados / 60)}h ${totalPermisosNoRemunerados % 60}m`
+        : '0h 0m';
+
+      // Calcular tiempo efectivo a pagar: Jornada - Permisos NO Remunerados
+      const tiempoEfectivoMinutos = tiempoTotalJornadaMinutos - totalPermisosNoRemunerados;
+      const tiempoEfectivoFormateado = tiempoEfectivoMinutos > 0 
+        ? `${Math.floor(tiempoEfectivoMinutos / 60)}h ${tiempoEfectivoMinutos % 60}m`
+        : '0h 0m';
+      
+      // Convertir tiempo efectivo a horas decimales
+      const tiempoEfectivoHorasDecimales = minutosAHorasDecimales(tiempoEfectivoMinutos);
+
+      // Crear una sola fila por jornada (fecha + operario)
+      datosParaExcel.push({
+        'Fecha': fechaStr,
+        'Operario': operarioNombre,
+        'Inicio jornada': horaInicioJornada,
+        'Fin Jornada': horaFinJornada,
+        'Total Jornada': tiempoTotalJornadaFormateado,
+        'Permisos Remunerados': totalPermisosRemuneradosFormateado,
+        'Horarios P. Remunerados': permisosRemuneradosInfo.join(', ') || '-',
+        'Permisos NO Remunerados': totalPermisosNoRemuneradosFormateado,
+        'Horarios P. NO Remunerados': permisosNoRemuneradosInfo.join(', ') || '-',
+        'Observaciones Permisos': todasObservaciones.join(' | ') || '-',
+        'Tiempo Total a Pagar': tiempoEfectivoFormateado,
+        'Tiempo Total a Pagar EN HORAS': tiempoEfectivoHorasDecimales
+      });
     });
 
     try {
@@ -198,16 +191,16 @@ const capitalizeFirstLetter = (str) => {
       const columnWidths = [
         { wch: 12 }, // Fecha
         { wch: 30 }, // Operario
-        { wch: 10 }, // Inicio jornada
-        { wch: 10 }, // Fin Jornada
+        { wch: 12 }, // Inicio jornada
+        { wch: 12 }, // Fin Jornada
         { wch: 15 }, // Total Jornada
-        { wch: 10 }, // Inicio Permiso
-        { wch: 10 }, // Fin Permiso
-        { wch: 15 }, // Total Permiso
-        { wch: 20 }, // Tipo de permiso  
-        { wch: 20 }, // Observaciones Permiso      
-        { wch: 15 }, // Tiempo Total a Pagar
-        { wch: 20 }  // Tiempo Total a Pagar EN HORAS (formato decimal)
+        { wch: 18 }, // Permisos Remunerados
+        { wch: 25 }, // Horarios P. Remunerados
+        { wch: 20 }, // Permisos NO Remunerados
+        { wch: 25 }, // Horarios P. NO Remunerados  
+        { wch: 30 }, // Observaciones Permisos      
+        { wch: 18 }, // Tiempo Total a Pagar
+        { wch: 25 }  // Tiempo Total a Pagar EN HORAS (formato decimal)
       ];
       ws['!cols'] = columnWidths;
 
@@ -248,10 +241,13 @@ const capitalizeFirstLetter = (str) => {
             if (C === 4) { // Total Jornada
               cellStyle.fill = { fgColor: { rgb: "E8F5E8" } };
               cellStyle.font = { color: { rgb: "2E7D32" } };
-            } else if (C === 8) { // Total Permiso
-              cellStyle.fill = { fgColor: { rgb: "FFF3E0" } };
-              cellStyle.font = { color: { rgb: "F57C00" } };
-            } else if (C === 9 || C === 10) { // Tiempo Total y EN MINUTOS
+            } else if (C === 5) { // Permisos Remunerados
+              cellStyle.fill = { fgColor: { rgb: "E3F2FD" } };
+              cellStyle.font = { color: { rgb: "1565C0" } };
+            } else if (C === 7) { // Permisos NO Remunerados
+              cellStyle.fill = { fgColor: { rgb: "FFEBEE" } };
+              cellStyle.font = { color: { rgb: "C62828" } };
+            } else if (C === 10 || C === 11) { // Tiempo Total a Pagar
               cellStyle.fill = { fgColor: { rgb: "F3E5F5" } };
               cellStyle.font = { color: { rgb: "7B1FA2" } };
             }
