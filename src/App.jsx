@@ -6,7 +6,7 @@ import Login from './pages/Login';
 import ForgotPassword from './pages/ForgotPassword';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminHome from './pages/AdminHome';
-import ConsultaJornadas from './pages/ConsultaJornadas';
+import ConsultaJornadasOptimized from './pages/ConsultaJornadasOptimized';
 import ValidateCedula from './pages/ValidateCedula';
 import OperarioDashboard from './pages/OperarioDashboard';
 import RegistroProduccion from './components/RegistroProduccion';
@@ -67,7 +67,7 @@ function App() {
           path="/admin/jornadas"
           element={
             <ProtectedRoute allowedRoles={['admin']}>
-              <ConsultaJornadas />
+              <ConsultaJornadasOptimized />
             </ProtectedRoute>
           }
         />
